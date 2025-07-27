@@ -1,17 +1,7 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   minishell.h                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/27 15:37:48 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/07/27 15:40:41 by nuciftci         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef MINISHELL_H
 # define MINISHELL_H
+
+# include "parser.h"
 
 /* ========================================================================== */
 /*                                KÜTÜPHANELER                                */
@@ -103,6 +93,5 @@ typedef struct s_cmd
 
 // Bu alana projenin ana fonksiyonlarının (lexer, parser, executor vb.)
 // prototipleri eklenecektir.
-
 
 #endif
