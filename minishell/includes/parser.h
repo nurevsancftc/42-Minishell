@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/07/27 19:28:44 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/07/27 19:31:16 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ typedef struct s_redir
 typedef struct s_simple_cmd
 {
 	char	**args;      // Komut ve argümanları (execve'e uygun)
-	t_list	*redirections; // t_redir'lerden oluşan bir liste   //LİBFT DEKİ LİST T_LİST
+	// t_list	*redirections; // t_redir'lerden oluşan bir liste   //LİBFT DEKİ LİST T_LİST
 }	t_simple_cmd;
 
 typedef struct s_cmd_table
