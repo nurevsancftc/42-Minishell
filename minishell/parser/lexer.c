@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:50:10 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/07/27 15:13:47 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/07/27 16:08:21 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,3 +46,4 @@ t_token	*lexer(const char *line)
 	return (token_list_head);
 }
 
+ 
