@@ -1,14 +1,52 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   lexer.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/25 03:50:10 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/07/27 16:08:21 by aldurmaz         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+// parser/lexer.c
+
+#include "minishell.h"
+
+// Metakarakterleri işler ve işlenen karakter sayısını döndürür.
+static int	handle_metachar(const char *line, t_token **token_list)
+{
+	if (*line == '>')
+	{
+		if (*(line + 1) == '>')
+			add_token_to_list(token_list, create_token(">>", TOKEN_REDIR_APPEND));
+		else
+			add_token_to_list(token_list, create_token(">", TOKEN_REDIR_OUT));
+		return (*(line + 1) == '>') ? 2 : 1;
+	}
+	if (*line == '<')
+	{
+		if (*(line + 1) == '<')
+			add_token_to_list(token_list, create_token("<<", TOKEN_HEREDOC));
+		else
+			add_token_to_list(token_list, create_token("<", TOKEN_REDIR_IN));
+		return (*(line + 1) == '<') ? 2 : 1;
+	}
+	if (*line == '|')
+	{
+		add_token_to_list(token_list, create_token("|", TOKEN_PIPE));
+		return (1);
+	}
+	return (0);
+}
+
+// Normal kelimeleri (tırnaklar hariç) işler ve kelimenin uzunluğunu döndürür.
+static int	handle_word(const char *line, t_token **token_list)
+{
+	int		i;
+	char	*word;
+
+	i = 0;
+	// Boşluk, metakarakter veya tırnak görene kadar ilerle.
+	while (line[i] && !is_whitespace(line[i]) && \
+		   !is_metachar(line[i]) && line[i] != '\'' && line[i] != '"')
+	{
+		i++;
+	}
+	word = ft_substr(line, 0, i);
+	add_token_to_list(token_list, create_token(word, TOKEN_WORD));
+	free(word);
+	return (i);
+}
 
 /*
  * LEXER ANA FONKSİYONU
@@ -17,33 +55,38 @@
  * 2. Satırın başından sonuna kadar bir döngü ile ilerler.
  * 3. Her adımda:
  *    a. Boşlukları atlar.
- *    b. Eğer metakarakter (| < >) görürse, handle_metachar() fonksiyonunu çağırır.
- *    c. Eğer alıntı (' veya ") görürse, handle_quotes() fonksiyonunu çağırır.
- *    d. Diğer durumlarda (normal harf/rakam), bunu bir kelimenin başlangıcı
- *       olarak kabul eder ve handle_word() fonksiyonunu çağırır.
- * 4. Helper fonksiyonlar (handle_...) işledikleri kısmın uzunluğunu döndürür.
+ *    b. Metakarakterleri, alıntıları veya kelimeleri işlemek için
+ *       ilgili yardımcı fonksiyonları çağırır.
+ * 4. Helper fonksiyonlar işledikleri kısmın uzunluğunu döndürür.
  *    Döngü bu uzunluk kadar ilerletilir.
- * 5. Satırın sonuna gelindiğinde, oluşturulan token listesinin başını döndürür.
+ * 5. Satırın sonuna gelindiğinde, oluşturulan token listesini döndürür.
 */
-
-#include "minishell.h"
-#include "parser.h"
-
 t_token	*lexer(const char *line)
 {
-	t_token	*token_list_head; // Token listemizin başı
-	int		i;     // Satırda ilerlemek için index
+	t_token	*token_list;
+	int		i;
+	int		processed_len;
 
-	token_list_head = NULL;
+	token_list = NULL;
 	i = 0;
-	
-	// 1. Boşlukları atla.
-	// 2. Metakarakterleri kontrol et (|, <, >).
-	// 3. Kelimeleri (tırnak işaretleri dahil) ayır.
-	// 4. Her parça için create_new_token çağır ve listeye ekle.
+	while (line[i])
+	{
+		processed_len = 0;
+		if (is_whitespace(line[i]))
+			processed_len = 1;
+		else if (is_metachar(line[i]))
+			processed_len = handle_metachar(&line[i], &token_list);
+		else if (line[i] == '\'' || line[i] == '"')
+			processed_len = handle_quotes(&line[i], &token_list); // Bu quotes.c'de olacak
+		else
+			processed_len = handle_word(&line[i], &token_list);
 
-	// Oluşturulan token listesinin başlangıcını döndür.
-	return (token_list_head);
+		if (processed_len < 0) // Hata durumu (örn: kapanmamış tırnak)
+		{
+			free_token_list(token_list); // O ana kadar olanı temizle
+			return (NULL);
+		}
+		i += processed_len;
+	}
+	return (token_list);
 }
-
- 

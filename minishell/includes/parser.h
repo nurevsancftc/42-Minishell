@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/07/27 15:13:15 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/07/27 19:28:44 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #ifndef PARSER_H
 # define PARSER_H
 
-# include "minishell.h" // Ana başlık dosyasını dahil et (libft vb. için)
+# include "minishell.h"
 # include <stdlib.h>
 
 // --- 1. LEXER İÇİN YAPILAR ---
@@ -43,39 +43,41 @@ typedef struct s_token
 }	t_token;
 
 
-// --- 2. PARSER'IN ÜRETECEĞİ YAPI (AST - SOYUT SÖZDİZİMİ AĞACI) ---
-// Bu, projenin en önemli veri yapısıdır. Executor ve built-in'ler bunu kullanacak.
+typedef struct s_redir
+{
+	t_token_type	type;       // Yönlendirme tipi (T_REDIR_OUT, vb.)
+	char			*filename;  // Yönlendirilecek dosyanın adı
+}	t_redir;
 
-// Tek bir basit komutu temsil eder (pipe'lar arası her bir parça).
-// Örnek: "grep -i "hello" < input.txt > output.txt"
 typedef struct s_simple_cmd
 {
-	char	**args;          // Komut ve argümanları: {"grep", "-i", "hello", NULL}
-	char	*redir_in;       // Girdi yönlendirme dosyası: "input.txt"
-	char	*redir_out;      // Çıktı yönlendirme dosyası: "output.txt"
-	int		append_mode;     // Çıktı append modu (>> için 1, > için 0)
-	char	*heredoc_eof;    // Here-document sonlandırıcısı
-	// Birden fazla yönlendirme için bu yapıları liste haline getirebilirsin.
-	// Ama başlangıç için bu kadarı yeterli.
+	char	**args;      // Komut ve argümanları (execve'e uygun)
+	t_list	*redirections; // t_redir'lerden oluşan bir liste   //LİBFT DEKİ LİST T_LİST
 }	t_simple_cmd;
 
-
-// Komut tablosu. Pipe'larla birbirine bağlı basit komutların listesi.
-// Örnek: cmd1 | cmd2 | cmd3
-typedef struct s_command
+typedef struct s_cmd_table
 {
 	t_simple_cmd		*simple_cmd; // Bu düğümdeki basit komut
-	struct s_command	*next;       // Pipe ile bağlı sonraki komut
-}	t_command;
+	struct s_cmd_table	*next;       // Pipe ile sonraki komuta işaretçi
+}	t_cmd_table;
 
 
-// --- 3. FONKSİYON PROTOTİPLERİ ---
 
-// Dış dünyaya açılan ana fonksiyonlar
-t_command	*parse(char *line); // Ana parser fonksiyonu: string alır, AST döndürür.
+// --- Fonksiyon Protototipleri ---
 
-// İç fonksiyonlar (istersen ayrı bir private_parser.h'a da koyabilirsin)
-t_token		*lexer(const char *line); // String'i token listesine çevirir.
+// lexer.c
+t_token	*lexer(const char *line);
+
+// quotes.c
+int		handle_quotes(const char *line, t_token **token_list);
+
+// parser_utils.c
+void	add_token_to_list(t_token **list_head, t_token *new_token);
+t_token	*create_token(char *value, t_token_type type);
+void	free_token_list(t_token *head);
+int		is_metachar(char c);
+int		is_whitespace(char c);
+
 
 // Temizlik fonksiyonları
 void		free_tokens(t_token *tokens);

@@ -1,41 +1,65 @@
-#include "parser.h"
+// src/main.c
 
-int main(int argc, char **argv, char **envp)
+#include "minishell.h"
+
+/*
+ * init_shell: Programın genel durumunu tutan ana yapıyı başlatır.
+ * - Ortam değişkenlerini kopyalar.
+ * - Başlangıç çıkış kodunu ayarlar.
+ */
+void	init_shell(t_shell *shell, char **envp)
 {
-    char    *line;
+	// `envp` dizisini kopyalayıp kendi bağlı listemiz olan `env_list`'e aktarır.
+	// Bu fonksiyonu environment.c gibi bir dosyada yazmalısın.
+	shell->env_list = create_env_list(envp); 
+	shell->exit_code = 0;
+}
 
-    // 1. Başlatma
-    // - Ortam değişkenlerini kopyala ve yönet.
-    // - Sinyalleri ayarla.
-    // - Komut geçmişini başlat.
+/*
+ * cleanup_shell: Program kapanırken ayrılan tüm belleği serbest bırakır.
+ */
+void	cleanup_shell(t_shell *shell)
+{
+	// Ortam değişkenleri listesini temizler.
+	ft_lstclear(&shell->env_list, free); // Veya özel bir free fonksiyonu
+	// readline kütüphanesinin kendi geçmişini temizlemesi için
+	clear_history();
+}
 
-    while (1)
-    {
-        // 2. Komut Satırını Oku
-        // - readline() ile kullanıcıdan girdi al.
-        line = readline("minishell> ");
-        if (line == NULL)
-		{
-			printf("exit\n");
-			break ;
-		}
-        if (line && *line) // Satır boş değilse geçmişe ekle
-			add_history(line);
-        // - EOF (Ctrl+D) kontrolü yap.
+/*
+ * ANA GİRİŞ NOKTASI
+ * Görevleri:
+ * 1. Başlangıç kontrollerini yapmak.
+ * 2. Tek seferlik kurulumları yapmak (sinyaller, ortam değişkenleri).
+ * 3. Ana döngüyü çağırmak.
+ * 4. Döngü bittiğinde genel temizliği yapıp çıkmak.
+ */
+int	main(int argc, char **argv, char **envp)
+{
+	t_shell	shell;
 
-        // 3. Ayrıştırma (Parsing)
-        lexer(line)// - Lexer: Girdiyi token'lara ayır.
-        parse_args() // - Parser: Token'lardan bir komut tablosu veya AST oluştur.
+	// 1. BAŞLATMA KONTROLLERİ
+	// Minishell argüman kabul etmez.
+	if (argc != 1)
+	{
+		printf("Error: minishell does not accept arguments.\n");
+		return (1);
+	}
+	(void)argv; // Kullanılmayan değişken uyarısını engelle
 
-        // 4. Genişletme (Expansion)
-        // - Değişkenleri ve tırnakları işle.
+	// 2. TEK SEFERLİK KURULUMLAR
+	init_shell(&shell, envp); // Ortam değişkenlerini ve ana yapıyı kur
+	init_signals();           // Sinyal yöneticilerini ayarla (Ctrl+C, vb.) //YAZILMADI
 
-        // 5. Yürütme (Execution)
-        // - Komutları çalıştır (yerleşik veya harici).
-        // - Pipe ve yönlendirmeleri yönet.
+	// 3. ANA DÖNGÜYÜ ÇALIŞTIR
+	// Programın tüm ana işlevselliği bu fonksiyonda döner.
+	// Shell'in genel durumunu (env, exit_code) parametre olarak geçeriz.
+	main_loop(&shell);
 
-        // 6. Temizlik
-        // - Ayrılan belleği serbest bırak.
-    }
-    return (0);
+	// 4. GENEL TEMİZLİK
+	// `main_loop` bittiğinde (Ctrl+D veya exit komutu ile),
+	// program kapanmadan önce tüm belleği temizle.
+	cleanup_shell(&shell);
+
+	return (shell.exit_code); // Son çıkış kodu ile programı sonlandır.
 }

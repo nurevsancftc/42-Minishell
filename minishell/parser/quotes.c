@@ -1,38 +1,55 @@
-// quotes.c içinde yer alabilecek potansiyel fonksiyonlar
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   quotes.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/07/27 18:54:53 by aldurmaz          #+#    #+#             */
+/*   Updated: 2025/07/27 19:27:43 by aldurmaz         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+// parser/quotes.c
+
+#include "minishell.h"
 
 /*
  * HANDLE_QUOTES FONKSİYONU
- * Görevi: Tek veya çift tırnakla başlayan bir bölümü işlemek.
- * 1. Başlangıç tırnağını (quote_char) kaydeder.
- * 2. Satırda ilerleyerek eşleşen kapanış tırnağını arar.
- * 3. Eğer satır sonuna gelinir ve kapanış tırnağı bulunamazsa, bu bir
- *    sözdizimi hatasıdır. Hata bildirilir ve -1 döndürülür.
- * 4. Kapanış tırnağı bulununca, tırnakların arasındaki metin (içerik) kopyalanır.
- * 5. Kopyalanan içerik ile yeni bir T_WORD token'ı oluşturulur.
- * 6. Bu token, ana token listesine eklenir.
- * 7. İşlenen toplam karakter sayısı (başlangıç ve bitiş tırnakları dahil) döndürülür.
+ * Görevi: Tek veya çift tırnakla başlayan bir bölümü bir bütün olarak işlemek.
+ * 1. Başlangıç tırnağını kaydeder.
+ * 2. Eşleşen kapanış tırnağını arar.
+ * 3. Kapanış tırnağı bulunamazsa, sözdizimi hatası verir (-1 döndürür).
+ * 4. Tırnaklar dahil tüm bölümü kopyalar ve bir T_WORD token'ı oluşturur.
+ *    (Tırnakları kaldırma işi expander'a aittir).
+ * 5. İşlenen toplam karakter sayısını döndürür.
 */
+int	handle_quotes(const char *line, t_token **token_list)
+{
+	char	quote_char;
+	int		i;
+	char	*content;
 
+	quote_char = line[0];
+	i = 1;
+	// Eşleşen tırnağı bulana veya satır sonuna gelene kadar ilerle
+	while (line[i] && line[i] != quote_char)
+		i++;
+	
+	// Kapanmamış tırnak hatası
+	if (line[i] == '\0')
+	{
+		printf("minishell: syntax error: unclosed quote\n");
+		return (-1); // Hata kodu
+	}
+	
+	i++; // Kapanış tırnağını da dahil et
+	
+	// Tırnaklar dahil tüm metni kopyala
+	content = ft_substr(line, 0, i);
+	add_token_to_list(token_list, create_token(content, TOKEN_WORD));
+	free(content);
 
-
-
-
-/**
- * @brief Bir token'ın kapatılmamış tırnak içerip içermediğini kontrol eder.
- * @return Hata varsa 1, yoksa 0.
- */
-int	has_unclosed_quotes(char *str);
-
-/**
- * @brief Bir token'daki değişkenleri genişletir ve tırnakları kaldırır.
- * @param token İşlenecek token (örneğin, "\"$USER\"").
- * @param env Ortam değişkenleri listesi.
- * @return İşlenmiş ve temizlenmiş yeni string (örneğin, "cihan").
- */
-char *expand_and_remove_quotes(char *token, t_list *env);
-
-/**
- * @brief Bir karakterin tırnak içinde olup olmadığını belirlemek için
- *        kullanılan bir state machine (durum makinesi) fonksiyonu.
- */
-void update_quote_state(char current_char, int *quote_state); 
+	// İşlenen toplam karakter sayısını döndür
+	return (i);
+}
