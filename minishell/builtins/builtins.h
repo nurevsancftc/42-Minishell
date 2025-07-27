@@ -6,12 +6,17 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 15:08:06 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/07/27 19:13:00 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/07/27 19:33:36 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef BUILTINS_H
 # define BUILTINS_H
+
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
+
 
 /*
  * Built-in fonksiyonlarının, projenin merkezi veri yapıları olan
@@ -30,7 +35,9 @@ int		ft_pwd(void);
 // Argümanları ekrana basar. Komut argümanlarını 'cmd' yapısından alır.
 int	ft_echo(char **args);
 
-int	ft_exit(char **args)
+int	ft_exit(char **args);
+
+int	ft_cd(char **args /*, t_list *env */);
 
 
 #endif
