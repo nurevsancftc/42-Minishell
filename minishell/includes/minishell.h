@@ -16,7 +16,7 @@ typedef struct s_shell
 	int		exit_code;
 }	t_shell;
 
-typedef struct s_cmd_table 
+typedef struct s_command
 {
 	char			**args;
 	char			*redir_in;
@@ -25,6 +25,6 @@ typedef struct s_cmd_table
 	char			*heredoc_eof;
 	struct s_cmd	*next;
 
-}	t_cmd_table;
+}	t_command;
 
 #endif
