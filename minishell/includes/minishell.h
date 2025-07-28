@@ -31,7 +31,7 @@ typedef struct s_simple_command
 
 typedef struct s_command_chain
 {
-	t_simple_command		*command_node; // Bu düğümdeki basit komut
+	t_simple_command		*simple_command; // Bu düğümdeki basit komut
 	struct s_command_chain	*next;       // Pipe ile sonraki komuta işaretçi
 }	t_command_chain;
 
