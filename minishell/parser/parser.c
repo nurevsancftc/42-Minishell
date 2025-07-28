@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:51:08 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/07/27 19:28:00 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/07/28 23:28:12 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,29 +20,29 @@
 // 2.  Her `PIPE` token'ı gördüğünde veya listenin sonunda, bir "basit komut" grubunun bittiğini anlar.
 // 3.  Bir basit komut grubunu işlemek için bir yardımcı fonksiyon çağırır.
 // 4.  Bu yardımcı, token'ları `args` (argümanlar) ve `redirections` (yönlendirmeler) olarak ayırır.
-// 5.  Sonuç olarak, birbirine `next` ile bağlanmış `t_cmd_table` düğümlerinden oluşan bir liste (bizim AST'miz) oluşturur.,
+// 5.  Sonuç olarak, birbirine `next` ile bağlanmış `t_command_chain` düğümlerinden oluşan bir liste (bizim AST'miz) oluşturur.,
 
 #include "minishell.h"
 
 // Bu fonksiyonlar static olacak, sadece bu dosyada kullanılacaklar.
-static t_simple_cmd	*create_simple_cmd(void);
+static t_simple_command	*create_command_node(void);
 static int			count_args(t_token *start, t_token *end);
-static void			populate_simple_cmd(t_simple_cmd *cmd, t_token **current);
+static void			populate_command_node(t_simple_command *cmd, t_token **current);
 
 /*
  * PARSER ANA FONKSİYONU
- * Görevi: Token listesini alır ve bir komut ağacı (t_cmd_table listesi) döndürür.
+ * Görevi: Token listesini alır ve bir komut ağacı (t_command_chain listesi) döndürür.
  * 1. Boş bir komut ağacı başlatır.
  * 2. Token listesinde bir döngü ile ilerler.
  * 3. Her döngü adımında yeni bir komut tablosu düğümü oluşturur.
- * 4. Bu düğümün içini doldurması için populate_simple_cmd'i çağırır.
+ * 4. Bu düğümün içini doldurması için populate_command_node'i çağırır.
  * 5. Eğer bir pipe '|' token'ı varsa, onu atlar ve döngüye devam eder.
  * 6. Sözdizimi hatalarını kontrol eder (örn: pipe ile başlayan veya biten komutlar).
 */
-t_cmd_table	*parser(t_token *tokens)
+t_command_chain	*parser(t_token *tokens)
 {
-	t_cmd_table	*cmd_head;
-	t_cmd_table	*current_cmd_node;
+	t_command_chain	*cmd_head;
+	t_command_chain	*current_cmd_node;
 	t_token		*current_token;
 
 	if (!tokens)
@@ -59,13 +59,14 @@ t_cmd_table	*parser(t_token *tokens)
 
 	while (current_token)
 	{
-		current_cmd_node = malloc(sizeof(t_cmd_table));
-		// ... Malloc kontrolü ...
-		current_cmd_node->simple_cmd = create_simple_cmd();
+		current_cmd_node = malloc(sizeof(t_command_chain));
+		if (!current_cmd_node)
+			return (NULL); // malloc error
+		current_cmd_node->command_node = create_command_node();
 		current_cmd_node->next = NULL;
 
 		// Asıl işi yapan fonksiyon
-		populate_simple_cmd(current_cmd_node->simple_cmd, &tokens); // &tokens kısmı yanlış olabilir kontrol et!
+		populate_command_node(current_cmd_node->command_node, &tokens); // &tokens kısmı yanlış olabilir kontrol et!
 		
 		// Oluşturulan komut düğümünü listeye ekle
 		// ... ft_lstadd_back benzeri bir mantıkla `cmd_head` listesine eklenir ...
@@ -86,12 +87,12 @@ t_cmd_table	*parser(t_token *tokens)
 }
 
 
-// Yeni bir t_simple_cmd yapısı oluşturur ve içini başlatır.
-static t_simple_cmd	*create_simple_cmd(void)
+// Yeni bir t_command_node yapısı oluşturur ve içini başlatır.
+static t_simple_command	*create_command_node(void)
 {
-	t_simple_cmd *cmd;
+	t_simple_command *cmd;
 
-	cmd = malloc(sizeof(t_simple_cmd));
+	cmd = malloc(sizeof(t_simple_command));
 	if (!cmd)
 		return (NULL);
 	cmd->args = NULL;
@@ -117,7 +118,7 @@ static int	count_args(t_token *start, t_token *end)
 
 
 // Tek bir basit komutun argümanlarını ve yönlendirmelerini doldurur.
-static void	populate_simple_cmd(t_simple_cmd *cmd, t_token **current)
+static void	populate_command_node(t_simple_command *cmd, t_token **current)
 {
 	// 1. Önce argümanlar için `malloc` ile yer ayırmak üzere argümanları say.
 	// 2. Bir döngü ile PIPE'a veya listenin sonuna kadar git.

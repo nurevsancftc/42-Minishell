@@ -4,12 +4,12 @@
 # include "parser.h"
 # include "../42-Minishell/libft/libft.h"
 
-// typedef struct s_env
-// {
-// 	char			*key;
-// 	char			*value;
-// 	struct s_env	*next;
-// }	t_env;
+typedef struct s_env
+{
+	char			*key;
+	char			*value;
+	struct s_env	*next;
+}	t_env;
 
 typedef struct s_shell
 {
@@ -23,17 +23,17 @@ typedef struct s_redir
 	char			*filename;  // Yönlendirilecek dosyanın adı
 }	t_redir;
 
-typedef struct s_simple_cmd
+typedef struct s_simple_command
 {
 	char	**args;      // Komut ve argümanları (execve'e uygun)
 	t_list	*redirections; // t_redir'lerden oluşan bir liste   //LİBFT DEKİ LİST T_LİST
-}	t_simple_cmd;
+}	t_simple_command;
 
-typedef struct s_cmd_table
+typedef struct s_command_chain
 {
-	t_simple_cmd		*simple_cmd; // Bu düğümdeki basit komut
-	struct s_cmd_table	*next;       // Pipe ile sonraki komuta işaretçi
-}	t_cmd_table;
+	t_simple_command		*command_node; // Bu düğümdeki basit komut
+	struct s_command_chain	*next;       // Pipe ile sonraki komuta işaretçi
+}	t_command_chain;
 
 // typedef struct s_command
 // {

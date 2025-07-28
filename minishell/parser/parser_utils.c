@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 19:09:45 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/07/27 19:28:15 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/07/28 23:20:13 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,18 +46,18 @@ static void free_redir_node(void *content)
 
 
 // Parser tarafından oluşturulan tüm komut ağacını serbest bırakır.
-void free_cmd_tree(t_cmd_table *head)
+void free_cmd_tree(t_command_chain *head)
 {
-    t_cmd_table *tmp;
+    t_command_chain *tmp;
 
     while (head)
     {
         tmp = head->next;
-        if (head->simple_cmd)
+        if (head->command_node)
         {
-            free_args(head->simple_cmd->args);
-            ft_lstclear(&head->simple_cmd->redirections, free_redir_node);
-            free(head->simple_cmd);
+            free_args(head->command_node->args);
+            ft_lstclear(&head->command_node->redirections, free_redir_node);
+            free(head->command_node);
         }
         free(head);
         head = tmp;
