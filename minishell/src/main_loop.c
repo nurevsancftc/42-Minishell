@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:42:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/07/27 19:27:11 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/07/28 18:51:33 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "minishell.h"
 
 // Her döngünün sonunda komut için ayrılan belleği temizleyen yardımcı.
-static void	cleanup_command_data(t_command *cmd_tree, t_token *tokens, char *line)
+static void	cleanup_command_data(t_cmd_table *cmd_tree, t_token *tokens, char *line)
 {
 	if (cmd_tree)
 		free_cmd_tree(cmd_tree); // AST'yi temizle
@@ -38,7 +38,7 @@ void	main_loop(t_shell *shell)
 {
 	char		*line;
 	t_token		*tokens;
-	t_command	*cmd_tree;
+	t_cmd_table	*cmd_tree;
 
 	while (1)
 	{

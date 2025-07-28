@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/07/28 18:47:46 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/07/28 18:51:40 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,7 @@ int		is_whitespace(char c);
 
 // Temizlik fonksiyonları
 void		free_tokens(t_token *tokens);
-void		free_ast(t_command *ast);
+void		free_ast(t_cmd_table *ast);
 
 
 #endif
