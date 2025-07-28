@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/07/27 19:31:16 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/07/28 18:47:46 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,26 +41,6 @@ typedef struct s_token
 	t_token_type	type;     // Token'ın türü
 	struct s_token	*next;
 }	t_token;
-
-
-typedef struct s_redir
-{
-	t_token_type	type;       // Yönlendirme tipi (T_REDIR_OUT, vb.)
-	char			*filename;  // Yönlendirilecek dosyanın adı
-}	t_redir;
-
-typedef struct s_simple_cmd
-{
-	char	**args;      // Komut ve argümanları (execve'e uygun)
-	// t_list	*redirections; // t_redir'lerden oluşan bir liste   //LİBFT DEKİ LİST T_LİST
-}	t_simple_cmd;
-
-typedef struct s_cmd_table
-{
-	t_simple_cmd		*simple_cmd; // Bu düğümdeki basit komut
-	struct s_cmd_table	*next;       // Pipe ile sonraki komuta işaretçi
-}	t_cmd_table;
-
 
 
 // --- Fonksiyon Protototipleri ---
