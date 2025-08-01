@@ -6,14 +6,14 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 19:16:08 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/01 03:49:02 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/01 03:52:48 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "builtins.h"
 #include <unistd.h>
 #include <stdio.h>
-#includeinclude <string.h>
+#include <string.h>
 #include <errno.h>
 #include <limits.h>
 
