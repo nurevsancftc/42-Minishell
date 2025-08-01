@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 15:08:06 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/01 05:17:49 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/01 08:56:46 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,6 @@
  * dahil etmesi ZORUNLUDUR.
  */
 # include "minishell.h"
-#include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
 
 /* ========================================================================== */
 /*                       YERLEŞİK KOMUT PROTOTİPLERİ                          */
