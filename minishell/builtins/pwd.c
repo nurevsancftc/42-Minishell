@@ -6,53 +6,54 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 15:54:10 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/07/27 16:00:59 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/01 02:04:34 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "builtins.h"
 
 
-//  ft_pwd - Mevcut çalışma dizinini standart çıktıya yazdırır.
- 
-//  Bu fonksiyon, POSIX standardında yer alan getcwd() fonksiyonunu kullanarak
-//  mevcut çalışma dizininin tam yolunu alır. Alınan bu yolu ekrana yazdırır
-//  ve sonuna bir yeni satır karakteri ekler.
- 
-//  getcwd(NULL, 0) kullanımı, fonksiyonun yol için gereken belleği kendisinin
-//  (malloc ile) ayırmasını sağlar. Bu, bizim buffer boyutunu tahmin etme
-//  zorunluluğumuzu ortadan kaldırır. Ancak bu durumda, işimiz bittiğinde
-//  bu belleği free() ile serbest bırakmamız gerekir.
-
-//  Döner Değer:
-//    - Başarılı olursa 0 döndürür.
-//    - getcwd() bir hata nedeniyle başarısız olursa (örneğin, üst dizinlerden
-//      birinin okuma izni yoksa), hata mesajı yazdırır ve 1 döndürür.
- 
-
-
-int ft_pwd(void)
+/**
+ * ft_pwd - Mevcut çalışma dizinini ekrana basar.
+ *
+ * Bu versiyon, komutun herhangi bir argüman alıp almadığını kontrol eder.
+ * Eğer 'pwd' komutundan sonra bir argüman verilirse (örn: "pwd foo"),
+ * bash gibi bir hata mesajı basar ve işlem yapmaz.
+ *
+ * Parametreler:
+ *   args - Komut ve argümanlarını içeren string dizisi.
+ *          Parser'dan bu şekilde gelecek (args[0] = "pwd").
+ *
+ * Döner Değer:
+ *   - Başarılı olursa 0.
+ *   - Hata olursa (argüman verilmesi veya getcwd hatası) 1.
+ */
+int	ft_pwd(char **args)
 {
 	char	*current_dir;
-	
-	// getcwd'ye NULL ve 0 parametrelerini vererek, yol için gereken belleği
-	// otomatik olarak ayırmasını sağlıyoruz.
+
+	// 1. Argüman kontrolü yapalım.
+	// `args` dizisinin ikinci elemanı (args[1]) varsa, bu,
+	// komutun "pwd deneme" gibi bir argümanla çağrıldığı anlamına gelir.
+	if (args[1] != NULL)
+	{
+		// Hata mesajlarını standart hata çıktısına (stderr) yazmak iyi bir alışkanlıktır.
+		// `fprintf` bunun için kullanılır. `2` stderr'i temsil eder.
+		write(2, "minishell: pwd: too many arguments\n", 35);
+		return (1); // Hata durumunda 1 döndürerek kabuğa bir sorun olduğunu bildiririz.
+	}
+
+	// 2. Mevcut dizini al. Bu kısım senin kodunda zaten doğruydu.
 	current_dir = getcwd(NULL, 0);
 	if (!current_dir)
 	{
-		// getcwd başarısız olursa, NULL döner ve errno'yu ayarlar.
-		// perror, "minishell: pwd" metninin yanına sistem hata mesajını
-		// (örn: "No such file or directory") otomatik olarak ekler.
 		perror("minishell: pwd");
-		return (1); // Hata durumunu çağıran fonksiyona bildir.
+		return (1);
 	}
-	
-	// Başarıyla alınan yolu ekrana yazdır.
-	printf("%s\n", current_dir);
 
-	// getcwd tarafından malloc ile ayrılan belleği serbest bırak.
-	// Bu adım, bellek sızıntılarını (memory leaks) önlemek için kritiktir
+	// 3. Ekrana yazdır ve belleği serbest bırak.
+	printf("%s\n", current_dir);
 	free(current_dir);
-	
-	return (0);
+
+	return (0); // İşlem başarılı.
 }

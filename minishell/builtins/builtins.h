@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 15:08:06 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/07/27 19:33:36 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/01 05:17:49 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,20 +24,36 @@
  * dahil etmesi ZORUNLUDUR.
  */
 # include "minishell.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
 
 /* ========================================================================== */
 /*                       YERLEŞİK KOMUT PROTOTİPLERİ                          */
 /* ========================================================================== */
 
 // Mevcut çalışma dizinini ekrana basar.
-int		ft_pwd(void);
+int	ft_pwd(char **args);
 
 // Argümanları ekrana basar. Komut argümanlarını 'cmd' yapısından alır.
 int	ft_echo(char **args);
 
 int	ft_exit(char **args);
 
-int	ft_cd(char **args /*, t_list *env */);
+int	ft_cd(char **args, t_shell *shell);
 
+int	ft_env(char **args, t_shell *shell);
+
+int	ft_export(char **args, t_shell *shell);
+
+int	ft_unset(char **args, t_shell *shell);
+
+t_list	*find_env_node(t_list *env_list, const char *key);
+
+char	*get_env_value(t_list *env_list, const char *key);
+
+void	free_env_content(void *content);
+
+int	is_valid_identifier(const char *key);
 
 #endif

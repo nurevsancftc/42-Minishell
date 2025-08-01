@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:00:19 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/07/27 18:38:04 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/01 05:17:38 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,41 +15,99 @@
 #include <string.h>
 #include <stdbool.h>
 
-static bool	is_n_flag(const char *str)
+/**
+ * is_it_an_n_option - Bir argümanın "-n" veya "-nnnn" gibi bir şey olup
+ *                     olmadığını kontrol eden basit bir yardımcı.
+ *
+ * Sadece '-' ile başlayıp sadece 'n' harfleriyle devam ediyorsa 1 döner.
+ * Yoksa 0 döner.
+ */
+static int	is_it_an_n_option(char *arg)
 {
 	int	i;
 
-	if (!str || str[0] != '-' || str[1] != 'n')
-		return (false);
-	i = 2;
-	while (str[i] == 'n')
+	// Eğer argüman '-' ile başlamıyorsa, direkt geç.
+	if (arg[0] != '-')
+		return (0);
+
+	// İkinci karakterden itibaren kontrol et.
+	i = 1;
+	while (arg[i] != '\0')
+	{
+		// Eğer 'n' dışında bir harf bulursak, bu bir -n seçeneği değildir.
+		if (arg[i] != 'n')
+			return (0);
 		i++;
-	return (str[i] == '\0'); // Sadece -n, -nnn... geçerli
+	}
+
+	// Eğer döngü bittiyse ve hiç 'n' dışında harf bulamadıysak,
+	// ve string boş değilse (sadece '-' gibi), o zaman bu bir -n seçeneğidir.
+	// i > 1 kontrolü, sadece "-" girilmesini engeller.
+	if (i > 1)
+		return (1);
+	else
+		return (0);
 }
 
+/**
+ * ft_echo - 'echo' komutunun daha basit, adımlara bölünmüş bir versiyonu.
+ *
+ * Bu kod, en optimize şekilde değil, mantığın daha kolay takip edilebileceği
+ * şekilde yazılmıştır.
+ */
 int	ft_echo(char **args)
 {
-	int		i = 1;
-	bool	newline = true;
+	int	i;
+	int	found_n_option; // bool yerine int flag kullanmak daha yaygındır.
+	int	first_word_printed;
 
-	// Bir veya daha fazla -n bayrağını atla
-	while (args[i] && is_n_flag(args[i]))
+	i = 1; // 0. argüman "echo" olduğu için 1'den başla.
+	found_n_option = 0; // Başta -n seçeneği yokmuş gibi davran.
+	first_word_printed = 0; // Henüz ekrana bir kelime basmadık.
+
+	// 1. ADIM: Önce -n seçeneklerini atla.
+	// Bu döngü sadece komutun en başındaki -n'leri bulur ve geçer.
+	while (args[i] != NULL)
 	{
-		newline = false;
-		i++;
+		if (is_it_an_n_option(args[i]))
+		{
+			found_n_option = 1; // Bir tane bulduk, artık sona \n koymayacağız.
+			i++;
+		}
+		else
+		{
+			// -n olmayan ilk kelimeyi bulduğumuz an bu döngüden çık.
+			break;
+		}
 	}
 
-	// Argümanları boşlukla yazdır
-	while (args[i])
+	// 2. ADIM: Şimdi kelimeleri yazdırmaya başla.
+	// Bu döngü, -n'lerin bittiği yerden devam eder.
+	while (args[i] != NULL)
 	{
-		printf("%s", args[i]);
-		if (args[i + 1])
+		// Eğer bu ekrana basacağımız ilk kelime değilse,
+		// kelimelerin arasına boşluk koymak için ÖNCE boşluğu bas.
+		if (first_word_printed == 1)
+		{
 			printf(" ");
+		}
+		
+		// Kelimeyi ekrana bas.
+		printf("%s", args[i]);
+		
+		// Ekrana ilk kelimeyi bastığımızı işaretle.
+		first_word_printed = 1;
+
 		i++;
 	}
 
-	// Satır sonu
-	if (newline)
+	// 3. ADIM: Sona yeni satır eklenip eklenmeyeceğine karar ver.
+	// Eğer döngünün en başında hiç -n seçeneği bulamadıysak
+	// (yani found_n_option hala 0 ise), o zaman sona yeni satır ekle.
+	if (found_n_option == 0)
+	{
 		printf("\n");
+	}
+
 	return (0);
 }
