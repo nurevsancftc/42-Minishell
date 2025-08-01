@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:00:19 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/01 02:21:04 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/01 05:17:38 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
-
-#include "builtins.h"
-#include <stdio.h>
 
 /**
  * is_it_an_n_option - Bir argümanın "-n" veya "-nnnn" gibi bir şey olup

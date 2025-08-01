@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 04:15:29 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/01 04:15:53 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/01 05:12:38 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,4 +69,44 @@ char	*get_env_value(t_list *env_list, const char *key)
 	}
 	// Düğümün content'ini t_env'e cast et ve value'sunu döndür.
 	return (((t_env *)node->content)->value);
+}
+
+
+/**
+ * free_env_content - `ft_lstdelone` için bir `t_env` içeriğini temizler.
+ */
+void	free_env_content(void *content)
+{
+	t_env	*env;
+
+	env = (t_env *)content;
+	if (!env)
+		return;
+	free(env->key);
+	free(env->value);
+	free(env);
+}
+
+/**
+ * is_valid_identifier - Bir anahtarın geçerli bir kabuk adı olup olmadığını
+ *                       kontrol eder. (export ve unset kullanabilir)
+ *                       Not: Bu fonksiyonu `export` için yazdığımızdan
+ *                       farklı olarak, '=' kontrolü yapmaz.
+ *                       Daha genel bir isim verilebilir.
+ */
+int	is_valid_identifier(const char *key)
+{
+	int i;
+
+	i = 0;
+	if (!key || !(ft_isalpha(key[i]) || key[i] == '_'))
+		return (0);
+	i++;
+	while (key[i])
+	{
+		if (!(ft_isalnum(key[i]) || key[i] == '_'))
+			return (0);
+		i++;
+	}
+	return (1);
 }
