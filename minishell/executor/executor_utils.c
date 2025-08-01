@@ -1,0 +1,120 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   executor_utils.c                                   :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/01 08:49:43 by nuciftci          #+#    #+#             */
+/*   Updated: 2025/08/01 09:02:13 by nuciftci         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "executor.h"
+#include <unistd.h> // access() ve X_OK için
+
+/**
+ * try_each_path - Verilen yollar dizisinde komutu arar.
+ *
+ * Bu fonksiyon, `PATH`'ten gelen her bir dizini komutla birleştirir
+ * ve çalıştırılabilir bir dosya olup olmadığını kontrol eder.
+ * İlk bulduğunu döndürür.
+ *
+ * `static`'tir çünkü sadece `get_command_path` tarafından kullanılır.
+ */
+static char	*try_each_path(char *cmd, char **paths)
+{
+	char	*full_path;
+	char	*temp;
+	int		i;
+
+	i = -1;
+	while (paths && paths[++i])
+	{
+		temp = ft_strjoin(paths[i], "/");
+		full_path = ft_strjoin(temp, cmd);
+		free(temp);
+		if (access(full_path, X_OK) == 0)
+			return (full_path); // Çalıştırılabilir yol bulundu.
+		free(full_path);
+	}
+	return (NULL); // Hiçbir yolda bulunamadı.
+}
+
+/**
+ * get_command_path - Bir komut adını, çalıştırılabilir tam yola dönüştürür.
+ *
+ * Bu fonksiyon 25 satır kuralına uymak için asıl arama işini
+ * `try_each_path` yardımcısına devreder.
+ */
+char	*get_command_path(char *cmd, t_shell *shell)
+{
+	char	**paths;
+	char	*path_var;
+	char	*executable_path;
+
+	if (!cmd || !*cmd)
+		return (NULL);
+	if (ft_strchr(cmd, '/'))
+	{
+		if (access(cmd, X_OK) == 0)
+			return (ft_strdup(cmd));
+		return (NULL);
+	}
+	path_var = get_env_value(shell->env_list, "PATH");
+	if (!path_var)
+		return (NULL);
+	paths = ft_split(path_var, ':');
+	executable_path = try_each_path(cmd, paths);
+	if (paths)
+		ft_free_split(paths);
+	return (executable_path);
+}
+
+/**
+ * populate_env_array - Hazırlanmış `env_array`'i `t_env` listesinden doldurur.
+ *
+ * `static`'tir çünkü sadece `convert_env_list_to_array` tarafından kullanılır.
+ */
+static void	populate_env_array(char **env_array, t_list *env_list)
+{
+	t_list	*current;
+	t_env	*env;
+	char	*temp;
+	int		i;
+
+	i = 0;
+	current = env_list;
+	while (current)
+	{
+		env = (t_env *)current->content;
+		if (env->value)
+		{
+			temp = ft_strjoin(env->key, "=");
+			env_array[i] = ft_strjoin(temp, env->value);
+			free(temp);
+			i++;
+		}
+		current = current->next;
+	}
+	env_array[i] = NULL; // Diziyi NULL ile sonlandır.
+}
+
+/**
+ * convert_env_list_to_array - t_env listesini `execve`'nin beklediği
+ *                             `char **` formatına dönüştürür.
+ *
+ * 25 satır kuralına uymak için bellek ayırma ve doldurma işlemlerini ayırır.
+ */
+char	**convert_env_list_to_array(t_shell *shell)
+{
+	char	**env_array;
+	int		list_size;
+
+	list_size = ft_lstsize(shell->env_list);
+	env_array = malloc(sizeof(char *) * (list_size + 1));
+	if (!env_array)
+		return (NULL);
+	populate_env_array(env_array, shell->env_list);
+	return (env_array);
+}

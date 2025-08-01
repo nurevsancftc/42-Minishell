@@ -1,6 +1,11 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+#include <unistd.h>     // fork, execve, access, pid_t (genellikle)
+#include <sys/wait.h>   // waitpid, WIFEXITED, WEXITSTATUS
+#include <sys/types.h>  // pid_t (her zaman burada tanımlıdır)
+#include <stdio.h>      // perror, fprintf
+#include <stdlib.h>     // exit
 # include "parser.h"
 # include "../42-Minishell/libft/libft.h"
 
