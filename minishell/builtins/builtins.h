@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 15:08:06 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/07/27 19:33:36 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/01 02:05:06 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@
 /* ========================================================================== */
 
 // Mevcut çalışma dizinini ekrana basar.
-int		ft_pwd(void);
+int	ft_pwd(char **args);
 
 // Argümanları ekrana basar. Komut argümanlarını 'cmd' yapısından alır.
 int	ft_echo(char **args);
