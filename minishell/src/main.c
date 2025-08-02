@@ -49,7 +49,7 @@ int	main(int argc, char **argv, char **envp)
 
 	// 2. TEK SEFERLİK KURULUMLAR
 	init_shell(&shell, envp); // Ortam değişkenlerini ve ana yapıyı kur
-	init_signals();           // Sinyal yöneticilerini ayarla (Ctrl+C, vb.) //YAZILMADI
+	// init_signals();           // Sinyal yöneticilerini ayarla (Ctrl+C, vb.) //YAZILMADI
 
 	// 3. ANA DÖNGÜYÜ ÇALIŞTIR
 	// Programın tüm ana işlevselliği bu fonksiyonda döner.

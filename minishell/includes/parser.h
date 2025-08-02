@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/07/28 23:19:06 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/03 01:17:12 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,14 @@ int		is_whitespace(char c);
 
 
 // Temizlik fonksiyonları
-void		free_tokens(t_token *tokens);
-void		free_ast(t_command_chain *ast);
+// void		free_tokens(t_token *tokens);
+// void		free_ast(t_command_chain *ast);
+void free_token_list(t_token *head);
+void free_cmd_tree(t_command_chain *head);
+
+t_command_chain	*parser(t_token *tokens);
+int	populate_simple_cmd(t_simple_command *cmd, t_token **token_cursor);
+
 
 
 #endif

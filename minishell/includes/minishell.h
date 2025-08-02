@@ -7,6 +7,8 @@
 #include <stdio.h>      // perror, fprintf
 #include <stdlib.h>     // exit
 # include "parser.h"
+#include "builtins.h"
+#include "executor.h"
 # include "../42-Minishell/libft/libft.h"
 
 typedef struct s_env
@@ -39,6 +41,9 @@ typedef struct s_command_chain
 	t_simple_command		*simple_command; // Bu düğümdeki basit komut
 	struct s_command_chain	*next;       // Pipe ile sonraki komuta işaretçi
 }	t_command_chain;
+
+t_env	*create_env_list(char **envp);
+void	main_loop(t_shell *shell);
 
 // typedef struct s_command
 // {

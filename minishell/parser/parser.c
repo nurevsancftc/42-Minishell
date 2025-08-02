@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:51:08 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/02 19:11:27 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/03 01:15:10 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,7 +190,7 @@ t_command_chain	*parser(t_token *tokens)
 		current_cmd_node = malloc(sizeof(t_command_chain));
 		if (!current_cmd_node)
 			return (NULL); // malloc error, Hata yönetimi: Önceki listeyi temizle
-		current_cmd_node->simple_command = create_command_node();
+		current_cmd_node->simple_command = create_simple_cmd();
 		current_cmd_node->next = NULL;
 
 		// Asıl doldurma işlemini yapan ve imleci ilerleten fonksiyon.
