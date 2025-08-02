@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 19:09:45 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/02 19:11:25 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/02 19:14:24 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,11 +53,11 @@ void free_cmd_tree(t_command_chain *head)
     while (head)
     {
         tmp = head->next;
-        if (head->command_node)
+        if (head->simple_command)
         {
-            free_args(head->command_node->args);
-            ft_lstclear(&head->command_node->redirections, free_redir_node);
-            free(head->command_node);
+            free_args(head->simple_command->args);
+            ft_lstclear(&head->simple_command->redirections, free_redir_node);
+            free(head->simple_command);
         }
         free(head);
         head = tmp;
