@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   executor.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 05:26:50 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/01 08:54:27 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/03 01:28:08 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "executor.h"
+#include "minishell.h"
 
 /**
  * executor - Komut zincirini alır ve her bir komutu çalıştırır.

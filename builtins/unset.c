@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   unset.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 05:13:00 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/01 05:13:05 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/03 01:28:21 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "builtins.h"
+#include "minishell.h"
 
 /**
  * remove_node_from_list - Verilen anahtarı listede bulur ve siler.

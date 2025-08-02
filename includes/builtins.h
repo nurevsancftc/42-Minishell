@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 15:08:06 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/01 08:56:46 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/03 02:12:17 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
  * t_cmd ve t_env'yi tanıyabilmesi için "minishell.h" dosyasını
  * dahil etmesi ZORUNLUDUR.
  */
-# include "minishell.h"
+// # include "minishell.h"
 
 /* ========================================================================== */
 /*                       YERLEŞİK KOMUT PROTOTİPLERİ                          */

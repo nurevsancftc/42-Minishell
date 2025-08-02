@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   executor_external.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:48:26 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/01 08:55:26 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/03 01:28:03 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "executor.h"
+#include "minishell.h"
 
 // --- Sadece bu dosyada kullanılan statik yardımcılar ---
 

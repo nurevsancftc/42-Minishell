@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:51:08 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/03 01:15:10 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/03 02:13:49 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,21 +84,21 @@ static int	handle_redirection(t_token **token_cursor, t_simple_command *cmd)
 	return (0); // Başarılı
 }
 
-// Bir sonraki PIPE'a kadar olan token'ları sayarak `args` dizisi için yer ayırır.
-static int	count_args(t_token *start, t_token *end)
-{
-	int count = 0;
-	while (start != end)
-	{
-		if (start->type == TOKEN_WORD)
-			count++;
-		// Yönlendirme token'ları argüman sayılmaz, onlar atlanır.
-		else if (start->type >= TOKEN_REDIR_IN && start->type <= TOKEN_HEREDOC)
-			start = start->next; // Dosya adını da atla
-		start = start->next;
-	}
-	return (count);
-}
+// // Bir sonraki PIPE'a kadar olan token'ları sayarak `args` dizisi için yer ayırır.
+// static int	count_args(t_token *start, t_token *end)
+// {
+// 	int count = 0;
+// 	while (start != end)
+// 	{
+// 		if (start->type == TOKEN_WORD)
+// 			count++;
+// 		// Yönlendirme token'ları argüman sayılmaz, onlar atlanır.
+// 		else if (start->type >= TOKEN_REDIR_IN && start->type <= TOKEN_HEREDOC)
+// 			start = start->next; // Dosya adını da atla
+// 		start = start->next;
+// 	}
+// 	return (count);
+// }
 
 
 // Tek bir basit komutun argümanlarını ve yönlendirmelerini doldurur.
@@ -194,7 +194,7 @@ t_command_chain	*parser(t_token *tokens)
 		current_cmd_node->next = NULL;
 
 		// Asıl doldurma işlemini yapan ve imleci ilerleten fonksiyon.
-		if(populate_simple_cmd(current_cmd_node->simple_command, &tokens) == -1); // &tokens kısmı yanlış olabilir kontrol et!
+		if(populate_simple_cmd(current_cmd_node->simple_command, &tokens) == -1) // &tokens kısmı yanlış olabilir kontrol et!
 		{
 			free_cmd_tree(current_cmd_node);
 			free_cmd_tree(cmd_head);

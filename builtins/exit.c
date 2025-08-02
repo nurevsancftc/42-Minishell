@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exit.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:45:07 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/01 02:34:07 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/03 01:28:40 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <stdlib.h>     // exit, atoi
 #include <string.h>     // strlen
 #include <unistd.h>     // write
-
+#include "minishell.h"
 /**
  * is_numeric - Bir string'in tamamen sayılardan oluşup oluşmadığını kontrol eder.
  *

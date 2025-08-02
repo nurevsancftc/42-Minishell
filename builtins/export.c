@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 04:19:35 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/01 04:28:46 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/03 02:17:20 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "builtins.h"
+#include "minishell.h"
 #include <stdio.h>
 
 /*
@@ -70,24 +70,24 @@ static void	print_sorted_env(t_shell *shell)
  * - GEÇERLİ: VAR, _VAR, VAR123
  * - GEÇERSİZ: 123VAR, VAR-NAME, ?VAR
  */
-static int	is_valid_identifier(const char *key)
-{
-	int i;
+// int	is_valid_identifier(const char *key)
+// {
+// 	int i;
 
-	i = 0;
-	// Anahtar boş mu veya ilk karakteri geçersiz mi?
-	if (!key || !(ft_isalpha(key[i]) || key[i] == '_'))
-		return (0);
-	i++;
-	// Geriye kalan karakterleri kontrol et.
-	while (key[i])
-	{
-		if (!(ft_isalnum(key[i]) || key[i] == '_'))
-			return (0); // Geçersiz bir karakter bulundu.
-		i++;
-	}
-	return (1); // Tüm kontrollerden geçti, isim geçerli.
-}
+// 	i = 0;
+// 	// Anahtar boş mu veya ilk karakteri geçersiz mi?
+// 	if (!key || !(ft_isalpha(key[i]) || key[i] == '_'))
+// 		return (0);
+// 	i++;
+// 	// Geriye kalan karakterleri kontrol et.
+// 	while (key[i])
+// 	{
+// 		if (!(ft_isalnum(key[i]) || key[i] == '_'))
+// 			return (0); // Geçersiz bir karakter bulundu.
+// 		i++;
+// 	}
+// 	return (1); // Tüm kontrollerden geçti, isim geçerli.
+// }
 
 /**
  * handle_export_argument - `export`'a verilen tek bir argümanı işler.
@@ -131,7 +131,7 @@ static int	handle_export_argument(char *arg, t_shell *shell)
 		return (0);
 
 	// Değişkeni güncelle veya oluştur.
-	update_or_create_env(shell, key, value);
+	// update_or_create_env(shell, key, value);
 	return (0); // Başarılı
 }
 

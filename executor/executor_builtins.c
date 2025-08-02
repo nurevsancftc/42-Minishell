@@ -3,14 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   executor_builtins.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:55:03 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/01 08:55:12 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/03 01:27:58 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "executor.h"
+#include "minishell.h"
 
 /**
  * execute_builtin - Gelen komutun bir yerleşik komut olup olmadığını

@@ -3,15 +3,32 @@
 /*                                                        :::      ::::::::   */
 /*   executor_utils.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:49:43 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/01 09:02:13 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/03 02:32:52 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "executor.h"
+#include "minishell.h"
 #include <unistd.h> // access() ve X_OK için
+
+#include <stdlib.h>
+
+void	ft_free_split(char **split_array)
+{
+	int	i;
+
+	if (!split_array)
+		return;
+	i = 0;
+	while (split_array[i])
+	{
+		free(split_array[i]);
+		i++;
+	}
+	free(split_array);
+}
 
 /**
  * try_each_path - Verilen yollar dizisinde komutu arar.
@@ -22,6 +39,7 @@
  *
  * `static`'tir çünkü sadece `get_command_path` tarafından kullanılır.
  */
+
 static char	*try_each_path(char *cmd, char **paths)
 {
 	char	*full_path;

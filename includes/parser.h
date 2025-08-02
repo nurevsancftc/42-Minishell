@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/03 01:17:12 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/03 02:08:42 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 #ifndef PARSER_H
 # define PARSER_H
 
-# include "minishell.h"
 # include <stdlib.h>
 
 // --- 1. LEXER İÇİN YAPILAR ---
@@ -42,6 +41,40 @@ typedef struct s_token
 	struct s_token	*next;
 }	t_token;
 
+typedef struct s_env
+{
+	char			*key;
+	char			*value;
+	struct s_env	*next;
+}	t_env;
+
+typedef struct s_shell
+{
+	t_list	*env_list;
+	int		exit_code;
+}	t_shell;
+
+typedef struct s_redir
+{
+	t_token_type	type;       // Yönlendirme tipi (T_REDIR_OUT, vb.)
+	char			*filename;  // Yönlendirilecek dosyanın adı
+}	t_redir;
+
+typedef struct s_simple_command
+{
+	char	**args;      // Komut ve argümanları (execve'e uygun)
+	t_list	*redirections; // t_redir'lerden oluşan bir liste   //LİBFT DEKİ LİST T_LİST
+}	t_simple_command;
+
+typedef struct s_command_chain
+{
+	t_simple_command		*simple_command; // Bu düğümdeki basit komut
+	struct s_command_chain	*next;       // Pipe ile sonraki komuta işaretçi
+}	t_command_chain;
+
+
+t_env	*create_env_list(char **envp);
+void	main_loop(t_shell *shell);
 
 // --- Fonksiyon Protototipleri ---
 
@@ -59,6 +92,7 @@ int		is_metachar(char c);
 int		is_whitespace(char c);
 
 
+// # include "minishell.h"
 // Temizlik fonksiyonları
 // void		free_tokens(t_token *tokens);
 // void		free_ast(t_command_chain *ast);

@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:42:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/03 01:18:17 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/03 02:10:22 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,17 @@
 
 #include "minishell.h"
 
-// Her döngünün sonunda komut için ayrılan belleği temizleyen yardımcı.
-static void	cleanup_command_data(t_command_chain *cmd_tree, t_token *tokens, char *line)
-{
-	if (cmd_tree)
-		free_cmd_tree(cmd_tree); // AST'yi temizle
-	// NOT: parser'da hata olursa token listesi oluşmuş ama cmd_tree oluşmamış olabilir.
-	// if (tokens)
-	//     free_token_list(tokens);
-	if (line)
-		free(line);
-}
+// // Her döngünün sonunda komut için ayrılan belleği temizleyen yardımcı.
+// static void	cleanup_command_data(t_command_chain *cmd_tree, t_token *tokens, char *line)
+// {
+// 	if (cmd_tree)
+// 		free_cmd_tree(cmd_tree); // AST'yi temizle
+// 	// NOT: parser'da hata olursa token listesi oluşmuş ama cmd_tree oluşmamış olabilir.
+// 	if (tokens)
+// 	    free_token_list(tokens);
+// 	if (line)
+// 		free(line);
+// }
 
 
 /*

@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   executor.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:50:13 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/01 08:54:14 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/03 01:35:51 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef EXECUTOR_H
 # define EXECUTOR_H
 
-# include "minishell.h"
+// # include "minishell.h"
 
 /* --- Ana Executor Fonksiyonu --- */
 void	executor(t_command_chain *cmd_chain, t_shell *shell);
