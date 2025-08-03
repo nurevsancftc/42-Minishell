@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/02 19:11:22 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/02 19:11:23 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/03 05:14:14 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,24 +19,40 @@ static int	handle_metachar(const char *line, t_token **token_list)
 {
 	if (*line == '>')
 	{
-		if (*(line + 1) == '>')
+		if (*(line + 1) == '>' && *(line + 2) != '>')
+		{
 			add_token_to_list(token_list, create_token(">>", TOKEN_REDIR_APPEND));
-		else
+			return 2;
+		}
+		else if (*(line + 1) != '>')
+		{
 			add_token_to_list(token_list, create_token(">", TOKEN_REDIR_OUT));
-		return (*(line + 1) == '>') ? 2 : 1;
+			return 1;
+		}
+		else
+			return -1; // Hatalı: >>> gibi
 	}
 	if (*line == '<')
 	{
-		if (*(line + 1) == '<')
+		if (*(line + 1) == '<' && *(line + 2) != '<')
+		{
 			add_token_to_list(token_list, create_token("<<", TOKEN_HEREDOC));
-		else
+			return 2;
+		}
+		else if (*(line + 1) != '<')
+		{
 			add_token_to_list(token_list, create_token("<", TOKEN_REDIR_IN));
-		return (*(line + 1) == '<') ? 2 : 1;
+			return 1;
+		}
+		else
+			return -1; // Hatalı: <<<
 	}
 	if (*line == '|')
 	{
+		if (*(line + 1) == '|')
+			return -1; // Hatalı: ||
 		add_token_to_list(token_list, create_token("|", TOKEN_PIPE));
-		return (1);
+		return 1;
 	}
 	return (0);
 }

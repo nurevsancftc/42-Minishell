@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:51:08 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/03 04:58:17 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/03 05:13:56 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,21 +84,27 @@ static int	handle_redirection(t_token **token_cursor, t_simple_command *cmd)
 	return (0); // Başarılı
 }
 
-// // Bir sonraki PIPE'a kadar olan token'ları sayarak `args` dizisi için yer ayırır.
-// static int	count_args(t_token *start, t_token *end)
-// {
-// 	int count = 0;
-// 	while (start != end)
-// 	{
-// 		if (start->type == TOKEN_WORD)
-// 			count++;
-// 		// Yönlendirme token'ları argüman sayılmaz, onlar atlanır.
-// 		else if (start->type >= TOKEN_REDIR_IN && start->type <= TOKEN_HEREDOC)
-// 			start = start->next; // Dosya adını da atla
-// 		start = start->next;
-// 	}
-// 	return (count);
-// }
+// Bir sonraki PIPE'a kadar olan token'ları sayarak `args` dizisi için yer ayırır.
+static int	count_args(t_token *token_cursor)
+{
+	int count = 0;
+	while (token_cursor && token_cursor->type != TOKEN_PIPE)
+{
+		// Sadece T_WORD tipindeki token'lar argümandır.
+		if (token_cursor->type == TOKEN_WORD)
+			count++;
+		// Yönlendirme token'ı görürsek, onu ve sonraki dosya adını atla.
+		// Bu, yönlendirmelerin argüman olarak sayılmasını engeller.
+		else if (token_cursor->type >= TOKEN_REDIR_IN && token_cursor->type <= TOKEN_HEREDOC)
+		{
+			// ls > gibi bir syntax hatasına karşı koruma
+			if (token_cursor->next)
+				token_cursor = token_cursor->next;
+		}
+		token_cursor = token_cursor->next;
+	}
+	return (count);
+}
 
 
 // Tek bir basit komutun argümanlarını ve yönlendirmelerini doldurur.
@@ -123,15 +129,7 @@ int	populate_simple_cmd(t_simple_command *cmd, t_token **token_cursor)
 	arg_count = 0;
 	temp_cursor = *token_cursor;
 	
-	// 1. ADIM: Argüman sayısını öğrenmek için pipe görene kadar token'ları say (yer ayırmak için).
-	while (temp_cursor && temp_cursor->type != TOKEN_PIPE)  //Daha sonra count_args ile ayrılacak.
-	{
-		if (temp_cursor->type == TOKEN_WORD)
-			arg_count++;
-		else // Yönlendirmeyse, hem kendisini hem dosya adını atla
-			temp_cursor = temp_cursor->next;
-		temp_cursor = temp_cursor->next;
-	}
+	arg_count = count_args(*token_cursor);
 
 	// 2. ADIM: Argüman dizisi için yer ayır (+1 NULL için).
 	cmd->args = malloc(sizeof(char *) * (arg_count + 1));
