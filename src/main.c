@@ -23,7 +23,7 @@ void	init_shell(t_shell *shell, char **envp)
 void	cleanup_shell(t_shell *shell)
 {
 	// Ortam değişkenleri listesini temizler.
-	ft_lstclear(&shell->env_list, free); // Veya özel bir free fonksiyonu
+	ft_lstclear(&shell->env_list, free_env_content); // Veya özel bir free fonksiyonu
 	// readline kütüphanesinin kendi geçmişini temizlemesi için
 	clear_history();
 }
