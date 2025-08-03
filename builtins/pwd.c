@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pwd.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 15:54:10 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/03 01:28:25 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/03 10:26:38 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,10 @@
  *   - Başarılı olursa 0.
  *   - Hata olursa (argüman verilmesi veya getcwd hatası) 1.
  */
-int	ft_pwd(char **args)
+int		ft_pwd(char **args, t_shell *shell)
 {
 	char	*current_dir;
+	(void)shell;
 
 	// 1. Argüman kontrolü yapalım.
 	// `args` dizisinin ikinci elemanı (args[1]) varsa, bu,
