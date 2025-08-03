@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:51:08 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/03 02:13:49 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/03 04:58:17 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,7 +194,7 @@ t_command_chain	*parser(t_token *tokens)
 		current_cmd_node->next = NULL;
 
 		// Asıl doldurma işlemini yapan ve imleci ilerleten fonksiyon.
-		if(populate_simple_cmd(current_cmd_node->simple_command, &tokens) == -1) // &tokens kısmı yanlış olabilir kontrol et!
+		if(populate_simple_cmd(current_cmd_node->simple_command, &current_token) == -1) // &tokens kısmı yanlış olabilir kontrol et!
 		{
 			free_cmd_tree(current_cmd_node);
 			free_cmd_tree(cmd_head);
