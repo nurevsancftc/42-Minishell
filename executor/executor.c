@@ -3,50 +3,59 @@
 /*                                                        :::      ::::::::   */
 /*   executor.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 05:26:50 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/03 01:28:08 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/03 10:22:43 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
 /**
- * executor - Komut zincirini alır ve her bir komutu çalıştırır.
+ * is_single_builtin - Komut zincirinde tek bir komut olup olmadığını ve
+ *                     bu komutun bir yerleşik (built-in) komut olup olmadığını
+ *                     kontrol eder.
+ */
+static int	is_single_builtin(t_command_chain *cmd_chain)
+{
+	char	*cmd_name;
+
+	if (!cmd_chain || cmd_chain->next != NULL)
+		return (0);
+	if (!cmd_chain->simple_command || !cmd_chain->simple_command->args)
+		return (0);
+	cmd_name = cmd_chain->simple_command->args[0];
+	if (!cmd_name)
+		return (0);
+	if (strcmp(cmd_name, "cd") == 0 || strcmp(cmd_name, "exit") == 0
+		|| strcmp(cmd_name, "export") == 0 || strcmp(cmd_name, "unset") == 0)
+		return (1);
+	return (0);
+}
+
+/**
+ * executor - Komut ağacını alır ve uygun yürütme yolunu seçer.
  *
- * Bu fonksiyon bir orkestra şefi gibidir. Parser'dan gelen komut
- * ağacını alır ve her bir komut için karar verir: "Bu bir built-in mi?
- * Yoksa harici bir program mı?". Ardından ilgili yürütücüyü çağırır.
+ * `cd`, `exit` gibi ana shell'i etkilemesi gereken tekil built-in'leri
+ * doğrudan ana süreçte çalıştırır.
  *
- * NOT: Bu basit versiyon, şimdilik sadece tek bir komutu (pipe'sız)
- * ele almaktadır. Pipe'lar eklendiğinde bu fonksiyonun genişletilmesi
- * gerekecektir.
+ * Diğer tüm durumlar (pipe'lı komutlar, harici komutlar veya `echo`, `pwd`,
+ * `env` gibi pipe içinde çalışabilen built-in'ler) için, süreçler
+ * oluşturan `execute_pipeline` fonksiyonunu çağırır.
  */
 void	executor(t_command_chain *cmd_chain, t_shell *shell)
 {
-	char	**args;
-
-	// Güvenlik kontrolü: Geçersiz bir komut ağacı gelirse hiçbir şey yapma.
-	if (cmd_chain == NULL || cmd_chain->simple_command == NULL)
+	if (!cmd_chain || !cmd_chain->simple_command
+		|| !cmd_chain->simple_command->args
+		|| !cmd_chain->simple_command->args[0])
 		return;
-
-	// Çalıştırılacak komutun argümanlarını al.
-	args = cmd_chain->simple_command->args;
-
-	// Güvenlik kontrolü: Argüman listesi boşsa hiçbir şey yapma.
-	if (args == NULL || args[0] == NULL)
-		return;
-
-	// Karar anı: Bu bir yerleşik komut mu?
-	if (execute_builtin(args, shell) == 1)
+	if (is_single_builtin(cmd_chain))
 	{
-		// Evet, `execute_builtin` komutu bulup çalıştırdı.
-		// İşimiz burada bitti.
-		return;
+		execute_builtin(cmd_chain->simple_command->args, shell);
 	}
-	
-	// Hayır, bu bir yerleşik komut değil.
-	// O zaman harici komut yürütücüsünü çağır.
-	execute_external(args, shell);
+	else
+	{
+		execute_pipeline(cmd_chain, shell);
+	}
 }

@@ -13,8 +13,8 @@ SRCS =	src/main.c \
 		builtins/pwd.c \
 		executor/executor.c \
 		executor/executor_utils.c \
-		executor/executor_external.c \
-		executor/executor_builtins.c \
+		executor/executor_pipeline.c \
+		executor/executor_commands.c \
 		parser/lexer.c \
 		parser/parser.c \
 		parser/quotes.c \
