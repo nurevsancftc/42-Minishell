@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 17:49:01 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/07/27 19:27:21 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/03 09:35:33 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,8 @@
 #include "minishell.h"
 
 /*
- * Tek bir "KEY=VALUE" string'ini alır ve bir t_env yapısı oluşturur.
+ * Tek bir "KEY=VALUE" string'ini alır ve bir t_env veri paketi oluşturur.
+ * Bu bir liste düğümü DEĞİLDİR.
  */
 static t_env	*create_env_node(char *env_line)
 {
@@ -56,40 +57,32 @@ static t_env	*create_env_node(char *env_line)
  * bir bağlı liste oluşturup döndürür.
  * Her liste elemanının (node) içeriği (content) bir t_env yapısıdır.
  */
-t_env	*create_env_list(char **envp)
+// src/env.c (sadece create_env_list fonksiyonu)
+t_list	*create_env_list(char **envp) // Dönüş tipini t_list* yap
 {
-	t_env	*env_list_head;
-	t_env	*new_list_node;
+	t_list	*env_list_head; // Tipi t_list*
+	t_list	*new_list_node; // Tipi t_list*
 	t_env	*env_node_content;
 	int		i;
 
 	env_list_head = NULL;
 	i = 0;
-	// envp dizisi NULL ile sonlanır.
 	while (envp[i])
 	{
-		// 1. "KEY=VALUE" satırından bir t_env yapısı oluştur.
 		env_node_content = create_env_node(envp[i]);
 		if (!env_node_content)
 		{
-			ft_lstclear(&env_list_head, free); // Hata durumunda o ana kadar oluşan listeyi temizle
-			return (NULL); // ve NULL dön.
+			ft_lstclear(&env_list_head, free_env_content);
+			return (NULL);
 		}
-
-		// 2. Bu t_env yapısını content olarak içeren yeni bir t_env düğümü oluştur.
 		new_list_node = ft_lstnew(env_node_content);
 		if (!new_list_node)
 		{
-			free(env_node_content->key);
-			free(env_node_content->value);
-			free(env_node_content);
-			ft_lstclear(&env_list_head, free);
+			free_env_content(env_node_content);
+			ft_lstclear(&env_list_head, free_env_content);
 			return (NULL);
 		}
-		
-		// 3. Yeni düğümü listemizin sonuna ekle.
 		ft_lstadd_back(&env_list_head, new_list_node);
-		
 		i++;
 	}
 	return (env_list_head);

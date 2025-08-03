@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/03 02:08:42 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/03 09:36:19 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ typedef struct s_env
 {
 	char			*key;
 	char			*value;
-	struct s_env	*next;
+	// struct s_env	*next;
 }	t_env;
 
 typedef struct s_shell
@@ -73,7 +73,7 @@ typedef struct s_command_chain
 }	t_command_chain;
 
 
-t_env	*create_env_list(char **envp);
+t_list	*create_env_list(char **envp);
 void	main_loop(t_shell *shell);
 
 // --- Fonksiyon Protototipleri ---

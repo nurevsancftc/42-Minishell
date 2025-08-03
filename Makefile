@@ -2,6 +2,7 @@ NAME = minishell
 
 SRCS =	src/main.c \
 		src/main_loop.c \
+		src/env.c \
 		builtins/cd.c \
 		builtins/echo.c \
 		builtins/env.c \

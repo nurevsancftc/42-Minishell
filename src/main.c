@@ -13,7 +13,7 @@ void	init_shell(t_shell *shell, char **envp)
 	(void)envp;
 	// `envp` dizisini kopyalayıp kendi bağlı listemiz olan `env_list`'e aktarır.
 	// Bu fonksiyonu environment.c gibi bir dosyada yazmalısın.
-	// shell->env_list = create_env_list(envp); 
+	shell->env_list = create_env_list(envp); 
 	shell->exit_code = 0;
 }
 
