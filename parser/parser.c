@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:51:08 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/03 05:13:56 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/04 19:05:58 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,7 +182,7 @@ t_command_chain	*parser(t_token *tokens)
 		printf("minishell: syntax error near unexpected token `|'\n");
 		return (NULL);
 	}
-
+	
 	while (current_token)
 	{
 		current_cmd_node = malloc(sizeof(t_command_chain));

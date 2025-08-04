@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/02 19:11:22 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/03 05:14:14 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/04 19:54:00 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,38 +19,48 @@ static int	handle_metachar(const char *line, t_token **token_list)
 {
 	if (*line == '>')
 	{
-		if (*(line + 1) == '>' && *(line + 2) != '>')
+		if ((*(line + 1) == '>' && *(line + 2) != '>') && (*(line + 1) == '>' && *(line + 2) != '<'))
 		{
 			add_token_to_list(token_list, create_token(">>", TOKEN_REDIR_APPEND));
 			return 2;
 		}
-		else if (*(line + 1) != '>')
+		else if ((*(line + 1) != '>') && (*(line + 1) != '<'))
 		{
 			add_token_to_list(token_list, create_token(">", TOKEN_REDIR_OUT));
 			return 1;
 		}
 		else
+		{
+			if(*(line + 2) == '>')
+				printf("minishell: syntax error near unexpected token `>'\n");
+			if(*(line + 2) == '<')
+				printf("minishell: syntax error near unexpected token `<'\n");
 			return -1; // Hatalı: >>> gibi
+		}
 	}
 	if (*line == '<')
 	{
-		if (*(line + 1) == '<' && *(line + 2) != '<')
+		if ((*(line + 1) == '<' && *(line + 2) != '<') && (*(line + 1) == '<' && *(line + 2) != '>'))
 		{
 			add_token_to_list(token_list, create_token("<<", TOKEN_HEREDOC));
 			return 2;
 		}
-		else if (*(line + 1) != '<')
+		else if ((*(line + 1) != '<') && (*(line + 1) != '>'))
 		{
 			add_token_to_list(token_list, create_token("<", TOKEN_REDIR_IN));
 			return 1;
 		}
 		else
-			return -1; // Hatalı: <<<
+		{
+			if(*(line + 2) == '>')
+				printf("minishell: syntax error near unexpected token `>'\n");
+			if(*(line + 2) == '<')
+				printf("minishell: syntax error near unexpected token `<'\n");
+			return -1; // Hatalı: >>> gibi
+		}
 	}
 	if (*line == '|')
 	{
-		if (*(line + 1) == '|')
-			return -1; // Hatalı: ||
 		add_token_to_list(token_list, create_token("|", TOKEN_PIPE));
 		return 1;
 	}
