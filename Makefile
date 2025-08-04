@@ -23,7 +23,7 @@ SRCS =	src/main.c \
 
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -g -Iincludes
+CFLAGS = -g -Iincludes
 
 OBJS = $(SRCS:.c=.o)
 

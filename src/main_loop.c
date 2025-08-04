@@ -6,26 +6,13 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:42:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/03 02:10:22 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/04 18:23:48 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 // src/main_loop.c
 
 #include "minishell.h"
-
-// // Her döngünün sonunda komut için ayrılan belleği temizleyen yardımcı.
-// static void	cleanup_command_data(t_command_chain *cmd_tree, t_token *tokens, char *line)
-// {
-// 	if (cmd_tree)
-// 		free_cmd_tree(cmd_tree); // AST'yi temizle
-// 	// NOT: parser'da hata olursa token listesi oluşmuş ama cmd_tree oluşmamış olabilir.
-// 	if (tokens)
-// 	    free_token_list(tokens);
-// 	if (line)
-// 		free(line);
-// }
-
 
 /*
  * ANA İŞLEVSELLİK DÖNGÜSÜ
@@ -46,18 +33,22 @@ void	main_loop(t_shell *shell)
 		if (!line) // Ctrl+D basıldı (EOF)
 		{
 			printf("exit\n");
-			break;
+			break; // Döngüyü kır ve programı sonlandır.
 		}
 		if (*line)
 			add_history(line);
-		
+		else // Boş satır girildiyse, belleği temizle ve döngüye baştan başla.
+		{
+			free(line);
+			continue;
+		}
 		tokens = lexer(line);
 		if (!tokens) // Sözdizimi hatası veya boş satır
 		{
 			free(line);
 			continue;
 		}
-
+		free(line);
 		cmd_tree = parser(tokens);
 		free_token_list(tokens); // Token listesine artık ihtiyacımız yok.
 		if (!cmd_tree) // Parser hatası
@@ -67,12 +58,11 @@ void	main_loop(t_shell *shell)
 			continue;
 		}
 
-		// Expander ve Executor, shell durumuna (env, exit_code) ihtiyaç duyar.
-		// expander(cmd_tree, shell);
-		executor(cmd_tree, shell);
+		// // Expander ve Executor, shell durumuna (env, exit_code) ihtiyaç duyar.
+		// // expander(cmd_tree, shell);
+		// executor(cmd_tree, shell);
 
-		// Bu komut için ayrılan her şeyi temizle.
+		// // Bu komut için ayrılan her şeyi temizle.
 		free_cmd_tree(cmd_tree);
-		free(line);
 	}
 }
