@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor_commands.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:55:03 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/03 10:21:31 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/05 13:47:01 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,27 +18,63 @@
  *
  * Döner Değer: Komut built-in ise 1, değilse 0.
  */
+int	is_builtin(char *cmd)
+{
+	// Koruma: Eğer komut string'i NULL ise, bu bir builtin olamaz.
+	if (!cmd)
+		return (0);
+
+	// Bilinen builtin komut listesi ile karşılaştır.
+	if (strcmp(cmd, "echo") == 0)
+		return (1);
+	if (strcmp(cmd, "cd") == 0)
+		return (1);
+	if (strcmp(cmd, "pwd") == 0)
+		return (1);
+	if (strcmp(cmd, "export") == 0)
+		return (1);
+	if (strcmp(cmd, "unset") == 0)
+		return (1);
+	if (strcmp(cmd, "env") == 0)
+		return (1);
+	if (strcmp(cmd, "exit") == 0)
+		return (1);
+
+	// Eğer listede bulunamadıysa, bu bir builtin değildir.
+	return (0);
+}
+
 int	execute_builtin(char **args, t_shell *shell)
 {
+	// Koruma: Bu durumun oluşmaması gerekir ama güvenlik için iyidir.
+	if (!args || !args[0])
+		return (1); // Genel hata kodu
+
 	if (strcmp(args[0], "echo") == 0)
-		// DÜZELTME: İkinci parametre olarak 'shell'i ekle.
-		shell->exit_code = ft_echo(args, shell);
+	{
+		return (ft_echo(args, shell));
+	}
 	else if (strcmp(args[0], "cd") == 0)
-		shell->exit_code = ft_cd(args, shell);
+		return (ft_cd(args, shell));
 	else if (strcmp(args[0], "pwd") == 0)
-		// DÜZELTME: İkinci parametre olarak 'shell'i ekle.
-		shell->exit_code = ft_pwd(args, shell);
+		return (ft_pwd(args, shell));
 	else if (strcmp(args[0], "export") == 0)
-		shell->exit_code = ft_export(args, shell);
+		return (ft_export(args, shell));
 	else if (strcmp(args[0], "unset") == 0)
-		shell->exit_code = ft_unset(args, shell);
+		return (ft_unset(args, shell));
 	else if (strcmp(args[0], "env") == 0)
-		shell->exit_code = ft_env(args, shell);
+		return (ft_env(args, shell));
 	else if (strcmp(args[0], "exit") == 0)
-		ft_exit(args);
-	else
+	{
+		// ft_exit özel bir durumdur, programı sonlandırır ve geri dönmez.
+		ft_exit(args, shell);
+		// Bu satıra normalde ulaşılmaz.
 		return (0);
-	return (1);
+	}
+
+	// Bu kısma asla ulaşılmamalıdır, çünkü 'is_builtin' önceden kontrol eder.
+	// Bir fallback olarak "command not found" döndürmek güvenli bir yaklaşımdır.
+	return (127);
 }
 
 /**
@@ -65,7 +101,7 @@ void	execute_external_in_child(char **args, t_shell *shell)
 	execve(cmd_path, args, envp_array);
 	perror("minishell");
 	free(cmd_path);
-	ft_free_split(envp_array);
+	ft_free_array(envp_array);
 	exit(126);
 }
 

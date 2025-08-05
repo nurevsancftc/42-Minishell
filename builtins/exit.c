@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:45:07 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/03 01:28:40 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 13:07:51 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ static int	is_numeric(const char *str)
  * Kabuğu sonlandırır ve bir çıkış kodu belirler.
  * Argümanların geçerliliğini kontrol eder ve bash'in davranışını taklit eder.
  */
-int	ft_exit(char **args)
+int	ft_exit(char **args, t_shell *shell)
 {
 	int	exit_status;
 

@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 08:41:22 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 14:04:54 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,6 +58,7 @@ typedef struct s_redir
 {
 	t_token_type	type;       // Yönlendirme tipi (T_REDIR_OUT, vb.)
 	char			*filename;  // Yönlendirilecek dosyanın adı
+	int				is_heredoc_tmp_file;
 }	t_redir;
 
 typedef struct s_simple_command
