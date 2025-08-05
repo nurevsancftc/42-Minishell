@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:51:08 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/04 19:05:58 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 10:09:16 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,10 +66,7 @@ static int	handle_redirection(t_token **token_cursor, t_simple_command *cmd)
 	redir_token = *token_cursor;
 	// SYNTAX CHECK: Yönlendirmeden sonra bir token var mı?
 	if (!redir_token->next || redir_token->next->type != TOKEN_WORD)
-	{
-		printf("minishell: syntax error near unexpected token `newline'\n");
 		return (-1); // Hata
-	}
 	redir = malloc(sizeof(t_redir));
 	if (!redir)
 		return (-1); // Malloc hatası
@@ -84,75 +81,69 @@ static int	handle_redirection(t_token **token_cursor, t_simple_command *cmd)
 	return (0); // Başarılı
 }
 
-// Bir sonraki PIPE'a kadar olan token'ları sayarak `args` dizisi için yer ayırır.
-static int	count_args(t_token *token_cursor)
+static int	validate_and_count_args(t_token *token, int *arg_count)
 {
-	int count = 0;
-	while (token_cursor && token_cursor->type != TOKEN_PIPE)
-{
-		// Sadece T_WORD tipindeki token'lar argümandır.
-		if (token_cursor->type == TOKEN_WORD)
-			count++;
-		// Yönlendirme token'ı görürsek, onu ve sonraki dosya adını atla.
-		// Bu, yönlendirmelerin argüman olarak sayılmasını engeller.
-		else if (token_cursor->type >= TOKEN_REDIR_IN && token_cursor->type <= TOKEN_HEREDOC)
+	*arg_count = 0;
+	while (token && token->type != TOKEN_PIPE)
+	{
+		if (token->type == TOKEN_WORD)
+			(*arg_count)++;
+		else // Bir yönlendirme token'ı ise
 		{
-			// ls > gibi bir syntax hatasına karşı koruma
-			if (token_cursor->next)
-				token_cursor = token_cursor->next;
+			// Hata: Yönlendirme operatöründen sonra token yoksa veya
+			// o token bir kelime değilse, bu bir syntax hatasıdır.
+			if (!token->next || token->next->type != TOKEN_WORD)
+			{
+				printf("minishell: syntax error near unexpected token `");
+				if (token->next)
+					printf("%s'\n", token->next->value);
+				else
+					printf("newline'\n");
+				return (-1);
+			}
+			// Yönlendirme ve dosya adını atla (2 token ileri git)
+			token = token->next;
 		}
-		token_cursor = token_cursor->next;
+		token = token->next;
 	}
-	return (count);
+	return (0); // Başarılı, hata yok.
 }
 
-
-// Tek bir basit komutun argümanlarını ve yönlendirmelerini doldurur.
+// GÜNCELLENMİŞ ANA FONKSİYON
 int	populate_simple_cmd(t_simple_command *cmd, t_token **token_cursor)
 {
-	// 1. Önce argümanlar için `malloc` ile yer ayırmak üzere argümanları say.
-	// 2. Bir döngü ile PIPE'a veya listenin sonuna kadar git.
-	// 3. Her döngü adımında:
-	//    a. Eğer token T_WORD ise, bunu cmd->args dizisine ekle.
-	//    b. Eğer token bir yönlendirme ise (T_REDIR_*):
-	//       i.   Yeni bir t_redir yapısı oluştur.
-	//       ii.  Yönlendirme tipini ata (örn: T_REDIR_OUT).
-	//       iii. Bir sonraki token'ın değerini (dosya adını) kopyala.
-	//       iv.  Bu t_redir yapısını cmd->redirections listesine ekle.
-	//       v.   Token işaretçisini iki ileri sar.
-	// 4. `args` dizisini NULL ile sonlandır.
+	int	arg_count;
+	int	i;
 
-	int		arg_count;
-	t_token	*temp_cursor;
-	int		i;
+	// 1. AŞAMA: Doğrula ve Say.
+	// Hata varsa, hiçbir bellek ayırmadan çık.
+	if (validate_and_count_args(*token_cursor, &arg_count) == -1)
+		return (-1);
 
-	arg_count = 0;
-	temp_cursor = *token_cursor;
-	
-	arg_count = count_args(*token_cursor);
-
-	// 2. ADIM: Argüman dizisi için yer ayır (+1 NULL için).
-	cmd->args = malloc(sizeof(char *) * (arg_count + 1));
+	// 2. AŞAMA (Başarılıysa): Belleği Ayır.
+	// calloc kullanmak, dizinin içini NULL ile dolduracağı için daha güvenlidir.
+	cmd->args = ft_calloc(arg_count + 1, sizeof(char *));
 	if (!cmd->args)
 		return (-1); // Malloc hatası
 
-	
-	// 3. ADIM: Argümanları ve yönlendirmeleri doldur.
+	// 3. AŞAMA: Yapıları Doldur.
+	// Bu aşamada syntax hatası olmayacağını biliyoruz, bu yüzden güvenli.
 	i = 0;
 	while (*token_cursor && (*token_cursor)->type != TOKEN_PIPE)
 	{
 		if ((*token_cursor)->type == TOKEN_WORD)
 			cmd->args[i++] = ft_strdup((*token_cursor)->value);
-		else // Yönlendirme ise, özel yardımcıyı çağır.
+		else // Yönlendirme ise, doldurma işlemini yap.
 		{
+			// handle_redirection muhtemelen içinde malloc yapıyordur.
+			// Orada bir hata olursa yine -1 ile çıkılmalı.
 			if (handle_redirection(token_cursor, cmd) == -1)
-				return (-1); // Hata durumunda çık.
-			continue; // `handle_redirection` imleci zaten ilerletti.
+				return (-1); // handle_redirection içindeki malloc hatası
+			continue; // handle_redirection imleci zaten ilerletti.
 		}
 		*token_cursor = (*token_cursor)->next;
 	}
-	cmd->args[i] = NULL; // Diziyi NULL ile sonlandır.
-	return (0); // Başarılı
+	return (0); // Her şey başarılı.
 }
 
 /*
@@ -185,10 +176,17 @@ t_command_chain	*parser(t_token *tokens)
 	
 	while (current_token)
 	{
-		current_cmd_node = malloc(sizeof(t_command_chain));
+		current_cmd_node = calloc(1, sizeof(t_command_chain));
 		if (!current_cmd_node)
 			return (NULL); // malloc error, Hata yönetimi: Önceki listeyi temizle
 		current_cmd_node->simple_command = create_simple_cmd();
+		if (!current_cmd_node->simple_command)
+		{
+    		// create_simple_cmd başarısız oldu
+    		free(current_cmd_node); // Sadece o anki düğümü temizle
+    		free_cmd_tree(cmd_head); // Öncekileri temizle
+    		return (NULL);
+		}
 		current_cmd_node->next = NULL;
 
 		// Asıl doldurma işlemini yapan ve imleci ilerleten fonksiyon.
@@ -217,48 +215,3 @@ t_command_chain	*parser(t_token *tokens)
 	}
 	return (cmd_head);
 }
-
-
-
-/*
-** Fonksiyon İsimleri:
-** - 'populate_command_node' gibi fonksiyon isimleri senin orijinal iskeletine sadık kalınarak kullanılmıştır.
-** - 't_command_chain', 't_cmd_table' ile aynı yapıdadır; sadece isimlendirme farklıdır.
-*/
-
-/*
-** Token İşaretçisi:
-** - 'populate_command_node' gibi fonksiyonlara '&tokens' yerine '&current_token' gönderilir.
-** - Böylece fonksiyon, işlenen token sonrası kaldığı yerden devam eder.
-** - Bu pointer ilerlemesi parser’ın düzgün çalışması açısından kritik önemdedir.
-*/
-
-/*
-** Fonksiyonel Ayrım:
-** - 'populate_simple_cmd' ve 'handle_redirection' gibi fonksiyonlara bölündü.
-** - Bu yapı, kodun okunabilirliğini ve yönetilebilirliğini artırır.
-** - Ayrıca Tek Sorumluluk Prensibi’ne (SRP) uygundur.
-*/
-
-/*
-** Hata Yönetimi:
-** - 'populate_simple_cmd' ve 'handle_redirection' başarısız olursa -1 döner.
-** - Ana parser fonksiyonu bu durumu kontrol eder.
-** - Syntax hatasında şimdiye kadar ayrılan belleği temizleyip NULL döner.
-** - Bu sayede bellek sızıntıları önlenmiş olur.
-*/
-
-/*
-** Pipe Kontrolleri:
-** - Komut başında pipe olup olmadığı kontrol edilir. ('| ls' hatalıdır)
-** - 'populate_simple_cmd' çağrıldıktan sonra:
-**     - Eğer sıradaki token PIPE ise, ondan sonra gelen tokenın da geçerli olması gerekir.
-**     - Yan yana pipe'lar veya pipe sonrası boşluk hataları yakalanır. ('ls | | wc' gibi)
-*/
-
-/*
-** Redirection Kontrolü:
-** - '>' veya '<' gibi bir yönlendirme token'ı varsa,
-**     - hemen ardından bir filename gelmelidir.
-**     - Bu kontrol, tam olarak ait olduğu yerde yani 'handle_redirection' fonksiyonu içinde yapılır.
-*/

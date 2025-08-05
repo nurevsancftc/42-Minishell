@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 19:09:45 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/04 18:22:47 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 08:45:58 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,6 @@ static void free_redir_node(void *content)
 void free_cmd_tree(t_command_chain *head)
 {
     t_command_chain *tmp;
-
     while (head)
     {
         tmp = head->next;
