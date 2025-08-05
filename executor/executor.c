@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 05:26:50 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/05 16:56:48 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 17:03:37 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,7 @@ int	execute_external_command(t_simple_command *cmd, t_shell *shell, \
 			ft_putstr_fd("minishell: ", 2);
 			ft_putstr_fd(cmd->args[0], 2);
 			ft_putstr_fd(": command not found\n", 2);
-			cleanup_and_exit(shell, full_chain, 127);
+			return (SHELL_SHOULD_EXIT);
 		}
 
 		envp_array = convert_env_list_to_array(shell);
@@ -159,7 +159,7 @@ int	execute_external_command(t_simple_command *cmd, t_shell *shell, \
 		{
 			perror("minishell: environment setup failed");
 			free(path); // `get_command_path`'ten gelen path'i unutma.
-			cleanup_and_exit(shell, full_chain, 1);
+			return (SHELL_SHOULD_EXIT);
 		}
 
 		execve(path, cmd->args, envp_array);
@@ -168,7 +168,7 @@ int	execute_external_command(t_simple_command *cmd, t_shell *shell, \
 		perror(cmd->args[0]);
 		free(path);
 		ft_free_array(envp_array); // execve'ye gönderdiğimiz diziyi temizle.
-		cleanup_and_exit(shell, full_chain, 126);
+		return (SHELL_SHOULD_EXIT);
 	}
 
 	// --- Ebeveyn Proses Başlangıcı ---
