@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/02 19:11:22 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/04 19:54:00 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 19:23:29 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,19 +71,43 @@ static int	handle_metachar(const char *line, t_token **token_list)
 static int	handle_word(const char *line, t_token **token_list)
 {
 	int		i;
+	char	quote_char;
 	char	*word;
 
 	i = 0;
-	// Boşluk, metakarakter veya tırnak görene kadar ilerle.
-	while (line[i] && !is_whitespace(line[i]) && \
-		   !is_metachar(line[i]) && line[i] != '\'' && line[i] != '"')
+	// Kelimenin sonunu bulana kadar ilerle (boşluk veya metakarakter)
+	while (line[i] && !is_whitespace(line[i]) && !is_metachar(line[i]))
 	{
-		i++;
+		// Eğer bir tırnak karakteri bulursak
+		if (line[i] == '\'' || line[i] == '"')
+		{
+			quote_char = line[i];
+			i++; // Açılış tırnağını atla
+			// Eşleşen kapanış tırnağını bulana kadar ilerle
+			while (line[i] && line[i] != quote_char)
+				i++;
+			
+			// Eğer kapanış tırnağını bulamadan satır bittiyse, bu bir syntax hatasıdır.
+			if (line[i] == '\0')
+			{
+				printf("minishell: syntax error: unclosed quote\n");
+				return (-1); // Hata bildir
+			}
+			i++; // Kapanış tırnağını da atla
+		}
+		else
+		{
+			// Normal bir karakterse, sadece ilerle.
+			i++;
+		}
 	}
+	
+	// `line`'ın başından `i`'nin geldiği yere kadar olan kısmı tek bir kelime olarak al.
 	word = ft_substr(line, 0, i);
 	add_token_to_list(token_list, create_token(word, TOKEN_WORD));
-	free(word);
-	return (i);
+	free(word); // create_token kopyasını oluşturduğu için orijinali free et.
+	
+	return (i); // İşlenen toplam karakter sayısını döndür.
 }
 
 /*
@@ -114,14 +138,15 @@ t_token	*lexer(const char *line)
 			processed_len = 1;
 		else if (is_metachar(line[i]))
 			processed_len = handle_metachar(&line[i], &token_list);
-		else if (line[i] == '\'' || line[i] == '"')
-			processed_len = handle_quotes(&line[i], &token_list); // Bu quotes.c'de olacak
-		else
+		else // Kelime, tırnak veya bunların birleşimi ise...
+		{
+			// Artık her şey handle_word tarafından işleniyor.
 			processed_len = handle_word(&line[i], &token_list);
+		}
 
 		if (processed_len < 0) // Hata durumu (örn: kapanmamış tırnak)
 		{
-			free_token_list(token_list); // O ana kadar olanı temizle
+			free_token_list(token_list);
 			return (NULL);
 		}
 		i += processed_len;

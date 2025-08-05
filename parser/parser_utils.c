@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 19:09:45 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 18:26:24 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 19:55:36 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,4 +59,24 @@ void free_cmd_tree(t_command_chain *head)
         free(head);
         head = tmp;
     }
+}
+
+char	*ft_strunquote(const char *str)
+{
+	int		len;
+	char	quote;
+
+	if (!str)
+		return (NULL);
+	len = ft_strlen(str);
+	quote = str[0];
+	// Eğer string en az 2 karakter uzunluğundaysa ve ilk ile son karakter
+	// aynı tırnak karakteriyse...
+	if (len >= 2 && (quote == '\'' || quote == '"') && str[len - 1] == quote)
+	{
+		// Tırnakların içini kopyala.
+		return (ft_substr(str, 1, len - 2));
+	}
+	// Tırnak yoksa veya eşleşmiyorsa, string'in kendisinin bir kopyasını döndür.
+	return (ft_strdup(str));
 }

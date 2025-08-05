@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 15:08:06 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/05 18:11:30 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 20:00:47 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,5 +54,7 @@ void	free_env_content(void *content);
 int	is_valid_identifier(const char *key);
 
 char	*handle_dollar_sign(const char **word_ptr, t_shell *shell);
+
+char	*expand_heredoc_line(char *line, t_shell *shell);
 
 #endif

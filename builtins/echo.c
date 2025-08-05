@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:00:19 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/05 13:46:54 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 20:16:25 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,12 @@ int		ft_echo(char **args, t_shell *shell)
 	// Bu döngü, -n'lerin bittiği yerden devam eder.
 	while (args[i] != NULL)
 	{
+		if (args[i][0] == '\0')
+   	 	{
+        	i++;
+        	continue;
+    	}
+    
 		// Eğer bu ekrana basacağımız ilk kelime değilse,
 		// kelimelerin arasına boşluk koymak için ÖNCE boşluğu bas.
 		if (first_word_printed == 1)

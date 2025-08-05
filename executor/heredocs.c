@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 12:58:57 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 17:36:29 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 19:59:08 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,32 +25,45 @@
  * @return: İçeriğin yazıldığı geçici dosyanın adını (malloc ile) döner.
  *          Hata olursa veya kullanıcı Ctrl+D ile çıkarsa NULL döner.
  */
-static char	*read_heredoc_to_temp_file(const char *delimiter)
+static char	*read_heredoc_to_temp_file(t_redir *redir, t_shell *shell)
 {
 	char	*line;
+	char	*expanded_line;
 	int		fd;
-	char	*tmp_filename; // Benzersiz bir isim olmalı
+	char	*tmp_filename;
 
-	// Benzersiz bir geçici dosya adı oluştur (Bu sadece bir örnek)
 	tmp_filename = ft_strdup("/tmp/minishell_heredoc_XXXXXX");
-	fd = mkstemp(tmp_filename); // Güvenli geçici dosya oluşturur
+	if (!tmp_filename)
+		return (NULL);
+	fd = mkstemp(tmp_filename);
 	if (fd < 0)
 		return (free(tmp_filename), NULL);
 
 	while (1)
 	{
 		line = readline("> ");
-		if (!line) // Kullanıcı Ctrl+D'ye bastı
-		{
-			// Opsiyonel: "warning: here-document delimited by end-of-file"
+		if (!line) // Ctrl+D
 			break;
-		}
-		if (strcmp(line, delimiter) == 0)
+		if (strcmp(line, redir->filename) == 0) // redir->filename artık temiz delimiter'ı tutuyor
 		{
 			free(line);
 			break;
 		}
-		write(fd, line, ft_strlen(line));
+		
+		// GENİŞLETME MANTIĞI BURADA
+		if (redir->expand_in_heredoc)
+		{
+			// Evet, genişletme gerekiyor.
+			expanded_line = expand_heredoc_line(line, shell);
+			write(fd, expanded_line, ft_strlen(expanded_line));
+			free(expanded_line);
+		}
+		else
+		{
+			// Hayır, genişletme yok. Olduğu gibi yaz.
+			write(fd, line, ft_strlen(line));
+		}
+		
 		write(fd, "\n", 1);
 		free(line);
 	}
@@ -68,7 +81,7 @@ static char	*read_heredoc_to_temp_file(const char *delimiter)
  * @cmd_chain: İşlenecek komut zincirinin başı.
  * @return: Başarılı olursa 0, hata olursa -1 döner.
  */
-int	handle_heredocs(t_command_chain *cmd_chain)
+int	handle_heredocs(t_command_chain *cmd_chain, t_shell *shell)
 {
 	t_list	*redir_list;
 	t_redir	*redir;
@@ -76,7 +89,7 @@ int	handle_heredocs(t_command_chain *cmd_chain)
 
 	while (cmd_chain)
 	{
-		// 1. ADIM: Son heredoc'u bul.
+		// 1. ADIM: Son heredoc düğümünü bul.
 		redir_list = cmd_chain->simple_command->redirections;
 		last_heredoc_node = NULL;
 		while (redir_list)
@@ -93,24 +106,22 @@ int	handle_heredocs(t_command_chain *cmd_chain)
 			redir = (t_redir *)redir_list->content;
 			if (redir->type == TOKEN_HEREDOC)
 			{
+				// `read_heredoc_to_temp_file` artık t_redir'in tamamını ve shell'i alıyor.
 				if (redir_list != last_heredoc_node) // Bu sonuncu değil mi?
 				{
-					// Evet, değil. Girdiyi oku ve at.
-					char *dummy_file = read_heredoc_to_temp_file(redir->filename);
+					char *dummy_file = read_heredoc_to_temp_file(redir, shell);
 					if (!dummy_file) return (-1);
 					unlink(dummy_file);
 					free(dummy_file);
-					// EN ÖNEMLİ ADIM: Bu düğümü geçersiz kıl.
-					free(redir->filename);
-					redir->filename = NULL; 
+					redir->filename = NULL; // filename'i free etmiyoruz, çünkü parser'da temizlendi.
 				}
 				else // Bu, son ve geçerli heredoc.
 				{
-					char *real_file = read_heredoc_to_temp_file(redir->filename);
+					char *real_file = read_heredoc_to_temp_file(redir, shell);
 					if (!real_file) return (-1);
-					free(redir->filename);
+					// Delimiter'ın yerini geçici dosya adı aldı.
+					// Orijinal delimiter'ı free etmeye gerek yok, parser bunu yaptı.
 					redir->filename = real_file;
-					// Tipini değiştir ki '<' gibi davransın.
 					redir->type = TOKEN_REDIR_IN;
 				}
 			}

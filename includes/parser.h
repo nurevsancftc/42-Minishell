@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 18:26:32 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 20:20:26 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ typedef struct s_redir
 {
 	t_token_type	type;       // Yönlendirme tipi (T_REDIR_OUT, vb.)
 	char			*filename;  // Yönlendirilecek dosyanın adı
-	int				is_heredoc_tmp_file;
+	int				expand_in_heredoc; // Yeni bayrak: 1 ise evet, 0 ise hayır
 }	t_redir;
 
 typedef struct s_simple_command
@@ -108,9 +108,12 @@ int	populate_simple_cmd(t_simple_command *cmd, t_token **token_cursor);
 void	expander(t_command_chain *cmd_chain, t_shell *shell);
 void	expand_simple_command(t_simple_command *cmd, t_shell *shell);
 char	*expand_word(const char *word, t_shell *shell);
+void	expand_redirections(t_simple_command *cmd, t_shell *shell); //
 
 t_list	*array_to_list(char **array);
 char	**list_to_array(t_list *list_head);
+
+char	*ft_strunquote(const char *str);
 
 
 void	print_tokens(t_token *tokens);
