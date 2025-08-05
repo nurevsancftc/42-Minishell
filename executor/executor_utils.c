@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:49:43 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/03 02:32:52 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 13:32:42 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 #include <stdlib.h>
 
-void	ft_free_split(char **split_array)
+void	ft_free_array(char **split_array)
 {
 	int	i;
 
@@ -85,7 +85,7 @@ char	*get_command_path(char *cmd, t_shell *shell)
 	paths = ft_split(path_var, ':');
 	executable_path = try_each_path(cmd, paths);
 	if (paths)
-		ft_free_split(paths);
+		ft_free_array(paths);
 	return (executable_path);
 }
 
@@ -94,28 +94,51 @@ char	*get_command_path(char *cmd, t_shell *shell)
  *
  * `static`'tir çünkü sadece `convert_env_list_to_array` tarafından kullanılır.
  */
-static void	populate_env_array(char **env_array, t_list *env_list)
+static int	populate_env_array(char **env_array, t_list *env_list)
 {
-	t_list	*current;
 	t_env	*env;
 	char	*temp;
 	int		i;
 
 	i = 0;
-	current = env_list;
-	while (current)
+	while (env_list)
 	{
-		env = (t_env *)current->content;
-		if (env->value)
+		env = (t_env *)env_list->content;
+		if (env->value) // Sadece değeri olanları işle
 		{
 			temp = ft_strjoin(env->key, "=");
+			if (!temp)
+				return (-1); // Malloc hatası
 			env_array[i] = ft_strjoin(temp, env->value);
-			free(temp);
+			free(temp); // ft_strjoin'den gelen geçici string'i unutma
+			if (!env_array[i])
+				return (-1); // Malloc hatası
 			i++;
 		}
-		current = current->next;
+		env_list = env_list->next;
 	}
 	env_array[i] = NULL; // Diziyi NULL ile sonlandır.
+	return (0);
+}
+
+/**
+ * count_valid_env_vars - Değeri NULL olmayan ortam değişkenlerinin sayısını bulur.
+ */
+static int	count_valid_env_vars(t_list *env_list)
+{
+	int		count;
+	t_env	*env;
+
+	count = 0;
+	while (env_list)
+	{
+		env = (t_env *)env_list->content;
+		// Sadece değeri olanları say
+		if (env->value)
+			count++;
+		env_list = env_list->next;
+	}
+	return (count);
 }
 
 /**
@@ -127,12 +150,24 @@ static void	populate_env_array(char **env_array, t_list *env_list)
 char	**convert_env_list_to_array(t_shell *shell)
 {
 	char	**env_array;
-	int		list_size;
+	int		valid_vars_count;
 
-	list_size = ft_lstsize(shell->env_list);
-	env_array = malloc(sizeof(char *) * (list_size + 1));
+	// 1. ADIM: Sadece geçerli olanları say
+	valid_vars_count = count_valid_env_vars(shell->env_list);
+
+	// 2. ADIM: Doğru boyutta bellek ayır
+	env_array = malloc(sizeof(char *) * (valid_vars_count + 1));
 	if (!env_array)
 		return (NULL);
-	populate_env_array(env_array, shell->env_list);
+
+	// 3. ADIM: Diziyi doldur ve hata kontrolü yap
+	if (populate_env_array(env_array, shell->env_list) == -1)
+	{
+		// Doldurma sırasında bir malloc hatası oldu.
+		// O ana kadar doldurulanları ve dizinin kendisini temizle.
+		ft_free_array(env_array);
+		return (NULL);
+	}
+
 	return (env_array);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   echo.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:00:19 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/03 10:25:54 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/05 13:46:54 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ int		ft_echo(char **args, t_shell *shell)
 	i = 1; // 0. argüman "echo" olduğu için 1'den başla.
 	found_n_option = 0; // Başta -n seçeneği yokmuş gibi davran.
 	first_word_printed = 0; // Henüz ekrana bir kelime basmadık.
+
 
 	// 1. ADIM: Önce -n seçeneklerini atla.
 	// Bu döngü sadece komutun en başındaki -n'leri bulur ve geçer.

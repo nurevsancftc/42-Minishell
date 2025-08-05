@@ -16,6 +16,8 @@ SRCS =	src/main.c \
 		executor/executor_utils.c \
 		executor/executor_pipeline.c \
 		executor/executor_commands.c \
+		executor/heredocs.c \
+		executor/redirections.c \
 		parser/lexer.c \
 		parser/parser.c \
 		parser/quotes.c \

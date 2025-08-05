@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 15:08:06 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/03 10:26:22 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/05 13:07:22 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ int		ft_pwd(char **args, t_shell *shell);
 // Argümanları ekrana basar. Komut argümanlarını 'cmd' yapısından alır.
 int		ft_echo(char **args, t_shell *shell);
 
-int	ft_exit(char **args);
+int	ft_exit(char **args, t_shell *shell);
 
 int	ft_cd(char **args, t_shell *shell);
 

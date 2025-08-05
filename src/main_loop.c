@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:42:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 12:49:30 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 13:46:13 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ void	main_loop(t_shell *shell)
 
 		// // // Expander ve Executor, shell durumuna (env, exit_code) ihtiyaç duyar.
 		// // expander(cmd_tree, shell);
-		// executor(cmd_tree, shell);
+		executor(cmd_tree, shell);
 
 		// // Bu komut için ayrılan her şeyi temizle.
 		free_cmd_tree(cmd_tree);
