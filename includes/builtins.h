@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   builtins.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 15:08:06 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/05 20:00:47 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/06 01:10:12 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,4 +57,5 @@ char	*handle_dollar_sign(const char **word_ptr, t_shell *shell);
 
 char	*expand_heredoc_line(char *line, t_shell *shell);
 
+void	update_or_create_env(t_shell *shell, const char *key, const char *value);
 #endif

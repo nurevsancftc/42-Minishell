@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cd.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 19:16:08 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/03 01:29:00 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/06 01:08:34 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,43 +16,6 @@
 #include <string.h>
 #include <errno.h>
 #include <limits.h>
-
-/**
- * update_or_create_env - Bir ortam değişkenini günceller veya yoksa yenisini oluşturur.
- *
- * Bu fonksiyon, `cd` ve `export` gibi komutların temelini oluşturur.
- * Eğer `key` ile belirtilen değişken listede varsa, sadece `value`'su güncellenir.
- * Eğer yoksa, yeni bir `t_env` ve `t_list` düğümü oluşturularak listenin
- * sonuna eklenir.
- */
-static void	update_or_create_env(t_shell *shell, const char *key, const char *value)
-{
-	t_list	*node;
-	t_env	*env;
-
-	node = find_env_node(shell->env_list, key);
-	if (node != NULL)
-	{
-		// Değişken zaten var: Değerini güncelle.
-		env = (t_env *)node->content;
-		free(env->value); // Eski değeri bellekten sil.
-		env->value = strdup(value); // Yeni değeri kopyala.
-	}
-	else
-	{
-		// Değişken yok: Yenisini oluştur ve listeye ekle.
-		env = malloc(sizeof(t_env));
-		if (!env)
-			return ; // Malloc hatası durumunda bir şey yapma.
-		env->key = strdup(key);
-		env->value = strdup(value);
-		// Yeni content'i içeren yeni bir t_list düğümü oluştur.
-		node = ft_lstnew(env);
-		// Yeni düğümü listenin sonuna ekle.
-		ft_lstadd_back(&(shell->env_list), node);
-	}
-}
-
 
 /* ========================================================================== */
 /*                          ASIL CD FONKSİYONLARI                             */

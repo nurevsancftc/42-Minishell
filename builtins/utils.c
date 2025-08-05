@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 04:15:29 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/05 20:05:47 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/06 01:09:57 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,4 +234,39 @@ char	*expand_heredoc_line(char *line, t_shell *shell)
 		}
 	}
 	return (final_str);
+}
+
+
+/**
+ * update_or_create_env - Bir ortam değişkenini günceller veya yoksa yenisini oluşturur.
+ *
+ * Bu fonksiyon, `cd` ve `export` gibi komutların temelini oluşturur.
+ */
+void	update_or_create_env(t_shell *shell, const char *key, const char *value)
+{
+	t_list	*node;
+	t_env	*env;
+
+	node = find_env_node(shell->env_list, key);
+	if (node != NULL) // Değişken zaten varsa
+	{
+		env = (t_env *)node->content;
+		if (value != NULL) // Sadece yeni bir değer varsa güncelle
+		{
+			free(env->value);
+			env->value = ft_strdup(value);
+		}
+	}
+	else // Değişken yoksa, yenisini oluştur
+	{
+		env = ft_calloc(1, sizeof(t_env));
+		if (!env)
+			return;
+		env->key = ft_strdup(key);
+		if (value != NULL)
+			env->value = ft_strdup(value);
+		// Değer NULL ise, env->value zaten calloc ile NULL'a ayarlandı.
+		node = ft_lstnew(env);
+		ft_lstadd_back(&(shell->env_list), node);
+	}
 }

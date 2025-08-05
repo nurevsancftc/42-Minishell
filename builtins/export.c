@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 04:19:35 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/03 02:17:20 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/06 01:11:31 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,7 @@ static int	handle_export_argument(char *arg, t_shell *shell)
 		return (0);
 
 	// Değişkeni güncelle veya oluştur.
-	// update_or_create_env(shell, key, value);
+	update_or_create_env(shell, key, value);
 	return (0); // Başarılı
 }
 
