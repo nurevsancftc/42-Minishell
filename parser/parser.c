@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:51:08 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 10:09:16 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 10:27:26 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,25 +60,35 @@ static void	add_cmd_to_chain(t_command_chain **head, t_command_chain *new_node)
 static int	handle_redirection(t_token **token_cursor, t_simple_command *cmd)
 {
 	t_redir	*redir;
-	t_list	*new_list_node;
-	t_token	*redir_token;
+	t_list	*new_node;
 
-	redir_token = *token_cursor;
-	// SYNTAX CHECK: Yönlendirmeden sonra bir token var mı?
-	if (!redir_token->next || redir_token->next->type != TOKEN_WORD)
-		return (-1); // Hata
-	redir = malloc(sizeof(t_redir));
+	// 1. Yeni t_redir yapısı için bellek ayır.
+	redir = ft_calloc(1, sizeof(t_redir));
 	if (!redir)
-		return (-1); // Malloc hatası
-	redir->type = redir_token->type;
-	redir->filename = ft_strdup(redir_token->next->value);
-	
-	new_list_node = ft_lstnew(redir);
-	ft_lstadd_back(&cmd->redirections, new_list_node);
-	
-	// İşaretçiyi hem yönlendirme hem de dosya adı token'ını geçecek şekilde ilerlet.
+		return (-1);
+
+	// 2. Yapıyı doldur. Syntax kontrolü yok!
+	redir->type = (*token_cursor)->type;
+	redir->filename = ft_strdup((*token_cursor)->next->value);
+	if (!redir->filename)
+	{
+		free(redir);
+		return (-1);
+	}
+
+	// 3. Oluşturulan yapıyı listeye ekle.
+	new_node = ft_lstnew(redir);
+	if (!new_node)
+	{
+		free(redir->filename);
+		free(redir);
+		return (-1);
+	}
+	ft_lstadd_back(&cmd->redirections, new_node);
+
+	// 4. İmleci 2 token ileri taşı.
 	*token_cursor = (*token_cursor)->next->next;
-	return (0); // Başarılı
+	return (0);
 }
 
 static int	validate_and_count_args(t_token *token, int *arg_count)
