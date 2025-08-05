@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 12:58:57 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 14:05:39 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 17:36:29 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,70 +72,50 @@ int	handle_heredocs(t_command_chain *cmd_chain)
 {
 	t_list	*redir_list;
 	t_redir	*redir;
-	char	*last_heredoc_filename; // Sadece son dosyanın adını tutacak
+	t_list	*last_heredoc_node;
 
 	while (cmd_chain)
 	{
+		// 1. ADIM: Son heredoc'u bul.
 		redir_list = cmd_chain->simple_command->redirections;
-		last_heredoc_filename = NULL;
-
-		// 1. ADIM: Bu komuttaki TÜM heredoc'ları işle, ama sadece sonuncuyu sakla.
+		last_heredoc_node = NULL;
 		while (redir_list)
 		{
-			redir = (t_redir *)redir_list->content;
-			if (redir->type == TOKEN_HEREDOC)
-			{
-				// Eğer daha önce başka bir heredoc için geçici dosya oluşturduysak,
-				// o artık geçersiz, hem adını hem de dosyanın kendisini sil.
-				if (last_heredoc_filename)
-				{
-					unlink(last_heredoc_filename); // Dosyayı diskten sil
-					free(last_heredoc_filename);   // Dosya adının string'ini sil
-				}
-				
-				// Yeni heredoc'u oku ve geçici dosyasının adını al.
-				last_heredoc_filename = read_heredoc_to_temp_file(redir->filename);
-				if (!last_heredoc_filename)
-					return (-1); // Hata veya Ctrl+D
-			}
+			if (((t_redir *)redir_list->content)->type == TOKEN_HEREDOC)
+				last_heredoc_node = redir_list;
 			redir_list = redir_list->next;
 		}
 
-		// 2. ADIM: Şimdi listeyi tekrar gez ve heredoc'ları güncelle.
-		// Bu komut için sadece bir tane geçerli heredoc dosyası var: 'last_heredoc_filename'
+		// 2. ADIM: Tüm heredoc'ları işle.
 		redir_list = cmd_chain->simple_command->redirections;
 		while (redir_list)
 		{
 			redir = (t_redir *)redir_list->content;
 			if (redir->type == TOKEN_HEREDOC)
 			{
-				// Orijinal delimiter'ı free et
-				free(redir->filename);
-				// Bu heredoc, sonuncu olan mı?
-				if (last_heredoc_filename)
+				if (redir_list != last_heredoc_node) // Bu sonuncu değil mi?
 				{
-					// Evet, sonuncu bu. filename'e geçici dosyanın adını ver
-					// ve sahipliğini devret.
-					redir->filename = last_heredoc_filename;
-					last_heredoc_filename = NULL; // Sahiplik devredildi, artık NULL.
-				}
-				else
-				{
-					// Bu olası değil ama bir güvenlik önlemi.
-					// Bu, son olmayan bir heredoc. Geçersiz kıl.
+					// Evet, değil. Girdiyi oku ve at.
+					char *dummy_file = read_heredoc_to_temp_file(redir->filename);
+					if (!dummy_file) return (-1);
+					unlink(dummy_file);
+					free(dummy_file);
+					// EN ÖNEMLİ ADIM: Bu düğümü geçersiz kıl.
+					free(redir->filename);
 					redir->filename = NULL; 
 				}
-				// Bu yönlendirmenin tipini değiştir ki handle_redirections
-				// onu normal bir '<' gibi işlesin.
-				redir->type = TOKEN_REDIR_IN;
+				else // Bu, son ve geçerli heredoc.
+				{
+					char *real_file = read_heredoc_to_temp_file(redir->filename);
+					if (!real_file) return (-1);
+					free(redir->filename);
+					redir->filename = real_file;
+					// Tipini değiştir ki '<' gibi davransın.
+					redir->type = TOKEN_REDIR_IN;
+				}
 			}
 			redir_list = redir_list->next;
 		}
-		// Döngü bittiğinde, eğer last_heredoc_filename hala NULL değilse
-		// (listede hiç heredoc yoksa veya bir hata olduysa), temizle.
-		if (last_heredoc_filename)
-			free(last_heredoc_filename);
-
 		cmd_chain = cmd_chain->next;
 	}
 	return (0);

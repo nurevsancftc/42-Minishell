@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 12:57:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 13:55:06 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 17:36:10 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,11 @@ int	handle_redirections(t_simple_command *cmd, int original_fds[2])
 	{
 		redir = (t_redir *)redir_list->content;
 
+		if (redir->filename == NULL)
+		{
+			redir_list = redir_list->next;
+			continue;
+		}
 		// --- GİRDİ YÖNLENDİRMELERİ (< ve <<) ---
 		if (redir->type == TOKEN_REDIR_IN || redir->type == TOKEN_HEREDOC)
 		{
