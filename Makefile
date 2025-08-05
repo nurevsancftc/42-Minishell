@@ -3,6 +3,8 @@ NAME = minishell
 SRCS =	src/main.c \
 		src/main_loop.c \
 		src/env.c \
+		src/expander.c \
+		src/expander_utils.c \
 		src/print_tokens.c \
 		builtins/cd.c \
 		builtins/echo.c \

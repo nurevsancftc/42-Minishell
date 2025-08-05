@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:42:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 16:25:34 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 17:58:16 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,8 @@ void	main_loop(t_shell *shell)
 		}
 		free(line);
 
-		// // // Expander ve Executor, shell durumuna (env, exit_code) ihtiyaç duyar.
-		// // expander(cmd_tree, shell);
+		// Expander ve Executor, shell durumuna (env, exit_code) ihtiyaç duyar.
+		expander(cmd_tree, shell);
 		executor(cmd_tree, shell);
 		if (shell->exit_code == SHELL_SHOULD_EXIT)
 		{

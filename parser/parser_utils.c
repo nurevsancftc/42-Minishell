@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 19:09:45 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 08:45:58 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 18:26:24 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include "minishell.h"
 
 // Helper to free a 2D array
-static void free_args(char **args)
+void free_args(char **args)
 {
     int i;
 

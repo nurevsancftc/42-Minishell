@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 14:04:54 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 18:26:32 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,7 @@ t_token	*create_token(char *value, t_token_type type);
 void	free_token_list(t_token *head);
 int		is_metachar(char c);
 int		is_whitespace(char c);
+void free_args(char **args);
 
 
 // # include "minishell.h"
@@ -102,6 +103,14 @@ void free_cmd_tree(t_command_chain *head);
 
 t_command_chain	*parser(t_token *tokens);
 int	populate_simple_cmd(t_simple_command *cmd, t_token **token_cursor);
+
+
+void	expander(t_command_chain *cmd_chain, t_shell *shell);
+void	expand_simple_command(t_simple_command *cmd, t_shell *shell);
+char	*expand_word(const char *word, t_shell *shell);
+
+t_list	*array_to_list(char **array);
+char	**list_to_array(t_list *list_head);
 
 
 void	print_tokens(t_token *tokens);

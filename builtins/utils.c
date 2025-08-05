@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 04:15:29 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/03 01:28:20 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 18:18:32 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,14 +61,23 @@ t_list	*find_env_node(t_list *env_list, const char *key)
 char	*get_env_value(t_list *env_list, const char *key)
 {
 	t_list	*node;
+	t_env	*env_var;
 
 	node = find_env_node(env_list, key);
 	if (node == NULL)
 	{
 		return (NULL); // Değişken listede yok.
 	}
-	// Düğümün content'ini t_env'e cast et ve value'sunu döndür.
-	return (((t_env *)node->content)->value);
+	
+	env_var = (t_env *)node->content;
+
+	// EKSTRA KONTROL: Değişken var ama değeri NULL mı? (örn: export VAR)
+	if (env_var->value == NULL)
+	{
+		return (NULL); // veya return ("") de bir seçenek olabilir.
+	}
+
+	return (env_var->value);
 }
 
 
@@ -109,4 +118,40 @@ int	is_valid_identifier(const char *key)
 		i++;
 	}
 	return (1);
+}
+
+/**
+ * handle_dollar_sign - Bir '$' karakteriyle karşılaşıldığında çağrılır.
+ * Değişkeni okur, değerini bulur ve döndürür.
+ */
+char	*handle_dollar_sign(const char **word_ptr, t_shell *shell)
+{
+	const char	*start;
+	char		*key;
+	char		*value;
+
+	(*word_ptr)++; // '$' karakterini atla
+
+	if (**word_ptr == '?')
+	{
+		(*word_ptr)++;
+		return (ft_itoa(shell->exit_code));
+	}
+	
+	start = *word_ptr;
+	// Değişken adının sonunu bul (alphanumeric veya _)
+	while (ft_isalnum(**word_ptr) || **word_ptr == '_')
+		(*word_ptr)++;
+
+	if (start == *word_ptr) // Sadece '$' varsa
+		return (ft_strdup("$"));
+		
+	key = ft_substr(start, 0, *word_ptr - start);
+	value = get_env_value(shell->env_list, key); // Ortam değişkenlerinden değeri al
+	free(key);
+
+	if (!value) // Değişken bulunamadıysa boş string döndür
+		return (ft_strdup(""));
+	
+	return (ft_strdup(value));
 }
