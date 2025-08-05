@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:42:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 13:46:13 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 16:25:34 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void	main_loop(t_shell *shell)
 		}
 		cmd_tree = parser(tokens);
 		free_token_list(tokens); // Token listesine artık ihtiyacımız yok.
-
+		
 		if (!cmd_tree) // Parser hatası
 		{
 			free(line);
@@ -63,6 +63,11 @@ void	main_loop(t_shell *shell)
 		// // // Expander ve Executor, shell durumuna (env, exit_code) ihtiyaç duyar.
 		// // expander(cmd_tree, shell);
 		executor(cmd_tree, shell);
+		if (shell->exit_code == SHELL_SHOULD_EXIT)
+		{
+    		free_cmd_tree(cmd_tree);
+    		break; // Döngüyü kır, ana temizlik main()'de yapılacak.
+		}
 
 		// // Bu komut için ayrılan her şeyi temizle.
 		free_cmd_tree(cmd_tree);

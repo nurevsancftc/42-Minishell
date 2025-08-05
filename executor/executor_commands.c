@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:55:03 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/05 13:47:01 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 16:51:24 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,8 @@ int	is_builtin(char *cmd)
 
 int	execute_builtin(char **args, t_shell *shell)
 {
+	int return_status;
+	
 	// Koruma: Bu durumun oluşmaması gerekir ama güvenlik için iyidir.
 	if (!args || !args[0])
 		return (1); // Genel hata kodu
@@ -66,10 +68,15 @@ int	execute_builtin(char **args, t_shell *shell)
 		return (ft_env(args, shell));
 	else if (strcmp(args[0], "exit") == 0)
 	{
-		// ft_exit özel bir durumdur, programı sonlandırır ve geri dönmez.
-		ft_exit(args, shell);
-		// Bu satıra normalde ulaşılmaz.
-		return (0);
+		return_status = ft_exit(args, shell);
+
+		// Eğer ft_exit "çok fazla argüman" hatası verdiyse (1 döndürdüyse),
+		// bu komutun çıkış kodu 1'dir.
+		if (return_status != SHELL_SHOULD_EXIT)
+			shell->exit_code = return_status;
+		
+		// AKIŞ KONTROL SİNYALİNİ yukarıya aynen ilet.
+		return (return_status);
 	}
 
 	// Bu kısma asla ulaşılmamalıdır, çünkü 'is_builtin' önceden kontrol eder.

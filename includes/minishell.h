@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 01:38:27 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/03 02:40:28 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 16:25:34 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@
 # include "parser.h"
 # include "builtins.h"
 # include "executor.h"
+
+# define SHELL_SHOULD_EXIT -1
 
 // typedef struct s_env
 // {

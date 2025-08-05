@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:45:07 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/05 13:07:51 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 16:45:28 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,9 @@ int	ft_exit(char **args, t_shell *shell)
 	if (args[1] == NULL)
 	{
 		// Argüman yoksa, başarı kodu olan 0 ile çık.
-		exit(0);
+		// Çıkış isteniyor. Son başarılı komutun çıkış kodunu kullan.
+		shell->exit_code = shell->exit_code;
+		return (SHELL_SHOULD_EXIT);
 	}
 
 	// 2. DURUM: Verilen argüman sayısal değil mi? (örn: "exit hello")
@@ -77,8 +79,8 @@ int	ft_exit(char **args, t_shell *shell)
 		write(2, "minishell: exit: ", 17);
 		write(2, args[1], strlen(args[1]));
 		write(2, ": numeric argument required\n", 28);
-		// Bash bu durumda 255 koduyla çıkar.
-		exit(255);
+		shell->exit_code = 255; // Bash bu durumda 255 koduyla çıkar.
+		return (SHELL_SHOULD_EXIT);
 	}
 
 	// 3. DURUM: Çok fazla argüman mı var? (örn: "exit 50 world")
@@ -93,9 +95,11 @@ int	ft_exit(char **args, t_shell *shell)
 	// 4. DURUM: Her şey yolunda, tek bir sayısal argüman var.
 	// "atoi" fonksiyonu string'i integer'a çevirir.
 	exit_status = atoi(args[1]);
-
+	
+	shell->exit_code = (unsigned char)exit_status;
 	// Çıkış kodları 0 ile 255 arasında olmalıdır.
 	// (unsigned char) cast'i, sayıyı otomatik olarak bu aralığa sığdırır.
 	// Örneğin 257 girilirse, 1 olarak çıkar. Bu, doğru davranıştır.
-	exit((unsigned char)exit_status);
+	return (SHELL_SHOULD_EXIT);
+	// exit((unsigned char)exit_status);
 }
