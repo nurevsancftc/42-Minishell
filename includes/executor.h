@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:50:13 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/05 13:32:14 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 20:01:19 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void	execute_single_command(t_command_chain *chain_node, t_shell *shell);
 
 int handle_redirections(t_simple_command *cmd, int original_fds[2]);
 void restore_fds(int original_fds[2]);
-int	handle_heredocs(t_command_chain *cmd_chain);
+int	handle_heredocs(t_command_chain *cmd_chain, t_shell *shell);
 int	is_builtin(char *cmd);
 
 

@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 05:26:50 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/05 17:03:37 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 20:01:59 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void	executor(t_command_chain *cmd_chain, t_shell *shell)
 	// 1. ADIM: Heredoc'ları ÖNCEDEN işle.
 	// Bu fonksiyon, zincirdeki tüm `<<`'ları bulur ve geçici dosyalara
 	// veya pipe'lara yazar. Hata olursa (örn. Ctrl+D ile kesilirse) -1 döner.
-	if (handle_heredocs(cmd_chain) == -1)
+	if (handle_heredocs(cmd_chain, shell) == -1)
 	{
 		shell->exit_code = 1; // veya başka bir hata kodu
 		return;

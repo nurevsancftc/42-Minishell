@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 04:15:29 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/05 18:18:32 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 20:05:47 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,34 +124,114 @@ int	is_valid_identifier(const char *key)
  * handle_dollar_sign - Bir '$' karakteriyle karşılaşıldığında çağrılır.
  * Değişkeni okur, değerini bulur ve döndürür.
  */
-char	*handle_dollar_sign(const char **word_ptr, t_shell *shell)
+/**
+ * handle_dollar_sign - Bir '$' ile karşılaşıldığında değişkeni işler.
+ *
+ * '$' sonrası karakterlere bakarak değişken adını (key) çıkarır,
+ * bu key'e karşılık gelen değeri bulur ve bu değeri yeni bir string
+ * olarak döndürür. İmleci (line_ptr) değişken adının sonuna ilerletir.
+ *
+ * @param line_ptr: İşlenen satırın geri kalanını gösteren işaretçiye işaretçi.
+ * @param shell: Ortam değişkenlerine ve son çıkış koduna erişim için.
+ * @return: Genişletilmiş değişkenin değerini (malloc ile) döndürür.
+ *          Bulunamazsa veya geçersizse boş bir string döndürür.
+ */
+char	*handle_dollar_sign(const char **line_ptr, t_shell *shell)
 {
 	const char	*start;
 	char		*key;
 	char		*value;
 
-	(*word_ptr)++; // '$' karakterini atla
+	(*line_ptr)++; // '$' karakterini atla.
 
-	if (**word_ptr == '?')
+	// Özel durum: $?
+	if (**line_ptr == '?')
 	{
-		(*word_ptr)++;
+		(*line_ptr)++; // '?' karakterini atla.
 		return (ft_itoa(shell->exit_code));
 	}
 	
-	start = *word_ptr;
-	// Değişken adının sonunu bul (alphanumeric veya _)
-	while (ft_isalnum(**word_ptr) || **word_ptr == '_')
-		(*word_ptr)++;
-
-	if (start == *word_ptr) // Sadece '$' varsa
+	// Özel durum: Sadece '$' veya '$' sonrası geçersiz karakter
+	// (örn: "$ ", "$/"). Değişken adı harf, rakam veya '_' ile başlamalı.
+	if (!ft_isalpha(**line_ptr) && **line_ptr != '_')
 		return (ft_strdup("$"));
-		
-	key = ft_substr(start, 0, *word_ptr - start);
-	value = get_env_value(shell->env_list, key); // Ortam değişkenlerinden değeri al
+
+	// Değişken adının başlangıcını işaretle.
+	start = *line_ptr;
+	// Değişken adı harf, rakam veya alt çizgi içerir.
+	while (ft_isalnum(**line_ptr) || **line_ptr == '_')
+		(*line_ptr)++;
+
+	// Başlangıç ve son arasındaki kısmı değişken adı (key) olarak al.
+	key = ft_substr(start, 0, *line_ptr - start);
+	if (!key)
+		return (ft_strdup("")); // Malloc hatası
+
+	// Ortam değişkenleri listesinden bu key'in değerini bul.
+	value = get_env_value(shell->env_list, key);
 	free(key);
 
-	if (!value) // Değişken bulunamadıysa boş string döndür
-		return (ft_strdup(""));
+	if (!value) // Değişken bulunamadıysa
+		return (ft_strdup("")); // Boş bir string döndür.
 	
+	// Değerin bir kopyasını döndür.
 	return (ft_strdup(value));
+}
+
+/**
+ * expand_heredoc_line - Heredoc için bir satırdaki değişkenleri genişletir.
+ *
+ * Bu fonksiyon, bir satırı karakter karakter gezer.
+ * '$' ile başlayan değişkenleri bulur, değerleriyle değiştirir ve
+ * sonuçları birleştirerek yeni bir string oluşturur.
+ *
+ * @param line: Kullanıcı tarafından girilen orijinal satır.
+ * @param shell: Ortam değişkenlerine erişim için ana yapı.
+ * @return: Genişletilmiş yeni satırı (malloc ile) döndürür.
+ */
+char	*expand_heredoc_line(char *line, t_shell *shell)
+{
+	char	*final_str;
+	char	*temp_str;
+	char	*var_value;
+	int		i;
+	int		j;
+
+	final_str = ft_strdup(""); // Sonuç string'ini boş olarak başlat.
+	i = 0;
+	while (line[i])
+	{
+		// Bir sonraki '$'e kadar olan normal kısmı bul.
+		j = i;
+		while (line[j] && line[j] != '$')
+			j++;
+		
+		// Normal kısmı (varsa) al ve sonuç string'ine ekle.
+		if (j > i)
+		{
+			temp_str = ft_substr(line, i, j - i);
+			char *new_final = ft_strjoin(final_str, temp_str);
+			free(final_str);
+			free(temp_str);
+			final_str = new_final;
+		}
+
+		// Eğer bir '$' bulduysak, onu işle.
+		if (line[j] == '$')
+		{
+			const char *line_ptr = &line[j];
+			var_value = handle_dollar_sign(&line_ptr, shell);
+			char *new_final = ft_strjoin(final_str, var_value);
+			free(final_str);
+			free(var_value);
+			final_str = new_final;
+			// İmleci, değişkenin işlendiği yere ilerlet.
+			i = line_ptr - line;
+		}
+		else // Satırın sonuna geldik.
+		{
+			i = j;
+		}
+	}
+	return (final_str);
 }

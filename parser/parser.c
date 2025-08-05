@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:51:08 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 10:27:26 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/05 19:55:07 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,22 +61,42 @@ static int	handle_redirection(t_token **token_cursor, t_simple_command *cmd)
 {
 	t_redir	*redir;
 	t_list	*new_node;
+	t_token	*redir_token;
+	t_token	*delimiter_token;
+	char	*original_delimiter;
 
-	// 1. Yeni t_redir yapısı için bellek ayır.
+	redir_token = *token_cursor;
+	delimiter_token = redir_token->next; // Delimiter'ın olduğu token
+
 	redir = ft_calloc(1, sizeof(t_redir));
 	if (!redir)
 		return (-1);
 
-	// 2. Yapıyı doldur. Syntax kontrolü yok!
-	redir->type = (*token_cursor)->type;
-	redir->filename = ft_strdup((*token_cursor)->next->value);
-	if (!redir->filename)
+	redir->type = redir_token->type;
+	original_delimiter = delimiter_token->value;
+
+	// HEREDOC İÇİN ÖZEL MANTIK
+	if (redir->type == TOKEN_HEREDOC)
 	{
-		free(redir);
-		return (-1);
+		// Delimiter'ın ilk karakteri tırnak mı?
+		if (original_delimiter[0] == '\'' || original_delimiter[0] == '"')
+			redir->expand_in_heredoc = 0; // Tırnak varsa genişletme YAPMA.
+		else
+			redir->expand_in_heredoc = 1; // Tırnak yoksa genişletme YAP.
+		
+		// Delimiter'dan tırnakları temizle. "eof" -> eof
+		redir->filename = ft_strunquote(original_delimiter);
+	}
+	else // Diğer yönlendirmeler için (<, >, >>)
+	{
+		redir->expand_in_heredoc = 0; // Bu alanın bir anlamı yok ama sıfırlayalım.
+		redir->filename = ft_strdup(original_delimiter);
 	}
 
-	// 3. Oluşturulan yapıyı listeye ekle.
+	if (!redir->filename) // strdup veya strunquote hatası
+		return (free(redir), -1);
+
+	// Oluşturulan yapıyı listeye ekle.
 	new_node = ft_lstnew(redir);
 	if (!new_node)
 	{
@@ -86,8 +106,8 @@ static int	handle_redirection(t_token **token_cursor, t_simple_command *cmd)
 	}
 	ft_lstadd_back(&cmd->redirections, new_node);
 
-	// 4. İmleci 2 token ileri taşı.
-	*token_cursor = (*token_cursor)->next->next;
+	// İmleci 2 token ileri taşı.
+	*token_cursor = delimiter_token->next;
 	return (0);
 }
 
