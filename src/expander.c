@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expander.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:58:42 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 20:19:55 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/07 19:32:50 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,32 +86,47 @@ void	expand_redirections(t_simple_command *cmd, t_shell *shell)
 {
 	t_list	*redir_node;
 	t_redir	*redir;
-	char	*original_filename;
+	char	*temp_filename;
+
+	// Koruma: Eğer komut veya yönlendirme listesi yoksa, hiçbir şey yapma.
+	if (!cmd || !cmd->redirections)
+		return;
 
 	redir_node = cmd->redirections;
 	while (redir_node)
 	{
 		redir = (t_redir *)redir_node->content;
-		// Heredoc delimiter'ı ASLA genişletilmez.
-		// Bizim mantığımızda heredoc'lar zaten işlendiği ve tipi
-		// TOKEN_REDIR_IN'e çevrildiği için bu kontrol yine de önemlidir.
-		// Eğer parser'da tipi değiştirmediyseniz, burada `if (redir->type != TOKEN_HEREDOC)` kontrolü yapın.
+
+		// --- İŞTE EN ÖNEMLİ DEĞİŞİKLİK BURADA ---
+		// Eğer yönlendirmenin tipi bir heredoc ise, bu bir sonlandırıcıdır.
+		// Sonlandırıcılar ASLA genişletilmez. Bu yüzden bu adımı `continue`
+		// ile atlayıp bir sonraki yönlendirmeye geçiyoruz.
+		if (redir->type == TOKEN_HEREDOC)
+		{
+			redir_node = redir_node->next;
+			continue;
+		}
+
+		// Yönlendirme bir heredoc DEĞİLSE (<, >, >>), dosya adını genişlet.
 		if (redir->filename)
 		{
-			original_filename = redir->filename;
-			redir->filename = expand_word(original_filename, shell);
-			free(original_filename);
+			// Bellek sızıntısını önlemek için doğru 'free' etme yöntemi:
+			// Önce eski pointer'ı geçici bir değişkene kaydet.
+			temp_filename = redir->filename;
+			// Sonra yeni, genişletilmiş string'i ata.
+			redir->filename = expand_word(temp_filename, shell);
+			// Şimdi eski, artık kullanılmayan string'i serbest bırak.
+			free(temp_filename);
 
-			// ÖNEMLİ HATA KONTROLÜ:
-			// Eğer genişletme sonucu 'ambiguous redirect' hatası oluşursa
-			// (örn: `>$VAR` ve VAR="a b" ise), hata verilmeli.
+			// Ambiguous redirect kontrolü (bu kısım zaten doğruydu).
 			if (ft_strchr(redir->filename, ' ') || redir->filename[0] == '\0')
 			{
 				ft_putstr_fd("minishell: ", 2);
-				ft_putstr_fd(original_filename, 2); // Kullanıcının ne yazdığını göster
+				// Not: original_filename artık yok, genişletilmiş halini basabiliriz.
+				ft_putstr_fd(redir->filename, 2); 
 				ft_putstr_fd(": ambiguous redirect\n", 2);
-				// Hata durumu yönetimi (örn: shell->exit_code = 1)
-				// ve muhtemelen komutun çalışmasını durdurma.
+				shell->exit_code = 1;
+				// TODO: Komutun çalışmasını durduracak bir bayrak ayarlanabilir.
 			}
 		}
 		redir_node = redir_node->next;
