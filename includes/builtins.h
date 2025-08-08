@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 15:08:06 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/06 01:10:12 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/08 07:00:58 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,6 @@ int	ft_unset(char **args, t_shell *shell);
 t_list	*find_env_node(t_list *env_list, const char *key);
 
 char	*get_env_value(t_list *env_list, const char *key);
-
-void	free_env_content(void *content);
 
 int	is_valid_identifier(const char *key);
 

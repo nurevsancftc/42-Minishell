@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 19:09:45 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 19:55:36 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/08 08:58:14 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,31 +33,47 @@ void free_args(char **args)
 // Helper to free the content of the redirections list (t_redir structs)
 static void free_redir_node(void *content)
 {
-    t_redir *redir;
+	t_redir	*redir;
 
-    if (!content)
-        return;
-    redir = (t_redir *)content;
-    free(redir->filename);
-    free(redir);
+	if (!content)
+		return;
+	
+	redir = (t_redir *)content;
+	
+	// `redir->filename`'i serbest bırak. NULL kontrolü önemli.
+	if (redir->filename)
+		free(redir->filename);
+	
+	// `t_redir` yapısının kendisini serbest bırak.
+	free(redir);
 }
 
 
 // Parser tarafından oluşturulan tüm komut ağacını serbest bırakır.
 void free_cmd_tree(t_command_chain *head)
 {
-    t_command_chain *tmp;
+    t_command_chain		*tmp_chain;
+	t_simple_command	*cmd;
+
     while (head)
     {
-        tmp = head->next;
-        if (head->simple_command)
+        tmp_chain = head->next;
+        cmd = head->simple_command;
+        if (cmd)
         {
-            free_args(head->simple_command->args);
-            ft_lstclear(&head->simple_command->redirections, free_redir_node);
-            free(head->simple_command);
+			// ft_free_array gibi genel bir 2D dizi temizleme fonksiyonu kullan.
+            ft_free_array(cmd->args); 
+            
+			// EN ÖNEMLİ DEĞİŞİKLİK:
+			// Yönlendirme listesini, sadece `content`'i temizleyen
+			// `free_redir_content` fonksiyonu ile temizle.
+            if (cmd->redirections)
+                ft_lstclear(&cmd->redirections, free_redir_node);
+            
+			free(cmd);
         }
         free(head);
-        head = tmp;
+        head = tmp_chain;
     }
 }
 

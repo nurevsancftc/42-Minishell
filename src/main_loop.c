@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main_loop.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:42:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 17:58:16 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/08 09:02:18 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,62 +14,73 @@
 
 #include "minishell.h"
 
-/*
- * ANA İŞLEVSELLİK DÖNGÜSÜ
- * Görevleri:
- * 1. Kullanıcıdan komut satırını okumak.
- * 2. Lexer, Parser, Expander, Executor adımlarını sırayla çalıştırmak.
- * 3. Her komuttan sonra ilgili bellek alanlarını temizlemek.
+/**
+ * @brief Bir komut satırını baştan sona işleyen ana yardımcı fonksiyon.
+ * 
+ * Bu fonksiyon, `main_loop`'u temiz tutmak için tüm işlem hattını
+ * (lexer, parser, expander, executor) yönetir ve kendi kaynaklarını
+ * temizler.
+ *
+ * @param line Kullanıcı tarafından girilen ham komut satırı.
+ * @param shell Kabuğun genel durumu.
+ */
+static void	process_line(char *line, t_shell *shell)
+{
+	t_token	*tokens;
+
+	tokens = NULL;
+	shell->cmd_tree = NULL; // Her döngü başı sıfırla
+
+	if (*line)
+	{
+		add_history(line);
+		tokens = lexer(line);
+		if (tokens)
+		{
+			// Parser'dan geleni shell->cmd_tree'ye ata
+			shell->cmd_tree = parser(tokens);
+			if (shell->cmd_tree)
+			{
+				expander(shell->cmd_tree, shell);
+				executor(shell->cmd_tree, shell);
+			}
+			else
+				shell->exit_code = 258;
+		}
+		else
+			shell->exit_code = 258;
+	}
+	free_token_list(tokens);
+	// Artık shell yapısı üzerinden temizliyoruz.
+	free_cmd_tree(shell->cmd_tree);
+}
+
+/**
+ * @brief Kabuğun ana komut okuma ve yürütme döngüsü.
+ *        Bu versiyon, döngü mantığını ve kaynak yönetimini ayırır.
  */
 void	main_loop(t_shell *shell)
 {
-	char		*line;
-	t_token		*tokens;
-	t_command_chain	*cmd_tree;
+	char	*line;
 
 	while (1)
 	{
 		line = readline("minishell$ ");
-		if (!line) // Ctrl+D basıldı (EOF)
+		if (!line) // Ctrl+D basıldı.
 		{
 			printf("exit\n");
-			break; // Döngüyü kır ve programı sonlandır.
+			break; // Döngüyü sonlandır.
 		}
-		if (*line)
-			add_history(line);
-		else // Boş satır girildiyse, belleği temizle ve döngüye baştan başla.
-		{
-			free(line);
-			continue;
-		}
-		tokens = lexer(line);
-		// print_tokens(tokens); 
-		if (!tokens) // Sözdizimi hatası veya boş satır
-		{
-			free(line);
-			continue;
-		}
-		cmd_tree = parser(tokens);
-		free_token_list(tokens); // Token listesine artık ihtiyacımız yok.
-		
-		if (!cmd_tree) // Parser hatası
-		{
-			free(line);
-			// `shell->exit_code = 258` (syntax error) gibi bir atama yapılabilir.
-			continue;
-		}
+
+		// Asıl işi yapan yardımcı fonksiyonu çağır.
+		process_line(line, shell);
+
+		// `line` readline tarafından malloc ile ayrıldığı için her döngüde
+		// serbest bırakılmalıdır.
 		free(line);
 
-		// Expander ve Executor, shell durumuna (env, exit_code) ihtiyaç duyar.
-		expander(cmd_tree, shell);
-		executor(cmd_tree, shell);
+		// Eğer "exit" komutu çağrıldıysa, döngüyü sonlandır.
 		if (shell->exit_code == SHELL_SHOULD_EXIT)
-		{
-    		free_cmd_tree(cmd_tree);
-    		break; // Döngüyü kır, ana temizlik main()'de yapılacak.
-		}
-
-		// // Bu komut için ayrılan her şeyi temizle.
-		free_cmd_tree(cmd_tree);
+			break;
 	}
 }

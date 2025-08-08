@@ -2,66 +2,83 @@
 
 #include "minishell.h"
 
-/*
- * init_shell: Programın genel durumunu tutan ana yapıyı başlatır.
- * - Ortam değişkenlerini kopyalar.
- * - Başlangıç çıkış kodunu ayarlar.
+/**
+ * @brief Ctrl+C (SIGINT) sinyali geldiğinde çalışacak olan fonksiyon.
+ * 
+ * Bu fonksiyon, kabuğun kapanmasını engeller. Bunun yerine:
+ * 1. Yeni bir satır basar.
+ * 2. Readline'a yeni bir satıra geçtiğini söyler.
+ * 3. Readline'ın mevcut girdi satırını temizler.
+ * 4. Komut istemini tekrar ekrana basar.
  */
-void	init_shell(t_shell *shell, char **envp)
+static void	signal_handler(int signo)
 {
+	if (signo == SIGINT)
+	{
+		write(STDOUT_FILENO, "\n", 1);
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
+}
+/**
+ * @brief Sinyal yöneticilerini programın başında kurar.
+ * 
+ * - SIGINT (Ctrl+C): `signal_handler` fonksiyonumuza yönlendirilir.
+ * - SIGQUIT (Ctrl+\): Kabuğun kendisi çalışırken görmezden gelinir (ignore).
+ */
+static void	init_signals(void)
+{
+	signal(SIGINT, signal_handler);
+	signal(SIGQUIT, SIG_IGN);
+}
 
-	(void)envp;
-	// `envp` dizisini kopyalayıp kendi bağlı listemiz olan `env_list`'e aktarır.
-	// Bu fonksiyonu environment.c gibi bir dosyada yazmalısın.
-	shell->env_list = create_env_list(envp); 
+void	free_env_content(void *content)
+{
+	t_env	*env;
+	// HATA AYIKLAMA: Bu fonksiyonun çağrıldığını görelim.
+	// printf("DEBUG: free_env_content çağrıldı.\n"); 
+	env = (t_env *)content;
+	if (!env)
+		return;
+	free(env->key);
+	free(env->value);
+	free(env);
+}
+
+static void	init_shell(t_shell *shell, char **envp)
+{
+	shell->env_list = create_env_list(envp);
 	shell->exit_code = 0;
 }
 
-/*
- * cleanup_shell: Program kapanırken ayrılan tüm belleği serbest bırakır.
- */
-void	cleanup_shell(t_shell *shell)
+static void	cleanup_shell(t_shell *shell)
 {
-	// Ortam değişkenleri listesini temizler.
-	ft_lstclear(&shell->env_list, free_env_content); // Veya özel bir free fonksiyonu
-	// readline kütüphanesinin kendi geçmişini temizlemesi için
+	// HATA AYIKLAMA: Bu fonksiyonun çağrıldığını görelim.
+	printf("DEBUG: cleanup_shell çağrılıyor...\n");
+	if (shell && shell->env_list)
+		ft_lstclear(&shell->env_list, free_env_content);
 	rl_clear_history();
+	printf("DEBUG: cleanup_shell tamamlandı.\n");
 }
 
-/*
- * ANA GİRİŞ NOKTASI
- * Görevleri:
- * 1. Başlangıç kontrollerini yapmak.
- * 2. Tek seferlik kurulumları yapmak (sinyaller, ortam değişkenleri).
- * 3. Ana döngüyü çağırmak.
- * 4. Döngü bittiğinde genel temizliği yapıp çıkmak.
- */
 int	main(int argc, char **argv, char **envp)
 {
 	t_shell	shell;
 
-	// 1. BAŞLATMA KONTROLLERİ
-	// Minishell argüman kabul etmez.
 	if (argc != 1)
 	{
-		printf("Error: minishell does not accept arguments.\n");
-		return (1);
+		ft_putstr_fd("minishell: does not accept arguments\n", STDERR_FILENO);
+		return (EXIT_FAILURE);
 	}
-	(void)argv; // Kullanılmayan değişken uyarısını engelle
-
-	// 2. TEK SEFERLİK KURULUMLAR
-	init_shell(&shell, envp); // Ortam değişkenlerini ve ana yapıyı kur
-	// init_signals();           // Sinyal yöneticilerini ayarla (Ctrl+C, vb.) //YAZILMADI
-
-	// 3. ANA DÖNGÜYÜ ÇALIŞTIR
-	// Programın tüm ana işlevselliği bu fonksiyonda döner.
-	// Shell'in genel durumunu (env, exit_code) parametre olarak geçeriz.
+	(void)argv;
+	init_signals();
+	init_shell(&shell, envp);
 	main_loop(&shell);
 
-	// 4. GENEL TEMİZLİK
-	// `main_loop` bittiğinde (Ctrl+D veya exit komutu ile),
-	// program kapanmadan önce tüm belleği temizle.
+	// HATA AYIKLAMA: main'in sonuna ulaşıldığını görelim.
+	printf("DEBUG: main_loop bitti, cleanup başlıyor.\n");
 	cleanup_shell(&shell);
-
-	return (shell.exit_code); // Son çıkış kodu ile programı sonlandır.
+	printf("DEBUG: Program sonlanıyor.\n");
+	return (shell.exit_code);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor_commands.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:55:03 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/05 16:51:24 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/08 09:40:15 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,25 @@ int	execute_builtin(char **args, t_shell *shell)
 	return (127);
 }
 
+static void	child_cleanup_and_exit(t_shell *shell, int exit_code)
+{
+	// 1. Ana kabuk yapısının kaynaklarını temizle (en önemlisi env_list).
+	if (shell)
+	{
+		// Not: ft_lstclear(&shell->env_list, free_env_content); gibi bir çağrı
+		// main'deki cleanup_shell fonksiyonunu taklit etmelidir.
+		// Eğer genel bir `free_shell(shell)` fonksiyonunuz yoksa,
+		// en azından env_list'i temizlemek önemlidir.
+		ft_lstclear(&shell->env_list, free_env_content);
+	}
+
+	// 2. Readline geçmişini temizle.
+	rl_clear_history();
+
+	// 3. Belirtilen kod ile çıkış yap.
+	exit(exit_code);
+}
+
 /**
  * execute_external_in_child - Bir harici komutu `execve` ile çalıştırır.
  *
@@ -97,18 +116,29 @@ void	execute_external_in_child(char **args, t_shell *shell)
 	char	*cmd_path;
 	char	**envp_array;
 
+	if (!args || !args[0] || !*args[0])
+		cleanup_and_exit(shell, 0); // Basit exit(0) DEĞİL!
+
 	cmd_path = get_command_path(args[0], shell);
 	if (!cmd_path)
 	{
-		fprintf(stderr, "minishell: %s: command not found\n", args[0]);
-		// Bellek temizliği (gerekirse)
-		exit(127);
+		ft_putstr_fd("minishell: ", 2);
+		ft_putstr_fd(args[0], 2);
+		ft_putstr_fd(": command not found\n", 2);
+		cleanup_and_exit(shell, 127); // Basit exit(127) DEĞİL!
 	}
 	envp_array = convert_env_list_to_array(shell);
+	if (!envp_array)
+	{
+		free(cmd_path);
+		cleanup_and_exit(shell, EXIT_FAILURE); // Basit exit(1) DEĞİL!
+	}
 	execve(cmd_path, args, envp_array);
-	perror("minishell");
+	
+	// execve sadece hata durumunda geri döner
+	perror(args[0]);
 	free(cmd_path);
 	ft_free_array(envp_array);
-	exit(126);
+	cleanup_and_exit(shell, 126); // Basit exit(126) DEĞİL!
 }
 

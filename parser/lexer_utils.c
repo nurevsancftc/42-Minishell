@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 19:09:31 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/02 19:11:20 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/08 07:15:09 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +71,8 @@ void free_token_list(t_token *head)
     while (head)
     {
         tmp = head->next;
-        free(head->value);
-        free(head);
+        free(head->value); // Token'ın içindeki string'i free et
+        free(head);        // Token'ın kendisini free et
         head = tmp;
     }
 }

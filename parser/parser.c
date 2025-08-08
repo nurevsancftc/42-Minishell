@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:51:08 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 19:55:07 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/08 07:16:39 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,59 +189,47 @@ int	populate_simple_cmd(t_simple_command *cmd, t_token **token_cursor)
 t_command_chain	*parser(t_token *tokens)
 {
 	t_command_chain	*cmd_head;
-	t_command_chain	*current_cmd_node;
-	t_token		*current_token;
+	t_command_chain	*new_cmd_node;
+	t_token			*current_token;
 
 	if (!tokens)
 		return (NULL);
 	cmd_head = NULL;
 	current_token = tokens;
-
-	// Syntax hatası: Komut `|` ile başlayamaz.
-	if (current_token->type == TOKEN_PIPE)
+	if (current_token->type == TOKEN_PIPE) // Syntax hatası: `| ls`
 	{
-		printf("minishell: syntax error near unexpected token `|'\n");
+		ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", 2);
 		return (NULL);
 	}
-	
-	while (current_token)
+	while (current_token != NULL)
 	{
-		current_cmd_node = calloc(1, sizeof(t_command_chain));
-		if (!current_cmd_node)
-			return (NULL); // malloc error, Hata yönetimi: Önceki listeyi temizle
-		current_cmd_node->simple_command = create_simple_cmd();
-		if (!current_cmd_node->simple_command)
-		{
-    		// create_simple_cmd başarısız oldu
-    		free(current_cmd_node); // Sadece o anki düğümü temizle
-    		free_cmd_tree(cmd_head); // Öncekileri temizle
-    		return (NULL);
-		}
-		current_cmd_node->next = NULL;
+		new_cmd_node = ft_calloc(1, sizeof(t_command_chain));
+		if (!new_cmd_node)
+			return (free_cmd_tree(cmd_head), NULL);
+		new_cmd_node->simple_command = create_simple_cmd();
+		if (!new_cmd_node->simple_command)
+			return (free(new_cmd_node), free_cmd_tree(cmd_head), NULL);
+		
+		// Bu fonksiyon, `current_token`'ı alıp `|` veya `NULL`'a kadar işler
+		// ve imleci bir sonraki adıma hazır hale getirir.
+		if (populate_simple_cmd(new_cmd_node->simple_command, &current_token) == -1)
+			return (free_cmd_tree(new_cmd_node), free_cmd_tree(cmd_head), NULL);
 
-		// Asıl doldurma işlemini yapan ve imleci ilerleten fonksiyon.
-		if(populate_simple_cmd(current_cmd_node->simple_command, &current_token) == -1) // &tokens kısmı yanlış olabilir kontrol et!
+		add_cmd_to_chain(&cmd_head, new_cmd_node);
+
+		// Eğer `populate_simple_cmd`'den sonra hala bitmediysek, bir pipe olmalı.
+		if (current_token != NULL)
 		{
-			free_cmd_tree(current_cmd_node);
-			free_cmd_tree(cmd_head);
-			return (NULL);
-		}
-		
-		// Oluşturulan komut düğümünü listeye ekle
-		// ... ft_lstadd_back benzeri bir mantıkla `cmd_head` listesine eklenir ...
-		add_cmd_to_chain(&cmd_head, current_cmd_node);
-		
-		if (current_token && current_token->type == TOKEN_PIPE)
-		{
-			current_token = current_token->next;
-			// Syntax hatası: Komut `|` ile bitemez veya `| |` olamaz.
-			if (!current_token || current_token->type == TOKEN_PIPE)
+			if (current_token->type != TOKEN_PIPE) // Beklenmedik durum
+				return (free_cmd_tree(cmd_head), NULL);
+			current_token = current_token->next; // Pipe'ı atla.
+			if (current_token == NULL || current_token->type == TOKEN_PIPE) // Hata: `ls |` veya `ls | | wc`
 			{
-				printf("minishell: syntax error near unexpected token `|'\n");
-				free_cmd_tree(cmd_head);
-				return (NULL);
+				ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", 2);
+				return (free_cmd_tree(cmd_head), NULL);
 			}
 		}
 	}
 	return (cmd_head);
 }
+

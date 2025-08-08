@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_lstclear_bonus.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/23 19:36:49 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/04 17:05:15 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/08 07:22:41 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,17 @@
 
 void	ft_lstclear(t_list **lst, void (*del)(void *))
 {
-	t_list	*temp;
+	t_list	*current;
+	t_list	*next_node;
 
-	if (lst == NULL || *lst == NULL)
-		return ;
-	while (*lst)
+	if (!lst || !del) // Koruma: liste veya silme fonksiyonu NULL ise hiçbir şey yapma
+		return;
+	current = *lst;
+	while (current != NULL)
 	{
-		if (del != NULL && (*lst)->content != NULL)
-			del((*lst)->content);
-		temp = *lst;
-		*lst = temp->next;
-		free(temp);
+		next_node = current->next; // Bir sonraki düğümü kaydet
+		ft_lstdelone(current, del); // Mevcut düğümü ve içeriğini sil
+		current = next_node;        // Kaydedilen bir sonraki düğüme geç
 	}
-	*lst = NULL;
+	*lst = NULL; // Listenin başını NULL yap, artık boş.
 }

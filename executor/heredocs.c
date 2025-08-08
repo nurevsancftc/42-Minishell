@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredocs.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 12:58:57 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 19:59:08 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/08 08:54:18 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,45 +85,31 @@ int	handle_heredocs(t_command_chain *cmd_chain, t_shell *shell)
 {
 	t_list	*redir_list;
 	t_redir	*redir;
-	t_list	*last_heredoc_node;
+	char	*temp_filename;
 
 	while (cmd_chain)
 	{
-		// 1. ADIM: Son heredoc düğümünü bul.
-		redir_list = cmd_chain->simple_command->redirections;
-		last_heredoc_node = NULL;
-		while (redir_list)
-		{
-			if (((t_redir *)redir_list->content)->type == TOKEN_HEREDOC)
-				last_heredoc_node = redir_list;
-			redir_list = redir_list->next;
-		}
-
-		// 2. ADIM: Tüm heredoc'ları işle.
 		redir_list = cmd_chain->simple_command->redirections;
 		while (redir_list)
 		{
 			redir = (t_redir *)redir_list->content;
 			if (redir->type == TOKEN_HEREDOC)
 			{
-				// `read_heredoc_to_temp_file` artık t_redir'in tamamını ve shell'i alıyor.
-				if (redir_list != last_heredoc_node) // Bu sonuncu değil mi?
-				{
-					char *dummy_file = read_heredoc_to_temp_file(redir, shell);
-					if (!dummy_file) return (-1);
-					unlink(dummy_file);
-					free(dummy_file);
-					redir->filename = NULL; // filename'i free etmiyoruz, çünkü parser'da temizlendi.
-				}
-				else // Bu, son ve geçerli heredoc.
-				{
-					char *real_file = read_heredoc_to_temp_file(redir, shell);
-					if (!real_file) return (-1);
-					// Delimiter'ın yerini geçici dosya adı aldı.
-					// Orijinal delimiter'ı free etmeye gerek yok, parser bunu yaptı.
-					redir->filename = real_file;
-					redir->type = TOKEN_REDIR_IN;
-				}
+				// `read_heredoc_to_temp_file` çağrılıyor...
+				temp_filename = read_heredoc_to_temp_file(redir, shell);
+				if (!temp_filename)
+					return (-1); // Hata veya Ctrl+D
+
+				// --- İŞTE SIZINTIYI KAPATAN KISIM ---
+				// `parser`'da `ft_strunquote` ile ayrılan orijinal
+				// sonlandırıcı string'ini şimdi serbest bırakıyoruz.
+				free(redir->filename);
+				
+				// Ve yerine geçici dosyanın adını atıyoruz.
+				redir->filename = temp_filename;
+
+				// Bu heredoc artık bir girdi yönlendirmesi gibi davranacak.
+				redir->type = TOKEN_REDIR_IN;
 			}
 			redir_list = redir_list->next;
 		}
