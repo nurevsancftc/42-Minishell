@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:50:13 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/08 08:39:45 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/13 20:33:42 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 // # include "minishell.h"
 
 /* --- Ana Executor Fonksiyonu --- */
-void	executor(t_command_chain *cmd_chain, t_shell *shell);
+int	executor(t_command_chain *cmd_chain, t_shell *shell);
 
 /* --- Alt Yürütücü Fonksiyonlar --- */
 int		execute_builtin(char **args, t_shell *shell);
@@ -29,7 +29,7 @@ char	**convert_env_list_to_array(t_shell *shell);
 void	ft_free_array(char **split_array); // Libft'ten gelen yardımcı
 
 int	execute_external_command(t_simple_command *cmd, t_shell *shell, t_command_chain *full_chain);
-void	execute_single_command(t_command_chain *chain_node, t_shell *shell);
+int	execute_single_command(t_command_chain *chain_node, t_shell *shell);
 
 int handle_redirections(t_simple_command *cmd, int original_fds[2]);
 void restore_fds(int original_fds[2]);

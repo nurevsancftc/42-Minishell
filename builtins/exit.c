@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exit.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:45:07 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/05 16:45:28 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/13 20:23:55 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,42 @@
 #include <string.h>     // strlen
 #include <unistd.h>     // write
 #include "minishell.h"
+
+static long long	ft_atoll(const char *str)
+{
+	long long	result;
+	int			sign;
+	int			i;
+
+	result = 0;
+	sign = 1;
+	i = 0;
+	while (str[i] == ' ' || (str[i] >= '\t' && str[i] <= '\r'))
+		i++;
+	if (str[i] == '-' || str[i] == '+')
+	{
+		if (str[i] == '-')
+			sign = -1;
+		i++;
+	}
+	while (str[i] >= '0' && str[i] <= '9')
+	{
+		// TAŞMA KONTROLÜ (LLONG_MAX ve LLONG_MIN ile)
+		if (result > LLONG_MAX / 10 || \
+			(result == LLONG_MAX / 10 && (str[i] - '0') > LLONG_MAX % 10))
+		{
+			if (sign == 1)
+				return (LLONG_MAX);
+			else
+				return (LLONG_MIN);
+		}
+		result = result * 10 + (str[i] - '0');
+		i++;
+	}
+	return (result * sign);
+}
+
+
 /**
  * is_numeric - Bir string'in tamamen sayılardan oluşup oluşmadığını kontrol eder.
  *
@@ -53,53 +89,36 @@ static int	is_numeric(const char *str)
 /**
  * ft_exit - 'exit' yerleşik komutunu çalıştırır.
  *
- * Kabuğu sonlandırır ve bir çıkış kodu belirler.
- * Argümanların geçerliliğini kontrol eder ve bash'in davranışını taklit eder.
+ * Kabuğu sonlandırır ve bir çıkış kodu belirler. bash davranışını taklit eder:
+ * - exit: Son komutun çıkış koduyla çıkar.
+ * - exit [n]: n koduyla çıkar (0-255 arası).
+ * - exit [sayısal olmayan]: Hata basar ve 255 ile çıkar.
+ * - exit [n] [fazlası]: Hata basar ama ÇIKMAZ.
  */
 int	ft_exit(char **args, t_shell *shell)
 {
-	int	exit_status;
+	long long	num;
 
-	// Gerçek bir kabuk gibi, önce "exit" yazısını ekrana basalım.
-	printf("exit\n");
-
-	// 1. DURUM: "exit" tek başına mı kullanıldı?
+	write(1, "exit\n", 5);
 	if (args[1] == NULL)
 	{
-		// Argüman yoksa, başarı kodu olan 0 ile çık.
-		// Çıkış isteniyor. Son başarılı komutun çıkış kodunu kullan.
-		shell->exit_code = shell->exit_code;
+		// shell->exit_code zaten doğru değeri tutuyor. Sadece çıkış sinyali ver.
 		return (SHELL_SHOULD_EXIT);
 	}
-
-	// 2. DURUM: Verilen argüman sayısal değil mi? (örn: "exit hello")
-	if (is_numeric(args[1]) == 0)
+	num = ft_atoll(args[1]);
+	if (is_numeric(args[1]) == 0 || (num == LLONG_MAX || num == LLONG_MIN))
 	{
-		// Hata mesajını standart hata çıktısına (stderr) yaz.
-		write(2, "minishell: exit: ", 17);
-		write(2, args[1], strlen(args[1]));
-		write(2, ": numeric argument required\n", 28);
-		shell->exit_code = 255; // Bash bu durumda 255 koduyla çıkar.
-		return (SHELL_SHOULD_EXIT);
+		ft_putstr_fd("minishell: exit: ", 2);
+		ft_putstr_fd(args[1], 2);
+		ft_putstr_fd(": numeric argument required\n", 2);
+		shell->exit_code = 255; // Gerçek çıkış kodunu ayarla
+		return (SHELL_SHOULD_EXIT); // Çıkış sinyalini ver
 	}
-
-	// 3. DURUM: Çok fazla argüman mı var? (örn: "exit 50 world")
 	if (args[2] != NULL)
 	{
-		write(2, "minishell: exit: too many arguments\n", 36);
-		// Bu durumda kabuktan ÇIKMIYORUZ, sadece hata verip devam ediyoruz.
-		// Hata olduğunu belirtmek için 1 döndürürüz.
-		return (1);
+		ft_putstr_fd("minishell: exit: too many arguments\n", 2);
+		return (1); // Hata ver, çıkma.
 	}
-
-	// 4. DURUM: Her şey yolunda, tek bir sayısal argüman var.
-	// "atoi" fonksiyonu string'i integer'a çevirir.
-	exit_status = atoi(args[1]);
-	
-	shell->exit_code = (unsigned char)exit_status;
-	// Çıkış kodları 0 ile 255 arasında olmalıdır.
-	// (unsigned char) cast'i, sayıyı otomatik olarak bu aralığa sığdırır.
-	// Örneğin 257 girilirse, 1 olarak çıkar. Bu, doğru davranıştır.
-	return (SHELL_SHOULD_EXIT);
-	// exit((unsigned char)exit_status);
+	shell->exit_code = (unsigned char)num; // Gerçek çıkış kodunu ayarla
+	return (SHELL_SHOULD_EXIT); // Çıkış sinyalini ver
 }

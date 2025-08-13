@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:42:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/13 16:51:05 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/13 20:33:12 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,26 +24,26 @@
  * @param line Kullanıcı tarafından girilen ham komut satırı.
  * @param shell Kabuğun genel durumu.
  */
-static void	process_line(char *line, t_shell *shell)
+static int	process_line(char *line, t_shell *shell)
 {
 	t_token	*tokens;
+	int		status;
 
 	tokens = NULL;
-	shell->cmd_tree = NULL; // Her döngü başı sıfırla
-
+	status = 0;
+	shell->cmd_tree = NULL;
 	if (*line)
 	{
 		add_history(line);
 		tokens = lexer(line);
 		if (tokens)
 		{
-			// Parser'dan geleni shell->cmd_tree'ye ata
 			shell->cmd_tree = parser(tokens);
 			free_token_list(tokens);
 			if (shell->cmd_tree)
 			{
-				expander(shell->cmd_tree, shell);
-				executor(shell->cmd_tree, shell);
+				// expander(shell->cmd_tree, shell);
+				status = executor(shell->cmd_tree, shell);
 			}
 			else
 				shell->exit_code = 258;
@@ -51,8 +51,9 @@ static void	process_line(char *line, t_shell *shell)
 		else
 			shell->exit_code = 258;
 	}
-	// Artık shell yapısı üzerinden temizliyoruz.
 	free_cmd_tree(shell->cmd_tree);
+	shell->cmd_tree = NULL;
+	return (status); // Yakalanan sinyali (0 veya -1) döndür
 }
 
 /**
@@ -62,6 +63,7 @@ static void	process_line(char *line, t_shell *shell)
 void	main_loop(t_shell *shell)
 {
 	char	*line;
+	int		status;
 
 	while (1)
 	{
@@ -73,14 +75,14 @@ void	main_loop(t_shell *shell)
 		}
 
 		// Asıl işi yapan yardımcı fonksiyonu çağır.
-		process_line(line, shell);
+		status = process_line(line, shell);
 
 		// `line` readline tarafından malloc ile ayrıldığı için her döngüde
 		// serbest bırakılmalıdır.
 		free(line);
 
 		// Eğer "exit" komutu çağrıldıysa, döngüyü sonlandır.
-		if (shell->exit_code == SHELL_SHOULD_EXIT)
+		if (status == SHELL_SHOULD_EXIT)
 			break;
 	}
 }

@@ -4,7 +4,8 @@
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
+/*                           	return (shell.exit_code);
+                     +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/13 18:07:56 by nuciftci          #+#    #+#             */
 /*   Updated: 2025/08/13 18:07:57 by nuciftci         ###   ########.fr       */
 /*                                                                            */

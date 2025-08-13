@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 05:26:50 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/08 08:51:00 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/13 20:29:40 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,78 +20,80 @@
  * 3. Komutun tek mi yoksa bir pipeline mı olduğuna karar verir ve ilgili
  *    yürütme fonksiyonunu çağırır.
  */
-void	executor(t_command_chain *cmd_chain, t_shell *shell)
+int	executor(t_command_chain *cmd_chain, t_shell *shell)
 {
-	if (!cmd_chain)
-		return;
+	int status;
 
-	// 1. ADIM: Heredoc'ları ÖNCEDEN işle.
-	// Bu fonksiyon, zincirdeki tüm `<<`'ları bulur ve geçici dosyalara
-	// veya pipe'lara yazar. Hata olursa (örn. Ctrl+D ile kesilirse) -1 döner.
+	if (!cmd_chain)
+		return (0);
 	if (handle_heredocs(cmd_chain, shell) == -1)
 	{
-		shell->exit_code = 1; // veya başka bir hata kodu
-		return;
+		shell->exit_code = 1;
+		return (0);
 	}
+	// expander(cmd_chain, shell); // Expander'ı burada çağırdığınızı varsayıyorum
 
-	// 2. ADIM: Genişletme ve Tırnak Kaldırma (Expander)
-	// Bu fonksiyon, komut ağacındaki tüm argümanları gezer,
-	// $VAR gibi ifadeleri değerleriyle değiştirir ve "echo" gibi tırnakları kaldırır.
-	// expander(cmd_chain, shell);
-
-	// 3. ADIM: Yürütme Mantığı
-	// Komut zincirinde tek bir komut mu var, yoksa pipe'larla bağlı birden fazla mı?
 	if (!cmd_chain->next)
 	{
-		// Durum: Tek komut (örn: `ls -l > file` veya `cd ..`)
-		execute_single_command(cmd_chain, shell);
+		// Tek komut: execute_single_command'dan gelen sinyali yakala.
+		status = execute_single_command(cmd_chain, shell);
+		if (status == SHELL_SHOULD_EXIT)
+			return (SHELL_SHOULD_EXIT); // Sinyali yukarı pasla
 	}
 	else
 	{
-		// Durum: Pipeline (örn: `cat file | grep "test" | wc -l`)
+		// Pipeline: 'exit' bir alt kabukta çalışır ve ana kabuğu
+		// sonlandırmaz. Bu yüzden sinyali kontrol etmeye gerek yok.
 		execute_pipeline(cmd_chain, shell);
 	}
+	return (0); // Normal devam et
 }
 
 /**
  * execute_single_command - Yönlendirmeleri olan veya olmayan tek bir komutu çalıştırır.
  */
-void	execute_single_command(t_command_chain *chain_node, t_shell *shell)
+int	execute_single_command(t_command_chain *chain_node, t_shell *shell)
 {
 	int	original_fds[2];
 	int	exit_status;
-	t_simple_command *cmd; // Kolay erişim için bir pointer oluşturalım.
+	t_simple_command *cmd;
 
-	// Koruma ve kolay erişim
 	if (!chain_node || !chain_node->simple_command)
-		return;
+		return (0); // Normal devam et
 	cmd = chain_node->simple_command;
-
 	if (!cmd->args || !cmd->args[0])
-		return;
+		return (0); // Boş komut, devam et
 
-	// Yönlendirmeleri uygula
 	if (handle_redirections(cmd, original_fds) == -1)
 	{
-		// ... (hata yönetimi) ...
-		return;
+		shell->exit_code = 1;
+		return (0); // Devam et, kabuktan çıkma
 	}
 
 	if (is_builtin(cmd->args[0]))
 	{
-		shell->exit_code = execute_builtin(cmd->args, shell);
+		exit_status = execute_builtin(cmd->args, shell);
+		if (exit_status != SHELL_SHOULD_EXIT)
+		{
+			// Normal bir builtin, $?'ı güncelle
+			shell->exit_code = exit_status;
+		}
+		else
+		{
+			// `exit` komutu çağrıldı. `shell->exit_code`'a dokunma.
+			// Sadece çıkış sinyalini yukarıya döndür.
+			restore_fds(original_fds);
+			return (SHELL_SHOULD_EXIT);
+		}
 	}
 	else
 	{
-		// ARADIĞINIZ CEVAP BURADA:
-		// Artık hem `cmd` (simple_command) hem de `chain_node` (tüm zincir) elimizde.
-		// Dolayısıyla `execute_external_command`'a her ikisini de gönderebiliriz.
 		exit_status = execute_external_command(cmd, shell, chain_node);
 		shell->exit_code = exit_status;
 	}
 
-	// Orijinal fd'leri geri yükle
 	restore_fds(original_fds);
+	return (0); // Normal şekilde devam et
 }
 
 
