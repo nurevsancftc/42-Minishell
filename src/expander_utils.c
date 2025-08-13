@@ -3,16 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   expander_utils.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 18:22:25 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 18:22:41 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/13 18:05:14 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-// array_to_list_utils.c
 
 // Bir char** dizisini, her elemanı strdup ile kopyalanmış bir t_list'e çevirir.
 t_list	*array_to_list(char **array)
