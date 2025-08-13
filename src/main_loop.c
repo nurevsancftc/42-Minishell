@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:42:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/08 09:02:18 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/13 16:51:05 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ static void	process_line(char *line, t_shell *shell)
 		{
 			// Parser'dan geleni shell->cmd_tree'ye ata
 			shell->cmd_tree = parser(tokens);
+			free_token_list(tokens);
 			if (shell->cmd_tree)
 			{
 				expander(shell->cmd_tree, shell);
@@ -50,7 +51,6 @@ static void	process_line(char *line, t_shell *shell)
 		else
 			shell->exit_code = 258;
 	}
-	free_token_list(tokens);
 	// Artık shell yapısı üzerinden temizliyoruz.
 	free_cmd_tree(shell->cmd_tree);
 }
