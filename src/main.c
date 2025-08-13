@@ -54,12 +54,9 @@ static void	init_shell(t_shell *shell, char **envp)
 
 static void	cleanup_shell(t_shell *shell)
 {
-	// HATA AYIKLAMA: Bu fonksiyonun çağrıldığını görelim.
-	printf("DEBUG: cleanup_shell çağrılıyor...\n");
 	if (shell && shell->env_list)
 		ft_lstclear(&shell->env_list, free_env_content);
 	rl_clear_history();
-	printf("DEBUG: cleanup_shell tamamlandı.\n");
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -77,8 +74,6 @@ int	main(int argc, char **argv, char **envp)
 	main_loop(&shell);
 
 	// HATA AYIKLAMA: main'in sonuna ulaşıldığını görelim.
-	printf("DEBUG: main_loop bitti, cleanup başlıyor.\n");
 	cleanup_shell(&shell);
-	printf("DEBUG: Program sonlanıyor.\n");
 	return (shell.exit_code);
 }
