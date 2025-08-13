@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 05:26:50 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/05 20:01:59 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/08 08:51:00 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,19 +94,7 @@ void	execute_single_command(t_command_chain *chain_node, t_shell *shell)
 	restore_fds(original_fds);
 }
 
-// Bu fonksiyonun, ana temizlik fonksiyonu olan free_cmd_tree'yi ve
-// diğer tüm yapıları (shell, tokens vs.) temizleyen genel bir
-// temizlik fonksiyonu olduğunu varsayalım.
-void	cleanup_and_exit(t_shell *shell, t_command_chain *cmd_chain, int exit_code)
-{
-	// Bu fonksiyon, bir hata durumunda programdan çıkmadan önce
-	// tüm belleği temizler. main() fonksiyonundaki ana temizlik
-	// fonksiyonunuzu burada tekrar kullanabilirsiniz.
-	free_cmd_tree(cmd_chain); 
-	// free_shell_struct(shell); // env_list gibi şeyleri temizler
-	// ... diğer tüm genel temizlikler ...
-	exit(exit_code);
-}
+
 
 
 /**

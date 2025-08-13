@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 20:20:26 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/08 08:49:58 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,11 +48,6 @@ typedef struct s_env
 	// struct s_env	*next;
 }	t_env;
 
-typedef struct s_shell
-{
-	t_list	*env_list;
-	int		exit_code;
-}	t_shell;
 
 typedef struct s_redir
 {
@@ -73,6 +68,12 @@ typedef struct s_command_chain
 	struct s_command_chain	*next;       // Pipe ile sonraki komuta işaretçi
 }	t_command_chain;
 
+typedef struct s_shell
+{
+	t_list	*env_list;
+	int		exit_code;
+	t_command_chain	*cmd_tree;
+}	t_shell;
 
 t_list	*create_env_list(char **envp);
 void	main_loop(t_shell *shell);
@@ -100,6 +101,8 @@ void free_args(char **args);
 // void		free_ast(t_command_chain *ast);
 void free_token_list(t_token *head);
 void free_cmd_tree(t_command_chain *head);
+void	free_env_content(void *content);
+
 
 t_command_chain	*parser(t_token *tokens);
 int	populate_simple_cmd(t_simple_command *cmd, t_token **token_cursor);

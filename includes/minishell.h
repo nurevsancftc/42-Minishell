@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 01:38:27 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 16:25:34 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/08 07:22:56 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

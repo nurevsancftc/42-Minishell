@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 04:15:29 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/06 01:09:57 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/08 07:09:14 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,20 +81,6 @@ char	*get_env_value(t_list *env_list, const char *key)
 }
 
 
-/**
- * free_env_content - `ft_lstdelone` için bir `t_env` içeriğini temizler.
- */
-void	free_env_content(void *content)
-{
-	t_env	*env;
-
-	env = (t_env *)content;
-	if (!env)
-		return;
-	free(env->key);
-	free(env->value);
-	free(env);
-}
 
 /**
  * is_valid_identifier - Bir anahtarın geçerli bir kabuk adı olup olmadığını
