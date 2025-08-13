@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/08/13 18:07:56 by nuciftci          #+#    #+#             */
+/*   Updated: 2025/08/13 18:07:57 by nuciftci         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 // src/main.c
 
 #include "minishell.h"
@@ -54,12 +66,9 @@ static void	init_shell(t_shell *shell, char **envp)
 
 static void	cleanup_shell(t_shell *shell)
 {
-	// HATA AYIKLAMA: Bu fonksiyonun çağrıldığını görelim.
-	printf("DEBUG: cleanup_shell çağrılıyor...\n");
 	if (shell && shell->env_list)
 		ft_lstclear(&shell->env_list, free_env_content);
 	rl_clear_history();
-	printf("DEBUG: cleanup_shell tamamlandı.\n");
 }
 
 int	main(int argc, char **argv, char **envp)
@@ -76,9 +85,6 @@ int	main(int argc, char **argv, char **envp)
 	init_shell(&shell, envp);
 	main_loop(&shell);
 
-	// HATA AYIKLAMA: main'in sonuna ulaşıldığını görelim.
-	printf("DEBUG: main_loop bitti, cleanup başlıyor.\n");
 	cleanup_shell(&shell);
-	printf("DEBUG: Program sonlanıyor.\n");
 	return (shell.exit_code);
 }
