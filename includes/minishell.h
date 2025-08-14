@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 01:38:27 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/13 19:29:18 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/14 20:40:26 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@
 # include <sys/wait.h>
 # include <unistd.h>
 #include <limits.h> 
-
+#include <dirent.h>
 # include "parser.h"
 # include "builtins.h"
 # include "executor.h"

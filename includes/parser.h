@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/13 20:24:04 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/14 20:40:02 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,16 @@ typedef enum e_token_type
 	TOKEN_HEREDOC,      // <<
 	TOKEN_EOF           // Girdinin sonu (End of File)
 }	t_token_type;
+
+// Yol durumlarını belirtmek için sabitler (enum kullanmak daha temiz)
+// Bunları minishell.h veya parser.h gibi genel bir başlık dosyasına koyabilirsiniz.
+typedef enum e_path_status
+{
+	PATH_VALID_FILE,    // Yol var ve bir dosya (veya dosya olabilir)
+	PATH_IS_DIRECTORY,  // Yol var ve bir dizin
+	PATH_NOT_FOUND,     // Yol mevcut değil
+	PATH_NO_PERMISSION  // Yol var ama erişim izni yok (şimdilik bunu eklemeyebiliriz)
+} t_path_status;
 
 // Her bir token'ı temsil eden bağlı liste düğümü.
 // "ls -l | grep" -> [ls] -> [-l] -> [|] -> [grep]

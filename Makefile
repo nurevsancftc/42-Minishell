@@ -14,6 +14,7 @@ SRCS =	src/main.c \
 		builtins/utils.c \
 		builtins/exit.c \
 		builtins/pwd.c \
+		builtins/dot.c \
 		executor/executor.c \
 		executor/executor_utils.c \
 		executor/executor_pipeline.c \

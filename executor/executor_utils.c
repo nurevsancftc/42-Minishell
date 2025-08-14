@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:49:43 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/08 09:39:50 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/14 20:40:50 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,4 +200,26 @@ void	cleanup_and_exit(t_shell *shell, int exit_code)
 
 	// Temizlik bittikten sonra çıkış yap.
 	exit(exit_code);
+}
+
+int	get_path_status(const char *path)
+{
+	DIR	*dir_ptr;
+
+	if (access(path, F_OK) != 0)
+	{
+		// Dosya/dizin hiç yok.
+		return (PATH_NOT_FOUND);
+	}
+	
+	dir_ptr = opendir(path);
+	if (dir_ptr != NULL)
+	{
+		// opendir başarılı oldu, bu kesinlikle bir dizin.
+		closedir(dir_ptr);
+		return (PATH_IS_DIRECTORY);
+	}
+
+	// Dosya var ama dizin değil, o zaman bu bir dosyadır.
+	return (PATH_VALID_FILE);
 }

@@ -6,12 +6,12 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 04:15:29 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/08 07:09:14 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/14 20:57:50 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
+#include <dirent.h>
 
 
 /* ========================================================================== */
@@ -255,4 +255,40 @@ void	update_or_create_env(t_shell *shell, const char *key, const char *value)
 		node = ft_lstnew(env);
 		ft_lstadd_back(&(shell->env_list), node);
 	}
+}
+
+
+/**
+ * ft_check_path_error - Bir yolun durumunu kontrol eder ve gerekirse hata basar.
+ *
+ * Parametreler:
+ *   path - Kontrol edilecek yol.
+ *   cmd_name - Hata mesajında kullanılacak komut adı (örn: "ls", ".").
+ *
+ * Döner Değer:
+ *   - 0: Yol geçerli bir dosyaya benziyor, sorun yok.
+ *   - 126: Yol bir dizindir.
+ *   - 127: Yol mevcut değildir.
+ */
+int	ft_check_path_error(const char *path, const char *cmd_name)
+{
+	DIR	*dir_ptr;
+
+	if (access(path, F_OK) != 0)
+	{
+		ft_putstr_fd("minishell: ", 2);
+		ft_putstr_fd((char *)cmd_name, 2);
+		ft_putstr_fd(": No such file or directory\n", 2);
+		return (127);
+	}
+	dir_ptr = opendir(path);
+	if (dir_ptr != NULL)
+	{
+		closedir(dir_ptr);
+		ft_putstr_fd("minishell: ", 2);
+		ft_putstr_fd((char *)cmd_name, 2);
+		ft_putstr_fd(": is a directory\n", 2);
+		return (126);
+	}
+	return (0);
 }

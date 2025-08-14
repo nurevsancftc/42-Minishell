@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:55:03 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/14 17:33:08 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/14 20:26:54 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,8 @@ int	is_builtin(char *cmd)
 		return (1);
 	if (strcmp(cmd, "exit") == 0)
 		return (1);
-
+	if (strcmp(cmd, ".") == 0)
+		return (1);
 	// Eğer listede bulunamadıysa, bu bir builtin değildir.
 	return (0);
 }
@@ -78,7 +79,9 @@ int	execute_builtin(char **args, t_shell *shell)
 		// AKIŞ KONTROL SİNYALİNİ yukarıya aynen ilet.
 		return (return_status);
 	}
-
+	else if (strcmp(args[0], ".") == 0)
+		return (ft_dot(args, shell));
+		
 	// Bu kısma asla ulaşılmamalıdır, çünkü 'is_builtin' önceden kontrol eder.
 	// Bir fallback olarak "command not found" döndürmek güvenli bir yaklaşımdır.
 	return (127);

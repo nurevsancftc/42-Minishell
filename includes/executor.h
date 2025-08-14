@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:50:13 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/13 20:33:42 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/14 20:41:00 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,5 +36,6 @@ void restore_fds(int original_fds[2]);
 int	handle_heredocs(t_command_chain *cmd_chain, t_shell *shell);
 int	is_builtin(char *cmd);
 void	cleanup_and_exit(t_shell *shell, int exit_code);
+int	get_path_status(const char *path);
 
 #endif

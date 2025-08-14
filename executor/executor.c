@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 05:26:50 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/14 18:54:36 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/14 20:58:37 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,50 +142,21 @@ int	execute_external_command(t_simple_command *cmd, t_shell *shell, \
 		return (perror("minishell: fork"), 1);
 	if (pid == 0)
 	{
-		// --- Çocuk Proses Başlangıcı ---
 		char	*command;
 		char	**envp;
+		int		error_code;
 
 		command = cmd->args[0];
-		// `envp`'yi en başta oluştur. Her çıkış yolunda bunu temizleyeceğiz.
 		envp = convert_env_list_to_array(shell);
-
 		if (ft_strchr(command, '/'))
 		{
-			char	original_pwd[PATH_MAX];
-
-			// 1. ADIM: Mevcut dizini kaydet (her ihtimale karşı).
-			// getcwd başarısız olursa diye kontrol eklemek en sağlıklısı.
-			if (getcwd(original_pwd, PATH_MAX) == NULL)
+			// Hata kontrolünü ve mesaj basmayı yardımcıya devret.
+			error_code = ft_check_path_error(command, command);
+			if (error_code != 0)
 			{
-				perror("minishell: getcwd");
 				ft_free_array(envp);
-				cleanup_and_exit(shell, 1);
+				cleanup_and_exit(shell, error_code);
 			}
-
-			// 2. ADIM: Dizin mi diye chdir ile test et.
-			if (chdir(command) == 0)
-			{
-				// chdir başarılı oldu, bu bir dizin.
-				chdir(original_pwd); // HEMEN GERİ DÖN!
-				ft_putstr_fd("minishell: ", 2);
-				ft_putstr_fd(command, 2);
-				ft_putstr_fd(": is a directory\n", 2);
-				ft_free_array(envp);
-				cleanup_and_exit(shell, 126);
-			}
-
-			// 3. ADIM: Var mı diye kontrol et (ama dizin değil).
-			if (access(command, F_OK) != 0)
-			{
-				ft_putstr_fd("minishell: ", 2);
-				ft_putstr_fd(command, 2);
-				ft_putstr_fd(": No such file or directory\n", 2);
-				ft_free_array(envp);
-				cleanup_and_exit(shell, 127);
-			}
-			
-			// 4. ADIM: Yol var ve dizin değil, çalıştırmayı dene.
 			execve(command, cmd->args, envp);
 			perror(command);
 			ft_free_array(envp);
@@ -199,18 +170,16 @@ int	execute_external_command(t_simple_command *cmd, t_shell *shell, \
 				ft_putstr_fd("minishell: ", 2);
 				ft_putstr_fd(command, 2);
 				ft_putstr_fd(": command not found\n", 2);
-				ft_free_array(envp); // <-- TEMİZLİK
+				ft_free_array(envp);
 				cleanup_and_exit(shell, 127);
 			}
 			execve(path, cmd->args, envp);
 			perror(path);
 			free(path);
-			ft_free_array(envp); // <-- TEMİZLİK
+			ft_free_array(envp);
 			cleanup_and_exit(shell, 126);
 		}
 	}
-
-	// --- Ebeveyn Proses Başlangıcı ---
 	waitpid(pid, &status, 0);
 	if (WIFEXITED(status))
 		return (WEXITSTATUS(status));
