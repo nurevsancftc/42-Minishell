@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:55:03 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/08 09:40:15 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/14 17:33:08 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,29 +116,38 @@ void	execute_external_in_child(char **args, t_shell *shell)
 	char	*cmd_path;
 	char	**envp_array;
 
-	if (!args || !args[0] || !*args[0])
-		cleanup_and_exit(shell, 0); // Basit exit(0) DEĞİL!
+	// --- BU KONTROL DEĞİŞİYOR ---
+	// Eskiden: if (!args || !args[0] || !*args[0]) -> sessizce çık.
+	// Şimdi: Sadece GERÇEKTEN argüman yoksa sessizce çıkacağız.
+	if (!args || !args[0])
+	{
+		// Bu durum, expander'ın $EMPTY gibi bir argümanı
+		// tamamen sildiği anlamına gelir. Bu bir hata değildir.
+		cleanup_and_exit(shell, 0);
+	}
 
+	// Komut adı boş bir string ise (""), bu "command not found" hatasıdır.
+	// get_command_path, boş string için NULL döndürecektir.
 	cmd_path = get_command_path(args[0], shell);
 	if (!cmd_path)
 	{
 		ft_putstr_fd("minishell: ", 2);
-		ft_putstr_fd(args[0], 2);
+		ft_putstr_fd(args[0], 2); // args[0] burada "" olabilir.
 		ft_putstr_fd(": command not found\n", 2);
-		cleanup_and_exit(shell, 127); // Basit exit(127) DEĞİL!
+		cleanup_and_exit(shell, 127);
 	}
+
+	// ... (kodun geri kalanı aynı) ...
 	envp_array = convert_env_list_to_array(shell);
 	if (!envp_array)
 	{
 		free(cmd_path);
-		cleanup_and_exit(shell, EXIT_FAILURE); // Basit exit(1) DEĞİL!
+		cleanup_and_exit(shell, EXIT_FAILURE);
 	}
 	execve(cmd_path, args, envp_array);
-	
-	// execve sadece hata durumunda geri döner
 	perror(args[0]);
 	free(cmd_path);
 	ft_free_array(envp_array);
-	cleanup_and_exit(shell, 126); // Basit exit(126) DEĞİL!
+	cleanup_and_exit(shell, 126);
 }
 

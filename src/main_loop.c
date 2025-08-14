@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:42:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/13 20:33:12 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/14 17:32:32 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,18 +42,22 @@ static int	process_line(char *line, t_shell *shell)
 			free_token_list(tokens);
 			if (shell->cmd_tree)
 			{
-				// expander(shell->cmd_tree, shell);
+				// --- DOĞRU SIRA BURASI ---
+				// 1. Parser'dan sonra, komutları genişlet.
+				expander(shell->cmd_tree, shell);
+
+				// 2. Genişletilmiş komutları çalıştır.
 				status = executor(shell->cmd_tree, shell);
 			}
 			else
-				shell->exit_code = 258;
+				shell->exit_code = 258; // Syntax hatası
 		}
 		else
-			shell->exit_code = 258;
+			shell->exit_code = 258; // Lexer hatası
 	}
 	free_cmd_tree(shell->cmd_tree);
 	shell->cmd_tree = NULL;
-	return (status); // Yakalanan sinyali (0 veya -1) döndür
+	return (status);
 }
 
 /**

@@ -3,6 +3,7 @@
         "minishell.h": "c",
         "executor.h": "c",
         "builtins.h": "c",
-        "libft.h": "c"
+        "libft.h": "c",
+        "unistd.h": "c"
     }
 }

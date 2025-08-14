@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 05:26:50 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/13 20:29:40 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/14 18:54:36 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,34 +54,43 @@ int	executor(t_command_chain *cmd_chain, t_shell *shell)
  */
 int	execute_single_command(t_command_chain *chain_node, t_shell *shell)
 {
-	int	original_fds[2];
-	int	exit_status;
-	t_simple_command *cmd;
+	int					original_fds[2];
+	int					exit_status;
+	t_simple_command	*cmd;
 
 	if (!chain_node || !chain_node->simple_command)
-		return (0); // Normal devam et
+		return (0);
 	cmd = chain_node->simple_command;
-	if (!cmd->args || !cmd->args[0])
-		return (0); // Boş komut, devam et
 
+	// 1. ADIM: Her zaman önce yönlendirmeleri uygula.
+	// Bu, `> file` gibi komutların, komut boş olsa bile çalışmasını sağlar.
 	if (handle_redirections(cmd, original_fds) == -1)
 	{
 		shell->exit_code = 1;
-		return (0); // Devam et, kabuktan çıkma
+		return (0); // Yönlendirme hatası, ama kabuk devam etmeli.
 	}
 
+	// 2. ADIM: "Gerçekten" boş komut mu diye kontrol et ($EMPTY, `> file` gibi).
+	// Bu, `expander`'ın argüman listesini tamamen boşalttığı durumdur.
+	if (!cmd->args || !cmd->args[0])
+	{
+		// Bu bir hata değildir. Sadece yönlendirmeler yapıldı.
+		restore_fds(original_fds);
+		return (0);
+	}
+	
+	// 3. ADIM: Komutun builtin mi harici mi olduğunu kontrol et ve çalıştır.
+	// NOT: `""` komutu `!cmd->args[0]` kontrolünden geçer (çünkü `args[0]`
+	// NULL değildir) ve harici komut olarak işlem görür. `execute_external_command`
+	// içinde "command not found" hatası alması beklenir. Bu doğrudur.
 	if (is_builtin(cmd->args[0]))
 	{
 		exit_status = execute_builtin(cmd->args, shell);
 		if (exit_status != SHELL_SHOULD_EXIT)
-		{
-			// Normal bir builtin, $?'ı güncelle
 			shell->exit_code = exit_status;
-		}
 		else
 		{
-			// `exit` komutu çağrıldı. `shell->exit_code`'a dokunma.
-			// Sadece çıkış sinyalini yukarıya döndür.
+			// `exit` komutu çağrıldı. Sinyali yukarıya pasla.
 			restore_fds(original_fds);
 			return (SHELL_SHOULD_EXIT);
 		}
@@ -92,8 +101,9 @@ int	execute_single_command(t_command_chain *chain_node, t_shell *shell)
 		shell->exit_code = exit_status;
 	}
 
+	// 4. ADIM: Her şey bittikten sonra orijinal fd'leri geri yükle.
 	restore_fds(original_fds);
-	return (0); // Normal şekilde devam et
+	return (0); // Normal şekilde devam et.
 }
 
 
@@ -125,50 +135,86 @@ int	execute_external_command(t_simple_command *cmd, t_shell *shell, \
 {
 	pid_t	pid;
 	int		status;
-	char	*path;
 
+	(void)full_chain;
 	pid = fork();
 	if (pid == -1)
-		return (perror("minishell: fork"), 1); // Fork hatası
+		return (perror("minishell: fork"), 1);
 	if (pid == 0)
 	{
 		// --- Çocuk Proses Başlangıcı ---
-		char **envp_array;
+		char	*command;
+		char	**envp;
 
-		path = get_command_path(cmd->args[0], shell);
-		if (!path)
+		command = cmd->args[0];
+		// `envp`'yi en başta oluştur. Her çıkış yolunda bunu temizleyeceğiz.
+		envp = convert_env_list_to_array(shell);
+
+		if (ft_strchr(command, '/'))
 		{
-			ft_putstr_fd("minishell: ", 2);
-			ft_putstr_fd(cmd->args[0], 2);
-			ft_putstr_fd(": command not found\n", 2);
-			return (SHELL_SHOULD_EXIT);
-		}
+			char	original_pwd[PATH_MAX];
 
-		envp_array = convert_env_list_to_array(shell);
-		if (!envp_array)
+			// 1. ADIM: Mevcut dizini kaydet (her ihtimale karşı).
+			// getcwd başarısız olursa diye kontrol eklemek en sağlıklısı.
+			if (getcwd(original_pwd, PATH_MAX) == NULL)
+			{
+				perror("minishell: getcwd");
+				ft_free_array(envp);
+				cleanup_and_exit(shell, 1);
+			}
+
+			// 2. ADIM: Dizin mi diye chdir ile test et.
+			if (chdir(command) == 0)
+			{
+				// chdir başarılı oldu, bu bir dizin.
+				chdir(original_pwd); // HEMEN GERİ DÖN!
+				ft_putstr_fd("minishell: ", 2);
+				ft_putstr_fd(command, 2);
+				ft_putstr_fd(": is a directory\n", 2);
+				ft_free_array(envp);
+				cleanup_and_exit(shell, 126);
+			}
+
+			// 3. ADIM: Var mı diye kontrol et (ama dizin değil).
+			if (access(command, F_OK) != 0)
+			{
+				ft_putstr_fd("minishell: ", 2);
+				ft_putstr_fd(command, 2);
+				ft_putstr_fd(": No such file or directory\n", 2);
+				ft_free_array(envp);
+				cleanup_and_exit(shell, 127);
+			}
+			
+			// 4. ADIM: Yol var ve dizin değil, çalıştırmayı dene.
+			execve(command, cmd->args, envp);
+			perror(command);
+			ft_free_array(envp);
+			cleanup_and_exit(shell, 126);
+		}
+		else
 		{
-			perror("minishell: environment setup failed");
-			free(path); // `get_command_path`'ten gelen path'i unutma.
-			return (SHELL_SHOULD_EXIT);
+			char *path = get_command_path(command, shell);
+			if (!path)
+			{
+				ft_putstr_fd("minishell: ", 2);
+				ft_putstr_fd(command, 2);
+				ft_putstr_fd(": command not found\n", 2);
+				ft_free_array(envp); // <-- TEMİZLİK
+				cleanup_and_exit(shell, 127);
+			}
+			execve(path, cmd->args, envp);
+			perror(path);
+			free(path);
+			ft_free_array(envp); // <-- TEMİZLİK
+			cleanup_and_exit(shell, 126);
 		}
-
-		execve(path, cmd->args, envp_array);
-
-		// Bu noktaya sadece execve başarısız olursa ulaşılır.
-		perror(cmd->args[0]);
-		free(path);
-		ft_free_array(envp_array); // execve'ye gönderdiğimiz diziyi temizle.
-		return (SHELL_SHOULD_EXIT);
 	}
 
 	// --- Ebeveyn Proses Başlangıcı ---
 	waitpid(pid, &status, 0);
-
-	// Çocuğun çıkış durumunu analiz et ve uygun kodu döndür.
 	if (WIFEXITED(status))
-		return (WEXITSTATUS(status)); // Normal şekilde sonlandı.
+		return (WEXITSTATUS(status));
 	else if (WIFSIGNALED(status))
-		return (WTERMSIG(status) + 128); // Sinyal ile sonlandırıldı (örn: Ctrl+C).
-	
-	return (1); // Beklenmedik bir durum.
+		return (WTERMSIG(status) + 128);
+	return (1);
 }

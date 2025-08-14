@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:48:26 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/08 09:40:55 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/14 17:24:30 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,22 +59,27 @@ static void	setup_child_io(t_command_chain *current_cmd, int pipe_fds[2],
 static void	child_routine(t_simple_command *cmd, t_shell *shell)
 {
 	int	exit_code;
+	// Mevcut handle_redirections fonksiyonunuzu çağırmak için
+	// geçici bir dizi tanımlayın. Bu dizi burada kullanılmayacak
+	// ama fonksiyonun imzası bunu gerektiriyor.
+	int	temp_original_fds[2];
 
-	// I/O Yönlendirmelerini uygula (eğer varsa)
-	// handle_redirections(cmd, ...);
+	// 1. ADIM: Mevcut yönlendirme fonksiyonunuzu çağırın.
+	if (handle_redirections(cmd, temp_original_fds) == -1)
+	{
+		// Yönlendirme hatası (örn: dosya açılamadı), 1 koduyla çık.
+		cleanup_and_exit(shell, 1);
+	}
 
+	// 2. ADIM: Komutun kendisini çalıştır.
 	if (cmd && cmd->args && cmd->args[0] && is_builtin(cmd->args[0]))
 	{
-		// Builtin komutunu çalıştır ve çıkış kodunu al.
 		exit_code = execute_builtin(cmd->args, shell);
-		
-		// Çıkmadan önce, bu çocuğun miras aldığı TÜM belleği temizle.
-		cleanup_and_exit(shell, exit_code); // Basit exit() DEĞİL!
+		cleanup_and_exit(shell, exit_code);
 	}
 	else
 	{
-		// Harici komutlar için olan fonksiyon zaten kendi içinde
-		// `cleanup_and_exit`'i çağırıyor.
+		// Bu fonksiyon zaten boş komutları kontrol edip 0 ile çıkıyor.
 		execute_external_in_child(cmd->args, shell);
 	}
 }
