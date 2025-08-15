@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:42:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/14 17:32:32 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/15 18:29:05 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,10 +50,10 @@ static int	process_line(char *line, t_shell *shell)
 				status = executor(shell->cmd_tree, shell);
 			}
 			else
-				shell->exit_code = 258; // Syntax hatası
+				shell->exit_code = 2; // Syntax hatası
 		}
 		else
-			shell->exit_code = 258; // Lexer hatası
+			shell->exit_code = 2; // Lexer hatası
 	}
 	free_cmd_tree(shell->cmd_tree);
 	shell->cmd_tree = NULL;
