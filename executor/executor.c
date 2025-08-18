@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 05:26:50 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/18 18:30:31 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/18 18:44:39 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,10 @@ int	execute_external_command(t_simple_command *cmd, t_shell *shell, \
 	int		status;
 
 	(void)full_chain;
+	
+	// Parent process için sinyal işleyicilerini ayarla
+	setup_parent_signals();
+	
 	pid = fork();
 	if (pid == -1)
 		return (perror("minishell: fork"), 1);
@@ -146,8 +150,8 @@ int	execute_external_command(t_simple_command *cmd, t_shell *shell, \
 		char	**envp;
 		int		error_code;
 
-		signal(SIGINT, SIG_DFL);
-		signal(SIGQUIT, SIG_DFL);
+		// Child process için sinyal işleyicilerini ayarla
+		setup_child_signals();
 
 		command = cmd->args[0];
 		envp = convert_env_list_to_array(shell);
@@ -183,23 +187,33 @@ int	execute_external_command(t_simple_command *cmd, t_shell *shell, \
 			cleanup_and_exit(shell, 126);
 		}
 	}
+	// Child process'i bekle ve sinyalleri yakala
 	waitpid(pid, &status, 0);
-		
-		// EBEVEYN: Sinyal yöneticilerini normale döndür.
-		init_signals();
+	
+	// EBEVEYN: Interactive mod için sinyal yöneticilerini geri yükle
+	setup_interactive_signals();
 
-		// Çocuğun durumunu analiz et
-		if (WIFSIGNALED(status))
+	// Çocuğun durumunu analiz et
+	if (WIFSIGNALED(status))
+	{
+		if (WTERMSIG(status) == SIGINT)
 		{
-			if (WTERMSIG(status) == SIGINT) // Eğer Ctrl+C ile öldüyse
-				write(STDOUT_FILENO, "\n", 1); // Yeni bir satır bas
-			if (WTERMSIG(status) == SIGQUIT)
-				ft_putstr_fd("Quit (core dumped)\n", 2);
-			// SIGINT (Ctrl+C) durumunda (sinyal 2), bash genellikle yeni satır basar
-			// ama `^C` zaten terminal tarafından basıldığı için ek bir şey yapmaya gerek yok.
+			g_status = STATUS_CTRL_C;
+			shell->exit_code = 130; // 128 + 2 (SIGINT)
+		}
+		else if (WTERMSIG(status) == SIGQUIT)
+		{
+			g_status = STATUS_QUIT;
+			shell->exit_code = 131; // 128 + 3 (SIGQUIT)
+		}
+		else
+		{
 			shell->exit_code = 128 + WTERMSIG(status);
 		}
-		else if (WIFEXITED(status))
-			shell->exit_code = WEXITSTATUS(status);
-	return (1);
+	}
+	else if (WIFEXITED(status))
+	{
+		shell->exit_code = WEXITSTATUS(status);
+	}
+	return (shell->exit_code);
 }

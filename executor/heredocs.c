@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredocs.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 12:58:57 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/08 08:54:18 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/18 18:38:34 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,67 +25,63 @@
  * @return: İçeriğin yazıldığı geçici dosyanın adını (malloc ile) döner.
  *          Hata olursa veya kullanıcı Ctrl+D ile çıkarsa NULL döner.
  */
-static char	*read_heredoc_to_temp_file(t_redir *redir, t_shell *shell)
+static int	read_heredoc_input(t_redir *redir, int fd, t_shell *shell)
 {
 	char	*line;
 	char	*expanded_line;
-	int		fd;
-	char	*tmp_filename;
 
-	tmp_filename = ft_strdup("/tmp/minishell_heredoc_XXXXXX");
-	if (!tmp_filename)
-		return (NULL);
-	fd = mkstemp(tmp_filename);
-	if (fd < 0)
-		return (free(tmp_filename), NULL);
+	// 1. SİNYAL YÖNETİCİSİNİ HEREDOC MODUNA GEÇİR
+	signal(SIGINT, heredoc_signal_handler);
+	signal(SIGQUIT, SIG_IGN); // Heredoc sırasında Ctrl+\ de çalışmamalı
 
 	while (1)
 	{
 		line = readline("> ");
-		if (!line) // Ctrl+D
+		
+		// `Ctrl+C` basıldı mı diye KONTROL ET.
+		if (g_status == STATUS_HEREDOC_CTRL_C)
+		{
+			free(line); // `readline` NULL dönmüş olabilir, yine de free güvenlidir.
+			return (-1); // Hata/İptal durumu
+		}
+		if (!line) // `Ctrl+D` basıldı.
+		{
+			ft_putstr_fd("minishell: warning: here-document delimited by end-of-file (wanted `", 2);
+			ft_putstr_fd(redir->filename, 2);
+			ft_putstr_fd("')\n", 2);
 			break;
-		if (strcmp(line, redir->filename) == 0) // redir->filename artık temiz delimiter'ı tutuyor
+		}
+		if (strcmp(line, redir->filename) == 0)
 		{
 			free(line);
 			break;
 		}
 		
-		// GENİŞLETME MANTIĞI BURADA
 		if (redir->expand_in_heredoc)
 		{
-			// Evet, genişletme gerekiyor.
 			expanded_line = expand_heredoc_line(line, shell);
 			write(fd, expanded_line, ft_strlen(expanded_line));
 			free(expanded_line);
 		}
 		else
-		{
-			// Hayır, genişletme yok. Olduğu gibi yaz.
 			write(fd, line, ft_strlen(line));
-		}
 		
 		write(fd, "\n", 1);
 		free(line);
 	}
-	close(fd);
-	return (tmp_filename);
+	return (0);
 }
+
 
 /**
  * handle_heredocs - Tüm komut zincirindeki `heredoc`'ları işler.
- *
- * Komutlar çalıştırılmadan önce çağrılır. `<<` operatörlerini bulur,
- * kullanıcıdan girdiyi okuyup geçici dosyalara yazar ve `t_redir`
- * yapısını bu geçici dosyayı kullanacak şekilde günceller.
- *
- * @cmd_chain: İşlenecek komut zincirinin başı.
- * @return: Başarılı olursa 0, hata olursa -1 döner.
  */
 int	handle_heredocs(t_command_chain *cmd_chain, t_shell *shell)
 {
 	t_list	*redir_list;
 	t_redir	*redir;
-	char	*temp_filename;
+	char	*tmp_filename;
+	int		fd;
 
 	while (cmd_chain)
 	{
@@ -95,25 +91,36 @@ int	handle_heredocs(t_command_chain *cmd_chain, t_shell *shell)
 			redir = (t_redir *)redir_list->content;
 			if (redir->type == TOKEN_HEREDOC)
 			{
-				// `read_heredoc_to_temp_file` çağrılıyor...
-				temp_filename = read_heredoc_to_temp_file(redir, shell);
-				if (!temp_filename)
-					return (-1); // Hata veya Ctrl+D
+				// Okumaya başlamadan önce sinyal durumunu sıfırla.
+				g_status = STATUS_OK;
+								
+				tmp_filename = ft_strdup("/tmp/minishell_heredoc_XXXXXX");
+				fd = mkstemp(tmp_filename);
+				if (fd < 0)
+					return (free(tmp_filename), -1);
 
-				// --- İŞTE SIZINTIYI KAPATAN KISIM ---
-				// `parser`'da `ft_strunquote` ile ayrılan orijinal
-				// sonlandırıcı string'ini şimdi serbest bırakıyoruz.
-				free(redir->filename);
+				if (read_heredoc_input(redir, fd, shell) == -1)
+				{
+					// Okuma Ctrl+C ile kesildi.
+					close(fd);
+					unlink(tmp_filename); // Oluşturulan geçici dosyayı sil.
+					free(tmp_filename);
+					shell->exit_code = 130;
+					setup_interactive_signals(); // Sinyalleri normale döndür.
+					return (-1); // Ana executor'a hata bildir.
+				}
+				close(fd);
 				
-				// Ve yerine geçici dosyanın adını atıyoruz.
-				redir->filename = temp_filename;
-
-				// Bu heredoc artık bir girdi yönlendirmesi gibi davranacak.
+				free(redir->filename);
+				redir->filename = tmp_filename;
 				redir->type = TOKEN_REDIR_IN;
 			}
 			redir_list = redir_list->next;
 		}
 		cmd_chain = cmd_chain->next;
 	}
+	
+	// Her şey bittikten sonra, sinyalleri normale döndür.
+	setup_interactive_signals();
 	return (0);
 }
