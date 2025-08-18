@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 12:58:57 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/18 18:38:34 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/18 19:30:00 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ static int	read_heredoc_input(t_redir *redir, int fd, t_shell *shell)
 	{
 		line = readline("> ");
 		
-		// `Ctrl+C` basıldı mı diye KONTROL ET.
+		//`Ctrl+C` basıldı mı diye KONTROL ET.
 		if (g_status == STATUS_HEREDOC_CTRL_C)
 		{
 			free(line); // `readline` NULL dönmüş olabilir, yine de free güvenlidir.
