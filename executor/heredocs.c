@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 12:58:57 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/18 19:30:00 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/18 22:08:43 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,29 +25,29 @@
  * @return: İçeriğin yazıldığı geçici dosyanın adını (malloc ile) döner.
  *          Hata olursa veya kullanıcı Ctrl+D ile çıkarsa NULL döner.
  */
-static int	read_heredoc_input(t_redir *redir, int fd, t_shell *shell)
+/**
+ * @brief Bu fonksiyon SADECE çocuk süreç tarafından çalıştırılır.
+ *
+ * Kullanıcıdan girdi okur ve heredoc içeriğini geçici dosyaya yazar.
+ * Başarılı olursa 0 ile çıkar, hata olursa 1 ile çıkar.
+ * Ctrl+C sinyali bu süreci direkt olarak sonlandırır.
+ */
+static void	child_heredoc_routine(t_redir *redir, int fd, t_shell *shell)
 {
 	char	*line;
 	char	*expanded_line;
 
-	// 1. SİNYAL YÖNETİCİSİNİ HEREDOC MODUNA GEÇİR
-	signal(SIGINT, heredoc_signal_handler);
-	signal(SIGQUIT, SIG_IGN); // Heredoc sırasında Ctrl+\ de çalışmamalı
+	// 1. ADIM: Bu çocuk sürecin sinyal davranışını ayarla.
+	// SIGINT (Ctrl+C) varsayılan davranışa (terminate) ayarlanır.
+	setup_child_signals();
 
 	while (1)
 	{
 		line = readline("> ");
-		
-		//`Ctrl+C` basıldı mı diye KONTROL ET.
-		if (g_status == STATUS_HEREDOC_CTRL_C)
+		if (!line) // Ctrl+D basıldı.
 		{
-			free(line); // `readline` NULL dönmüş olabilir, yine de free güvenlidir.
-			return (-1); // Hata/İptal durumu
-		}
-		if (!line) // `Ctrl+D` basıldı.
-		{
-			ft_putstr_fd("minishell: warning: here-document delimited by end-of-file (wanted `", 2);
-			ft_putstr_fd(redir->filename, 2);
+			ft_putstr_fd("minishell: warning: heredoc delimited by EOF (wanted `", 2);
+			ft_putstr_fd(redir->filename, 2); // delimiter'ı bas
 			ft_putstr_fd("')\n", 2);
 			break;
 		}
@@ -56,7 +56,6 @@ static int	read_heredoc_input(t_redir *redir, int fd, t_shell *shell)
 			free(line);
 			break;
 		}
-		
 		if (redir->expand_in_heredoc)
 		{
 			expanded_line = expand_heredoc_line(line, shell);
@@ -65,23 +64,89 @@ static int	read_heredoc_input(t_redir *redir, int fd, t_shell *shell)
 		}
 		else
 			write(fd, line, ft_strlen(line));
-		
 		write(fd, "\n", 1);
 		free(line);
 	}
-	return (0);
+	// Çocuk işini bitirdi. Tüm belleği temizleyip çıkmalı.
+	cleanup_and_exit(shell, 0); // Başarılı çıkış
 }
 
+/**
+ * @brief Ebeveyn sürecin bir heredoc'u yönetmesini sağlayan fonksiyon.
+ *
+ * Fork oluşturur, çocuğun bitmesini bekler ve çıkış durumunu işler.
+ * @return 0 başarı durumunda, -1 Ctrl+C ile iptal durumunda.
+ */
+static int	process_single_heredoc(t_redir *redir, t_shell *shell)
+{
+	pid_t	pid;
+	int		status;
+	int		fd;
+	char	*tmp_filename; // Geçici dosya adını tutacak yerel değişken.
+
+	// Geçici dosya adını ve dosya tanımlayıcısını hazırla.
+	tmp_filename = ft_strdup("/tmp/minishell_heredoc_XXXXXX");
+	if(!tmp_filename)
+		return (-1); // Bellek hatası
+	fd = mkstemp(tmp_filename);
+	if (fd < 0)
+	{
+		free(tmp_filename);
+		return (-1); // dosya oluşturma hatası
+	}
+	// 1. EBEVEYN: Çocuğu beklemeden önce SIGINT'i görmezden gel.
+	signal(SIGINT, SIG_IGN);
+	pid = fork();
+	if (pid == -1)
+	{
+		// Fork hatası durumunda kaynakları temizle
+		free(tmp_filename);
+		close(fd);
+		return (-1);
+	}
+	if (pid == 0) // --- ÇOCUK SÜREÇ ---
+	{
+		// close(fd); // Çocuk sadece rutin içinde fd kullanacak, kopyasını değil.
+		child_heredoc_routine(redir, fd, shell);
+	}
+
+	// --- EBEVEYN SÜREÇ ---
+	close(fd); // Ebeveynin geçici dosyanın fd'sine ihtiyacı yok.
+	
+	waitpid(pid, &status, 0);
+	// 2. EBEVEYN: Bekleme bitti, sinyalleri normale döndür.
+	setup_interactive_signals();
+	// 3. EBEVEYN: Çocuğun nasıl sonlandığını kontrol et.
+	// 4. Çocuğun çıkış durumunu kontrol et.
+	if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+	{
+		// Çocuk Ctrl+C ile sonlandı, işlem iptal edildi.
+		write(STDOUT_FILENO, "\n", 1);
+		unlink(tmp_filename); // Oluşturulan geçici dosyayı SİL.
+		free(tmp_filename);   // Geçici dosya adı için ayrılan belleği SİL.
+		shell->exit_code = 130;
+		return (-1); // İptal edildiğini bildir.
+	}
+
+	// 5. BAŞARILI DURUM: `t_redir` struct'ını güncelle.
+	free(redir->filename);            // Eski delimiter'ı serbest bırak.
+	redir->filename = tmp_filename;   // Yeni geçici dosya adını ata.
+	// redir->type = TOKEN_REDIR_IN;     // Yönlendirme tipini '<' olarak değiştir.
+
+	return (0); // Başarılı.
+}
 
 /**
- * handle_heredocs - Tüm komut zincirindeki `heredoc`'ları işler.
+ * @brief Tüm komut zincirindeki `heredoc`'ları işler.
+ *
+ * Bu fonksiyon, komutlar çalıştırılmadan ÖNCE çağrılır.
+ * Her bir heredoc için bir alt süreç oluşturur. Eğer herhangi biri
+ * Ctrl+C ile iptal edilirse, tüm işlemi durdurur ve -1 döner.
  */
 int	handle_heredocs(t_command_chain *cmd_chain, t_shell *shell)
 {
 	t_list	*redir_list;
 	t_redir	*redir;
-	char	*tmp_filename;
-	int		fd;
 
 	while (cmd_chain)
 	{
@@ -91,36 +156,18 @@ int	handle_heredocs(t_command_chain *cmd_chain, t_shell *shell)
 			redir = (t_redir *)redir_list->content;
 			if (redir->type == TOKEN_HEREDOC)
 			{
-				// Okumaya başlamadan önce sinyal durumunu sıfırla.
-				g_status = STATUS_OK;
-								
-				tmp_filename = ft_strdup("/tmp/minishell_heredoc_XXXXXX");
-				fd = mkstemp(tmp_filename);
-				if (fd < 0)
-					return (free(tmp_filename), -1);
-
-				if (read_heredoc_input(redir, fd, shell) == -1)
+				if (process_single_heredoc(redir, shell) == -1)
 				{
-					// Okuma Ctrl+C ile kesildi.
-					close(fd);
-					unlink(tmp_filename); // Oluşturulan geçici dosyayı sil.
-					free(tmp_filename);
-					shell->exit_code = 130;
-					setup_interactive_signals(); // Sinyalleri normale döndür.
-					return (-1); // Ana executor'a hata bildir.
+					// Bir heredoc Ctrl+C ile iptal edildi.
+					// Tüm işlemi durdur ve executor'a hata bildir.
+					return (-1);
 				}
-				close(fd);
-				
-				free(redir->filename);
-				redir->filename = tmp_filename;
-				redir->type = TOKEN_REDIR_IN;
+				// Başarılı durumda `redir` struct'ı zaten güncellendi.
+				// Döngüye devam et.
 			}
 			redir_list = redir_list->next;
 		}
 		cmd_chain = cmd_chain->next;
 	}
-	
-	// Her şey bittikten sonra, sinyalleri normale döndür.
-	setup_interactive_signals();
-	return (0);
+	return (0); // Tüm heredoc'lar başarıyla işlendi.
 }

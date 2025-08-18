@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 12:57:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 17:36:10 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/18 22:03:57 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,6 @@ int	handle_redirections(t_simple_command *cmd, int original_fds[2])
 			// Çünkü bu yeni yönlendirme eskisini geçersiz kılacak.
 			if (in_fd != -1)
 				close(in_fd);
-			
 			in_fd = open(redir->filename, O_RDONLY);
 			if (in_fd == -1)
 			{
