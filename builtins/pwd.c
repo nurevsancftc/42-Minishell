@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pwd.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 15:54:10 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/03 10:26:38 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/18 18:55:00 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,17 +32,12 @@ int		ft_pwd(char **args, t_shell *shell)
 {
 	char	*current_dir;
 	(void)shell;
+	(void)args;
 
 	// 1. Argüman kontrolü yapalım.
 	// `args` dizisinin ikinci elemanı (args[1]) varsa, bu,
 	// komutun "pwd deneme" gibi bir argümanla çağrıldığı anlamına gelir.
-	if (args[1] != NULL)
-	{
-		// Hata mesajlarını standart hata çıktısına (stderr) yazmak iyi bir alışkanlıktır.
-		// `fprintf` bunun için kullanılır. `2` stderr'i temsil eder.
-		write(2, "minishell: pwd: too many arguments\n", 35);
-		return (1); // Hata durumunda 1 döndürerek kabuğa bir sorun olduğunu bildiririz.
-	}
+
 
 	// 2. Mevcut dizini al. Bu kısım senin kodunda zaten doğruydu.
 	current_dir = getcwd(NULL, 0);

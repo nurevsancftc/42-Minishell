@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/02 19:11:22 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/05 19:23:29 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/18 19:18:35 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ static int	handle_metachar(const char *line, t_token **token_list)
 		}
 		else
 		{
+			if(*(line + 1) == '<')
+				printf("minishell: syntax error near unexpected token `<'\n");
 			if(*(line + 2) == '>')
 				printf("minishell: syntax error near unexpected token `>'\n");
 			if(*(line + 2) == '<')
@@ -52,6 +54,8 @@ static int	handle_metachar(const char *line, t_token **token_list)
 		}
 		else
 		{
+			if(*(line + 1) == '>')
+				printf("minishell: syntax error near unexpected token `newline'\n");
 			if(*(line + 2) == '>')
 				printf("minishell: syntax error near unexpected token `>'\n");
 			if(*(line + 2) == '<')
