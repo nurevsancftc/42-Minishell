@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 12:58:57 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/18 22:08:43 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/18 22:57:53 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,14 +118,26 @@ static int	process_single_heredoc(t_redir *redir, t_shell *shell)
 	setup_interactive_signals();
 	// 3. EBEVEYN: Çocuğun nasıl sonlandığını kontrol et.
 	// 4. Çocuğun çıkış durumunu kontrol et.
-	if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+	if (WIFSIGNALED(status)) // Önce bir sinyalle mi öldü diye genel kontrol yap
 	{
-		// Çocuk Ctrl+C ile sonlandı, işlem iptal edildi.
-		write(STDOUT_FILENO, "\n", 1);
-		unlink(tmp_filename); // Oluşturulan geçici dosyayı SİL.
-		free(tmp_filename);   // Geçici dosya adı için ayrılan belleği SİL.
-		shell->exit_code = 130;
-		return (-1); // İptal edildiğini bildir.
+		if (WTERMSIG(status) == SIGINT) // Sinyal SIGINT miydi?
+		{
+			write(STDOUT_FILENO, "\n", 1);
+			unlink(tmp_filename);
+			free(tmp_filename);
+			shell->exit_code = 130; // 128 + 2
+			return (-1);
+		}
+		else if (WTERMSIG(status) == SIGQUIT) // <-- BU ELSE IF BLOĞUNU EKLE
+		{
+			// Terminal zaten "Quit (core dumped)" yazar, bizim bir şey
+			// yazmamıza gerek yok, ama bash gibi davranmak için yazabiliriz.
+			ft_putstr_fd("Quit (core dumped)\n", 2);
+			unlink(tmp_filename);
+			free(tmp_filename);
+			shell->exit_code = 131; // 128 + 3
+			return (-1);
+		}
 	}
 
 	// 5. BAŞARILI DURUM: `t_redir` struct'ını güncelle.
