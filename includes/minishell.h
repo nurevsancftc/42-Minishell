@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 01:38:27 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/14 20:40:26 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/18 18:18:55 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@
 # include <unistd.h>
 #include <limits.h> 
 #include <dirent.h>
+
+# include "signals.h"
 # include "parser.h"
 # include "builtins.h"
 # include "executor.h"

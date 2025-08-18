@@ -40,7 +40,7 @@ static void	signal_handler(int signo)
  * - SIGINT (Ctrl+C): `signal_handler` fonksiyonumuza yönlendirilir.
  * - SIGQUIT (Ctrl+\): Kabuğun kendisi çalışırken görmezden gelinir (ignore).
  */
-static void	init_signals(void)
+void	init_signals(void)
 {
 	signal(SIGINT, signal_handler);
 	signal(SIGQUIT, SIG_IGN);

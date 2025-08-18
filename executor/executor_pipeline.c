@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor_pipeline.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:48:26 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/14 17:24:30 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/18 18:23:51 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,22 +101,51 @@ static void	child_routine(t_simple_command *cmd, t_shell *shell)
 static void	wait_for_all_children(pid_t last_pid, t_shell *shell)
 {
 	int	status;
+	int	printed_signal_message; // Sinyal mesajını sadece bir kez basmak için
 
-	// 1. Önce SON komutun bitmesini bekle. $? onun durumuna göre ayarlanır.
+	printed_signal_message = 0;
+
+	// 1. Önce SON komutun bitmesini bekle.
 	if (last_pid > 0)
 	{
 		waitpid(last_pid, &status, 0);
 		if (WIFEXITED(status))
 			shell->exit_code = WEXITSTATUS(status);
 		else if (WIFSIGNALED(status))
-			shell->exit_code = WTERMSIG(status) + 128;
+		{
+			if (WTERMSIG(status) == SIGINT)
+			{
+				write(STDOUT_FILENO, "\n", 1);
+				printed_signal_message = 1; // Mesaj basıldı olarak işaretle
+			}
+			// Sinyal mesajını burada bas.
+			if (WTERMSIG(status) == SIGQUIT)
+			{
+				ft_putstr_fd("Quit (core dumped)\n", 2);
+				printed_signal_message = 1; // Mesaj basıldı olarak işaretle
+			}
+			shell->exit_code = 128 + WTERMSIG(status);
+		}
 	}
 
 	// 2. Geriye kalan diğer TÜM çocuk süreçlerin bitmesini bekle.
-	// Bu döngü, bekleyecek çocuk kalmadığında (wait, -1 döndürdüğünde) biter.
-	// Bu, sistemde zombi süreç kalmamasını garanti eder.
-	while (wait(NULL) > 0)
-		;
+	while (wait(&status) > 0)
+	{
+		// Eğer ilk beklediğimiz çocuk bir sinyalle ölürse ve bu `last_pid` değilse,
+		// yine de sinyal mesajını bir kez basmalıyız.
+		if (!printed_signal_message && WIFSIGNALED(status))
+		{
+			if (WTERMSIG(status) == SIGQUIT)
+			{
+				if (WTERMSIG(status) == SIGINT)
+					write(STDOUT_FILENO, "\n", 1);
+				if (WTERMSIG(status) == SIGQUIT)
+					ft_putstr_fd("Quit (core dumped)\n", 2);
+				
+				printed_signal_message = 1; // Sadece ilk ölen çocuğun mesajını bas.
+			}
+		}
+	}
 }
 
 /**
@@ -153,6 +182,12 @@ void	execute_pipeline(t_command_chain *cmd_chain, t_shell *shell)
 		
 		if (last_pid == 0) // --- ÇOCUK SÜREÇ ---
 		{
+			// 1. ADIM: Sinyal yöneticilerini sıfırla.
+			// Pipeline'daki her bir çocuk, sinyallere bağımsız olarak
+			// tepki verebilmelidir.
+			signal(SIGINT, SIG_DFL);
+			signal(SIGQUIT, SIG_DFL);
+			
 			setup_child_io(current_cmd, pipe_fds, input_fd);
 			child_routine(current_cmd->simple_command, shell);
 		}

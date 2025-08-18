@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main_loop.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:42:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/15 18:29:05 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/18 18:20:52 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,10 +71,17 @@ void	main_loop(t_shell *shell)
 
 	while (1)
 	{
+		setup_interactive_signals();
 		line = readline("minishell$ ");
+
+		if (g_status == STATUS_CTRL_C)
+		{
+			shell->exit_code = 130;   // `$?`'ı 1 yap.
+			g_status = STATUS_OK;   // Durumu sıfırla.
+		}
 		if (!line) // Ctrl+D basıldı.
 		{
-			printf("exit\n");
+			ft_putstr_fd("exit\n", 2);
 			break; // Döngüyü sonlandır.
 		}
 
