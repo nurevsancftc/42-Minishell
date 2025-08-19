@@ -3,126 +3,111 @@
 /*                                                        :::      ::::::::   */
 /*   redirections.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 12:57:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/18 22:03:57 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/20 01:30:10 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-/**
- * handle_redirections - Bir komutun I/O yönlendirmelerini uygular.
- *
- * Bu fonksiyon, komutun `redirections` listesini baştan sona gezer.
- * Gördüğü her yönlendirme için ilgili dosyayı açar. Eğer aynı tipte
- * (girdi veya çıktı) bir yönlendirme daha önce işlenmişse, bir önceki
- * dosya tanımlayıcısı kapatılır ve yenisi onun yerine geçer ("sonuncu kazanır").
- *
- * Döngü bittikten sonra, en son geçerli olan girdi ve çıktı dosyaları,
- * komutun standart girdi ve çıktısı olarak ayarlanır.
- *
- * @param cmd: Yönlendirmeleri uygulanacak olan komut.
- * @param original_fds: Orijinal stdin ve stdout'un yedekleneceği dizi.
- *
- * @return: Başarılı olursa 0, dosya açma veya başka bir hata olursa -1 döner.
- */
+static int	open_infile(const char *filename, t_redir_ctx *ctx)
+{
+	int	fd;
+
+	if (*(ctx->in_fd) != -1)
+		close(*(ctx->in_fd));
+	fd = open(filename, O_RDONLY);
+	if (fd == -1)
+	{
+		perror(filename);
+		if (*(ctx->out_fd) != -1)
+			close(*(ctx->out_fd));
+		close(ctx->original_fds[0]);
+		close(ctx->original_fds[1]);
+		return (-1);
+	}
+	*(ctx->in_fd) = fd;
+	return (0);
+}
+
+static int	open_outfile(const char *filename, int append, t_redir_ctx *ctx)
+{
+	int	fd;
+	int	flags;
+
+	if (*(ctx->out_fd) != -1)
+		close(*(ctx->out_fd));
+	flags = O_WRONLY | O_CREAT;
+	if (append)
+		flags |= O_APPEND;
+	else
+		flags |= O_TRUNC;
+	fd = open(filename, flags, 0644);
+	if (fd == -1)
+	{
+		perror(filename);
+		if (*(ctx->in_fd) != -1)
+			close(*(ctx->in_fd));
+		close(ctx->original_fds[0]);
+		close(ctx->original_fds[1]);
+		return (-1);
+	}
+	*(ctx->out_fd) = fd;
+	return (0);
+}
+
+static int	process_redir(t_redir *r, t_redir_ctx *ctx)
+{
+	if (r->type == TOKEN_REDIR_IN || r->type == TOKEN_HEREDOC)
+		return (open_infile(r->filename, ctx));
+	if (r->type == TOKEN_REDIR_OUT)
+		return (open_outfile(r->filename, 0, ctx));
+	if (r->type == TOKEN_REDIR_APPEND)
+		return (open_outfile(r->filename, 1, ctx));
+	return (0);
+}
+
+static void	apply_final_redirs(int in_fd, int out_fd)
+{
+	if (in_fd != -1)
+	{
+		dup2(in_fd, STDIN_FILENO);
+		close(in_fd);
+	}
+	if (out_fd != -1)
+	{
+		dup2(out_fd, STDOUT_FILENO);
+		close(out_fd);
+	}
+}
+
 int	handle_redirections(t_simple_command *cmd, int original_fds[2])
 {
-	t_list	*redir_list;
-	t_redir	*redir;
-	int		in_fd;
-	int		out_fd;
+	t_list		*lst;
+	t_redir		*r;
+	int			in_fd;
+	int			out_fd;
+	t_redir_ctx	ctx;
 
-	// Başlangıçta geçerli bir yönlendirme dosyası olmadığını belirtmek için
-	// fd'leri geçersiz bir değere (-1) ayarla.
 	in_fd = -1;
 	out_fd = -1;
-
-	// Olası bir hata durumunda bile geri yüklenebilmeleri için
-	// orijinal dosya tanımlayıcılarını en başta yedekle.
 	original_fds[0] = dup(STDIN_FILENO);
 	original_fds[1] = dup(STDOUT_FILENO);
 	if (original_fds[0] == -1 || original_fds[1] == -1)
 		return (perror("minishell: dup"), -1);
-
-	redir_list = cmd->redirections;
-	while (redir_list)
+	ctx.in_fd = &in_fd;
+	ctx.out_fd = &out_fd;
+	ctx.original_fds = original_fds;
+	lst = cmd->redirections;
+	while (lst)
 	{
-		redir = (t_redir *)redir_list->content;
-
-		if (redir->filename == NULL)
-		{
-			redir_list = redir_list->next;
-			continue;
-		}
-		// --- GİRDİ YÖNLENDİRMELERİ (< ve <<) ---
-		if (redir->type == TOKEN_REDIR_IN || redir->type == TOKEN_HEREDOC)
-		{
-			// Eğer daha önceden açılmış bir girdi dosyası varsa, onu kapat.
-			// Çünkü bu yeni yönlendirme eskisini geçersiz kılacak.
-			if (in_fd != -1)
-				close(in_fd);
-			in_fd = open(redir->filename, O_RDONLY);
-			if (in_fd == -1)
-			{
-				perror(redir->filename); // Hata mesajı bas (örn: "No such file")
-				// Diğer açık fd'yi (varsa) ve yedekleri kapatıp hata ile çık.
-				if (out_fd != -1)
-					close(out_fd);
-				close(original_fds[0]);
-				close(original_fds[1]);
-				return (-1);
-			}
-		}
-		// --- ÇIKTI YÖNLENDİRMELERİ (> ve >>) ---
-		else if (redir->type == TOKEN_REDIR_OUT || redir->type == TOKEN_REDIR_APPEND)
-		{
-			// Eğer daha önceden açılmış bir çıktı dosyası varsa, onu kapat.
-			if (out_fd != -1)
-				close(out_fd);
-			
-			if (redir->type == TOKEN_REDIR_OUT) // '>' durumu: Dosyayı oluştur/sıfırla
-				out_fd = open(redir->filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-			else // '>>' durumu: Dosyayı oluştur/sonuna ekle
-				out_fd = open(redir->filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
-
-			if (out_fd == -1)
-			{
-				perror(redir->filename); // Hata mesajı bas (örn: "Permission denied")
-				// Diğer açık fd'yi (varsa) ve yedekleri kapatıp hata ile çık.
-				if (in_fd != -1)
-					close(in_fd);
-				close(original_fds[0]);
-				close(original_fds[1]);
-				return (-1);
-			}
-		}
-		redir_list = redir_list->next;
+		r = (t_redir *)lst->content;
+		if (r->filename && process_redir(r, &ctx) == -1)
+			return (-1);
+		lst = lst->next;
 	}
-
-	// Döngü bitti. En son geçerli olan in_fd ve out_fd'yi uygula.
-	// Eğer hiç girdi yönlendirmesi yoksa, in_fd hala -1'dir ve bu blok atlanır.
-	if (in_fd != -1)
-	{
-		dup2(in_fd, STDIN_FILENO);
-		close(in_fd); // dup2 kopyasını oluşturdu, orijinal fd'ye ihtiyaç kalmadı.
-	}
-	// Eğer hiç çıktı yönlendirmesi yoksa, out_fd hala -1'dir ve bu blok atlanır.
-	if (out_fd != -1)
-	{
-		dup2(out_fd, STDOUT_FILENO);
-		close(out_fd); // dup2 kopyasını oluşturdu, orijinal fd'ye ihtiyaç kalmadı.
-	}
-	return (0); // Başarılı
-}
-
-// Orijinal fd'leri geri yükleyen fonksiyon
-void restore_fds(int original_fds[2])
-{
-    dup2(original_fds[0], STDIN_FILENO);
-    dup2(original_fds[1], STDOUT_FILENO);
-    close(original_fds[0]);
-    close(original_fds[1]);
+	apply_final_redirs(in_fd, out_fd);
+	return (0);
 }

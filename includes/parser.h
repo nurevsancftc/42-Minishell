@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/20 00:04:36 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/20 01:34:44 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,13 @@ typedef struct s_shell
 	t_command_chain	*cmd_tree;
 	int				exit_code;
 }	t_shell;
+
+typedef struct s_redir_ctx
+{
+	int	*in_fd;
+	int	*out_fd;
+	int	*original_fds; // [0]=stdin copy, [1]=stdout copy
+}	t_redir_ctx;
 
 void			main_loop(t_shell *shell);
 
