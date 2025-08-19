@@ -6,123 +6,109 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:49:43 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/20 01:31:21 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/20 01:47:26 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-t_list	*find_env_node(t_list *env_list, const char *key)
+void	ft_free_array(char **split_array)
 {
-	t_env	*current_env;
+	int	i;
 
-	while (env_list)
+	if (!split_array)
+		return ;
+	i = 0;
+	while (split_array[i])
 	{
-		current_env = (t_env *)env_list->content;
-		if (current_env && current_env->key \
-			&& strcmp(current_env->key, key) == 0)
-		{
-			return (env_list);
-		}
-		env_list = env_list->next;
+		free(split_array[i]);
+		i++;
+	}
+	free(split_array);
+}
+
+static char	*try_each_path(char *cmd, char **paths)
+{
+	char	*full_path;
+	char	*temp;
+	int		i;
+
+	i = -1;
+	while (paths && paths[++i])
+	{
+		temp = ft_strjoin(paths[i], "/");
+		full_path = ft_strjoin(temp, cmd);
+		free(temp);
+		if (access(full_path, X_OK) == 0)
+			return (full_path);
+		free(full_path);
 	}
 	return (NULL);
 }
 
-char	*get_env_value(t_list *env_list, const char *key)
+char	*get_command_path(char *cmd, t_shell *shell)
 {
-	t_list	*node;
-	t_env	*env_var;
+	char	**paths;
+	char	*path_var;
+	char	*executable_path;
 
-	node = find_env_node(env_list, key);
-	if (node == NULL)
+	if (!cmd || !*cmd)
 		return (NULL);
-	env_var = (t_env *)node->content;
-	if (env_var->value == NULL)
-		return (NULL);
-	return (env_var->value);
-}
-
-char	*handle_dollar_sign(const char **line_ptr, t_shell *shell)
-{
-	const char	*start;
-	char		*key;
-	char		*value;
-
-	(*line_ptr)++;
-	if (**line_ptr == '?')
+	if (ft_strchr(cmd, '/'))
 	{
-		(*line_ptr)++;
-		return (ft_itoa(shell->exit_code));
+		if (access(cmd, X_OK) == 0)
+			return (ft_strdup(cmd));
+		return (NULL);
 	}
-	if (!ft_isalpha(**line_ptr) && **line_ptr != '_')
-		return (ft_strdup("$"));
-	start = *line_ptr;
-	while (ft_isalnum(**line_ptr) || **line_ptr == '_')
-		(*line_ptr)++;
-	key = ft_substr(start, 0, *line_ptr - start);
-	if (!key)
-		return (ft_strdup(""));
-	value = get_env_value(shell->env_list, key);
-	free(key);
-	if (!value)
-		return (ft_strdup(""));
-	return (ft_strdup(value));
+	path_var = get_env_value(shell->env_list, "PATH");
+	if (!path_var)
+		return (NULL);
+	paths = ft_split(path_var, ':');
+	executable_path = try_each_path(cmd, paths);
+	if (paths)
+		ft_free_array(paths);
+	return (executable_path);
 }
 
-void	update_or_create_env(t_shell *shell, const char *key, const char *value)
+static int	populate_env_array(char **env_array, t_list *env_list)
 {
-	t_list	*node;
+	t_env	*env;
+	char	*temp;
+	int		i;
+
+	i = 0;
+	while (env_list)
+	{
+		env = (t_env *)env_list->content;
+		if (env->value)
+		{
+			temp = ft_strjoin(env->key, "=");
+			if (!temp)
+				return (-1);
+			env_array[i] = ft_strjoin(temp, env->value);
+			free(temp);
+			if (!env_array[i])
+				return (-1);
+			i++;
+		}
+		env_list = env_list->next;
+	}
+	env_array[i] = NULL;
+	return (0);
+}
+
+static int	count_valid_env_vars(t_list *env_list)
+{
+	int		count;
 	t_env	*env;
 
-	node = find_env_node(shell->env_list, key);
-	if (node != NULL)
+	count = 0;
+	while (env_list)
 	{
-		env = (t_env *)node->content;
-		if (value != NULL)
-		{
-			free(env->value);
-			env->value = ft_strdup(value);
-		}
+		env = (t_env *)env_list->content;
+		if (env->value)
+			count++;
+		env_list = env_list->next;
 	}
-	else
-	{
-		env = ft_calloc(1, sizeof(t_env));
-		if (!env)
-			return ;
-		env->key = ft_strdup(key);
-		if (value != NULL)
-			env->value = ft_strdup(value);
-		node = ft_lstnew(env);
-		ft_lstadd_back(&(shell->env_list), node);
-	}
-}
-
-int	ft_check_path_error(const char *path, const char *cmd_name)
-{
-	struct stat	path_stat;
-
-	if (stat(path, &path_stat) != 0)
-	{
-		ft_putstr_fd("minishell: ", 2);
-		ft_putstr_fd((char *)cmd_name, 2);
-		ft_putstr_fd(": ", 2);
-		perror(NULL);
-		return (127);
-	}
-	if (S_ISDIR(path_stat.st_mode))
-	{
-		ft_putstr_fd("minishell: ", 2);
-		ft_putstr_fd((char *)cmd_name, 2);
-		ft_putstr_fd(": is a directory\n", 2);
-		return (126);
-	}
-	if (access(path, X_OK) != 0)
-	{
-		ft_putstr_fd("minishell: ", 2);
-		ft_putstr_fd((char *)cmd_name, 2);
-		ft_putstr_fd(": Permission denied\n", 2);
-		return (126);
-	}
-	return (0);
+	return (count);
 }
