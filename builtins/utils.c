@@ -6,13 +6,11 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 04:15:29 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/18 23:27:31 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/19 15:39:17 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-#include <dirent.h>
-
 
 t_list	*find_env_node(t_list *env_list, const char *key)
 {
@@ -21,7 +19,8 @@ t_list	*find_env_node(t_list *env_list, const char *key)
 	while (env_list)
 	{
 		current_env = (t_env *)env_list->content;
-		if (current_env && current_env->key && strcmp(current_env->key, key) == 0)
+		if (current_env && current_env->key \
+			&& strcmp(current_env->key, key) == 0)
 		{
 			return (env_list);
 		}
@@ -37,35 +36,11 @@ char	*get_env_value(t_list *env_list, const char *key)
 
 	node = find_env_node(env_list, key);
 	if (node == NULL)
-	{
 		return (NULL);
-	}
-	
 	env_var = (t_env *)node->content;
-
 	if (env_var->value == NULL)
-	{
 		return (NULL);
-	}
-
 	return (env_var->value);
-}
-
-int	is_valid_identifier(const char *key)
-{
-	int i;
-
-	i = 0;
-	if (!key || !(ft_isalpha(key[i]) || key[i] == '_'))
-		return (0);
-	i++;
-	while (key[i])
-	{
-		if (!(ft_isalnum(key[i]) || key[i] == '_'))
-			return (0);
-		i++;
-	}
-	return (1);
 }
 
 char	*handle_dollar_sign(const char **line_ptr, t_shell *shell)
@@ -75,7 +50,6 @@ char	*handle_dollar_sign(const char **line_ptr, t_shell *shell)
 	char		*value;
 
 	(*line_ptr)++;
-
 	if (**line_ptr == '?')
 	{
 		(*line_ptr)++;
@@ -83,63 +57,17 @@ char	*handle_dollar_sign(const char **line_ptr, t_shell *shell)
 	}
 	if (!ft_isalpha(**line_ptr) && **line_ptr != '_')
 		return (ft_strdup("$"));
-
 	start = *line_ptr;
 	while (ft_isalnum(**line_ptr) || **line_ptr == '_')
 		(*line_ptr)++;
-
 	key = ft_substr(start, 0, *line_ptr - start);
 	if (!key)
 		return (ft_strdup(""));
-
 	value = get_env_value(shell->env_list, key);
 	free(key);
-
 	if (!value)
 		return (ft_strdup(""));
 	return (ft_strdup(value));
-}
-
-char	*expand_heredoc_line(char *line, t_shell *shell)
-{
-	char	*final_str;
-	char	*temp_str;
-	char	*var_value;
-	int		i;
-	int		j;
-
-	final_str = ft_strdup("");
-	i = 0;
-	while (line[i])
-	{
-		j = i;
-		while (line[j] && line[j] != '$')
-			j++;
-
-		if (j > i)
-		{
-			temp_str = ft_substr(line, i, j - i);
-			char *new_final = ft_strjoin(final_str, temp_str);
-			free(final_str);
-			free(temp_str);
-			final_str = new_final;
-		}
-		if (line[j] == '$')
-		{
-			const char *line_ptr = &line[j];
-			var_value = handle_dollar_sign(&line_ptr, shell);
-			char *new_final = ft_strjoin(final_str, var_value);
-			free(final_str);
-			free(var_value);
-			final_str = new_final;
-			i = line_ptr - line;
-		}
-		else
-		{
-			i = j;
-		}
-	}
-	return (final_str);
 }
 
 void	update_or_create_env(t_shell *shell, const char *key, const char *value)
@@ -161,7 +89,7 @@ void	update_or_create_env(t_shell *shell, const char *key, const char *value)
 	{
 		env = ft_calloc(1, sizeof(t_env));
 		if (!env)
-			return;
+			return ;
 		env->key = ft_strdup(key);
 		if (value != NULL)
 			env->value = ft_strdup(value);
