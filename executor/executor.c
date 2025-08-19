@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 05:26:50 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/18 18:44:39 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/18 23:00:02 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,7 @@ int	executor(t_command_chain *cmd_chain, t_shell *shell)
 	if (!cmd_chain)
 		return (0);
 	if (handle_heredocs(cmd_chain, shell) == -1)
-	{
-		shell->exit_code = 1;
 		return (0);
-	}
 	// expander(cmd_chain, shell); // Expander'ı burada çağırdığınızı varsayıyorum
 
 	if (!cmd_chain->next)
