@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 01:38:27 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 18:07:42 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/20 00:05:18 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,9 +27,9 @@
 # include <sys/types.h>
 # include <sys/wait.h>
 # include <unistd.h>
-#include <limits.h> 
-#include <dirent.h>
-#include <stdbool.h>
+# include <limits.h> 
+# include <dirent.h>
+# include <stdbool.h>
 
 # include "signals.h"
 # include "lexer.h"
@@ -39,6 +39,5 @@
 # include "executor.h"
 
 # define SHELL_SHOULD_EXIT -1
-
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 17:56:40 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 20:15:21 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/20 00:06:09 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,10 +49,9 @@ t_token	*lexer(const char *line);
 t_token	*create_token(char *value, t_token_type type);
 void	add_token_to_list(t_token **list_head, t_token *new_token);
 void	free_token_list(t_token *head);
-void    free_args(char **args);
+void	free_args(char **args);
 int		is_delimiter(char c);
 int		handle_quotes(const char *line, t_token **token_list);
 int		skip_quote(const char *line, int i);
-
 
 #endif
