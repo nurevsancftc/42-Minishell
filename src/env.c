@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 17:49:01 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 21:51:52 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/19 22:40:17 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,4 +76,15 @@ t_list	*create_env_list(char **envp)
 		i++;
 	}
 	return (env_list_head);
+}
+
+void	free_env_content(void *content)
+{
+	t_env	*env;
+	env = (t_env *)content;
+	if (!env)
+		return;
+	free(env->key);
+	free(env->value);
+	free(env);
 }

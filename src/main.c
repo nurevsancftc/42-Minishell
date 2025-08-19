@@ -32,17 +32,6 @@ void	init_signals(void)
 	signal(SIGQUIT, SIG_IGN);
 }
 
-void	free_env_content(void *content)
-{
-	t_env	*env;
-	env = (t_env *)content;
-	if (!env)
-		return;
-	free(env->key);
-	free(env->value);
-	free(env);
-}
-
 static void	init_shell(t_shell *shell, char **envp)
 {
 	shell->env_list = create_env_list(envp);
