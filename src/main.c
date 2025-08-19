@@ -15,23 +15,6 @@
 
 #include "minishell.h"
 
-static void	signal_handler(int signo)
-{
-	if (signo == SIGINT)
-	{
-		write(STDOUT_FILENO, "\n", 1);
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
-	}
-}
-
-void	init_signals(void)
-{
-	signal(SIGINT, signal_handler);
-	signal(SIGQUIT, SIG_IGN);
-}
-
 void	free_env_content(void *content)
 {
 	t_env	*env;
@@ -66,7 +49,7 @@ int	main(int argc, char **argv, char **envp)
 		return (EXIT_FAILURE);
 	}
 	(void)argv;
-	init_signals();
+	setup_signals(MODE_INTERACTIVE);
 	init_shell(&shell, envp);
 	main_loop(&shell);
 

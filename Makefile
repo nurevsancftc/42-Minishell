@@ -17,9 +17,9 @@ SRCS =	src/main.c \
 		builtins/pwd.c \
 		builtins/dot.c \
 		executor/executor.c \
-		executor/executor_utils.c \
-		executor/executor_pipeline.c \
-		executor/executor_commands.c \
+		executor/utils.c \
+		executor/pipeline.c \
+		executor/commands.c \
 		executor/heredocs.c \
 		executor/redirections.c \
 		parser/lexer.c \

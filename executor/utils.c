@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:49:43 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/14 20:40:50 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/19 22:41:30 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,33 +172,17 @@ char	**convert_env_list_to_array(t_shell *shell)
 	return (env_array);
 }
 
-/**
- * @brief TÜM ayrılmış belleği temizler ve belirtilen kodla programdan çıkar.
- * 
- * Bu fonksiyon, özellikle çocuk süreçlerin, sonlanmadan önce kendilerine
- * ait olan TÜM kaynakları (env_list, cmd_tree, tokens) temizlemesini
- * garanti altına almak için tasarlanmıştır.
- * 
- * @param shell Temizlenecek ana kabuk yapısı.
- * @param exit_code Programın çıkış kodu.
- */
 void	cleanup_and_exit(t_shell *shell, int exit_code)
 {
 	if (shell)
 	{
-		// Çocuğun miras aldığı komut ağacını temizle.
 		if (shell->cmd_tree)
 			free_cmd_tree(shell->cmd_tree);
 
-		// Çocuğun miras aldığı ortam değişkenleri listesini temizle.
 		if (shell->env_list)
 			ft_lstclear(&shell->env_list, free_env_content);
 	}
-
-	// Readline kütüphanesinin kaynaklarını temizle.
 	rl_clear_history();
-
-	// Temizlik bittikten sonra çıkış yap.
 	exit(exit_code);
 }
 
