@@ -5,6 +5,7 @@ SRCS =	src/main.c \
 		src/env.c \
 		src/expander.c \
 		src/expander_utils.c \
+		src/expander_utils2.c \
 		src/signals.c \
 		builtins/cd.c \
 		builtins/echo.c \
