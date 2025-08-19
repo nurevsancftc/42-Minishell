@@ -1,18 +1,19 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   executor_external.c                                :+:      :+:    :+:   */
+/*   external_command.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 22:28:41 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/19 23:24:42 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/20 00:35:27 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	child_exec_absolute(t_simple_command *cmd, t_shell *shell, char **envp)
+static void	child_exec_absolute(t_simple_command *cmd, \
+	t_shell *shell, char **envp)
 {
 	char	*command;
 	int		error_code;
@@ -33,7 +34,8 @@ static void	child_exec_absolute(t_simple_command *cmd, t_shell *shell, char **en
 	}
 }
 
-static void	child_exec_lookup(t_simple_command *cmd, t_shell *shell, char **envp)
+static void	child_exec_lookup(t_simple_command *cmd, \
+	t_shell *shell, char **envp)
 {
 	char	*command;
 	char	*path;
@@ -56,8 +58,6 @@ static void	child_exec_lookup(t_simple_command *cmd, t_shell *shell, char **envp
 	ft_free_array(envp);
 	cleanup_and_exit(shell, 126);
 }
-
-/* --------------------- parent wait wrapper ------------------------ */
 
 static int	parent_wait_and_signals(pid_t pid, t_shell *shell)
 {

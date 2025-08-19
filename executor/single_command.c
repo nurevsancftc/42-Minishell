@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   executor_single.c                                  :+:      :+:    :+:   */
+/*   single_command.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 22:29:15 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/19 22:29:20 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/20 00:35:35 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ static int	builtin_dispatch(char **args, t_shell *shell)
 	return (SHELL_SHOULD_EXIT);
 }
 
-static void	update_status_from_wait(int status, t_shell *shell)
+void	update_status_from_wait(int status, t_shell *shell)
 {
 	if (WIFSIGNALED(status))
 	{

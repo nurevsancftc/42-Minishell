@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 12:58:57 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 23:21:32 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/20 00:07:25 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,7 @@ static int	process_single_heredoc(t_redir *redir, t_shell *shell)
 	
 	waitpid(pid, &status, 0);
 	// 2. EBEVEYN: Bekleme bitti, sinyalleri normale döndür.
+	
 	setup_signals(MODE_INTERACTIVE);
 	// 3. EBEVEYN: Çocuğun nasıl sonlandığını kontrol et.
 	// 4. Çocuğun çıkış durumunu kontrol et.

@@ -1,26 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   executor_utils.c                                   :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:49:43 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/19 22:41:30 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/20 00:44:47 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-#include <unistd.h> // access() ve X_OK için
-
-#include <stdlib.h>
 
 void	ft_free_array(char **split_array)
 {
 	int	i;
 
 	if (!split_array)
-		return;
+		return ;
 	i = 0;
 	while (split_array[i])
 	{
@@ -29,16 +26,6 @@ void	ft_free_array(char **split_array)
 	}
 	free(split_array);
 }
-
-/**
- * try_each_path - Verilen yollar dizisinde komutu arar.
- *
- * Bu fonksiyon, `PATH`'ten gelen her bir dizini komutla birleştirir
- * ve çalıştırılabilir bir dosya olup olmadığını kontrol eder.
- * İlk bulduğunu döndürür.
- *
- * `static`'tir çünkü sadece `get_command_path` tarafından kullanılır.
- */
 
 static char	*try_each_path(char *cmd, char **paths)
 {
@@ -53,18 +40,12 @@ static char	*try_each_path(char *cmd, char **paths)
 		full_path = ft_strjoin(temp, cmd);
 		free(temp);
 		if (access(full_path, X_OK) == 0)
-			return (full_path); // Çalıştırılabilir yol bulundu.
+			return (full_path);
 		free(full_path);
 	}
-	return (NULL); // Hiçbir yolda bulunamadı.
+	return (NULL);
 }
 
-/**
- * get_command_path - Bir komut adını, çalıştırılabilir tam yola dönüştürür.
- *
- * Bu fonksiyon 25 satır kuralına uymak için asıl arama işini
- * `try_each_path` yardımcısına devreder.
- */
 char	*get_command_path(char *cmd, t_shell *shell)
 {
 	char	**paths;
@@ -89,11 +70,6 @@ char	*get_command_path(char *cmd, t_shell *shell)
 	return (executable_path);
 }
 
-/**
- * populate_env_array - Hazırlanmış `env_array`'i `t_env` listesinden doldurur.
- *
- * `static`'tir çünkü sadece `convert_env_list_to_array` tarafından kullanılır.
- */
 static int	populate_env_array(char **env_array, t_list *env_list)
 {
 	t_env	*env;
@@ -104,26 +80,23 @@ static int	populate_env_array(char **env_array, t_list *env_list)
 	while (env_list)
 	{
 		env = (t_env *)env_list->content;
-		if (env->value) // Sadece değeri olanları işle
+		if (env->value)
 		{
 			temp = ft_strjoin(env->key, "=");
 			if (!temp)
-				return (-1); // Malloc hatası
+				return (-1);
 			env_array[i] = ft_strjoin(temp, env->value);
-			free(temp); // ft_strjoin'den gelen geçici string'i unutma
+			free(temp);
 			if (!env_array[i])
-				return (-1); // Malloc hatası
+				return (-1);
 			i++;
 		}
 		env_list = env_list->next;
 	}
-	env_array[i] = NULL; // Diziyi NULL ile sonlandır.
+	env_array[i] = NULL;
 	return (0);
 }
 
-/**
- * count_valid_env_vars - Değeri NULL olmayan ortam değişkenlerinin sayısını bulur.
- */
 static int	count_valid_env_vars(t_list *env_list)
 {
 	int		count;
@@ -133,77 +106,9 @@ static int	count_valid_env_vars(t_list *env_list)
 	while (env_list)
 	{
 		env = (t_env *)env_list->content;
-		// Sadece değeri olanları say
 		if (env->value)
 			count++;
 		env_list = env_list->next;
 	}
 	return (count);
-}
-
-/**
- * convert_env_list_to_array - t_env listesini `execve`'nin beklediği
- *                             `char **` formatına dönüştürür.
- *
- * 25 satır kuralına uymak için bellek ayırma ve doldurma işlemlerini ayırır.
- */
-char	**convert_env_list_to_array(t_shell *shell)
-{
-	char	**env_array;
-	int		valid_vars_count;
-
-	// 1. ADIM: Sadece geçerli olanları say
-	valid_vars_count = count_valid_env_vars(shell->env_list);
-
-	// 2. ADIM: Doğru boyutta bellek ayır
-	env_array = malloc(sizeof(char *) * (valid_vars_count + 1));
-	if (!env_array)
-		return (NULL);
-
-	// 3. ADIM: Diziyi doldur ve hata kontrolü yap
-	if (populate_env_array(env_array, shell->env_list) == -1)
-	{
-		// Doldurma sırasında bir malloc hatası oldu.
-		// O ana kadar doldurulanları ve dizinin kendisini temizle.
-		ft_free_array(env_array);
-		return (NULL);
-	}
-
-	return (env_array);
-}
-
-void	cleanup_and_exit(t_shell *shell, int exit_code)
-{
-	if (shell)
-	{
-		if (shell->cmd_tree)
-			free_cmd_tree(shell->cmd_tree);
-
-		if (shell->env_list)
-			ft_lstclear(&shell->env_list, free_env_content);
-	}
-	rl_clear_history();
-	exit(exit_code);
-}
-
-int	get_path_status(const char *path)
-{
-	DIR	*dir_ptr;
-
-	if (access(path, F_OK) != 0)
-	{
-		// Dosya/dizin hiç yok.
-		return (PATH_NOT_FOUND);
-	}
-	
-	dir_ptr = opendir(path);
-	if (dir_ptr != NULL)
-	{
-		// opendir başarılı oldu, bu kesinlikle bir dizin.
-		closedir(dir_ptr);
-		return (PATH_IS_DIRECTORY);
-	}
-
-	// Dosya var ama dizin değil, o zaman bu bir dosyadır.
-	return (PATH_VALID_FILE);
 }

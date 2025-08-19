@@ -18,6 +18,9 @@ SRCS =	src/main.c \
 		builtins/dot.c \
 		executor/executor.c \
 		executor/utils.c \
+		executor/external_command.c \
+		executor/pipeline_utils.c \
+		executor/single_command.c \
 		executor/pipeline.c \
 		executor/commands.c \
 		executor/heredocs.c \
