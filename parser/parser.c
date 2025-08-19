@@ -3,29 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:51:08 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/08 07:16:39 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/19 18:21:42 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//Ana Parser Dosyası
-
-// Bu dosya, token listesini alıp komut ağacını inşa eden ana mantığı içerir.
-
-// Parser'ın Mantığı:
-
-// 1.  Ana `parser` fonksiyonu, token listesini baştan sona gezer.
-// 2.  Her `PIPE` token'ı gördüğünde veya listenin sonunda, bir "basit komut" grubunun bittiğini anlar.
-// 3.  Bir basit komut grubunu işlemek için bir yardımcı fonksiyon çağırır.
-// 4.  Bu yardımcı, token'ları `args` (argümanlar) ve `redirections` (yönlendirmeler) olarak ayırır.
-// 5.  Sonuç olarak, birbirine `next` ile bağlanmış `t_command_chain` düğümlerinden oluşan bir liste (bizim AST'miz) oluşturur.,
-
-
 #include "minishell.h"
 
-// Yeni bir t_command_node yapısı oluşturur ve içini başlatır.
 static t_simple_command	*create_simple_cmd(void)
 {
 	t_simple_command *cmd;
@@ -38,7 +24,6 @@ static t_simple_command	*create_simple_cmd(void)
 	return (cmd);
 }
 
-// Oluşturulan yeni komut düğümünü zincirin sonuna ekler.
 static void	add_cmd_to_chain(t_command_chain **head, t_command_chain *new_node)
 {
 	t_command_chain	*current;
@@ -53,10 +38,7 @@ static void	add_cmd_to_chain(t_command_chain **head, t_command_chain *new_node)
 		current = current->next;
 	current->next = new_node;
 }
-/*
- * Bir yönlendirme token'ı ve onun dosya adını işler.
- * Başarılı olursa 0, syntax hatası olursa -1 döndürür.
- */
+
 static int	handle_redirection(t_token **token_cursor, t_simple_command *cmd)
 {
 	t_redir	*redir;
