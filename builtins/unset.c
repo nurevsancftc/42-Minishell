@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 05:13:00 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/18 23:24:47 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/19 15:41:24 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ static void	remove_node_from_list(const char *key_to_remove, t_shell *shell)
 			else
 				previous->next = current->next;
 			ft_lstdelone(current, free_env_content);
-			return;
+			return ;
 		}
 		previous = current;
 		current = current->next;

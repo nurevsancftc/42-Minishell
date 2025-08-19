@@ -12,6 +12,7 @@ SRCS =	src/main.c \
 		builtins/export.c \
 		builtins/unset.c \
 		builtins/utils.c \
+		builtins/utils_2.c \
 		builtins/exit.c \
 		builtins/pwd.c \
 		builtins/dot.c \
