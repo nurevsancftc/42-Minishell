@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:58:42 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 22:25:53 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/19 22:35:11 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,10 @@ char	*expand_word(const char *word, t_shell *shell)
 		if (quote_type == 0 && (*word == '\'' || *word == '"'))
 			quote_type = *word++;
 		else if (quote_type != 0 && *word == quote_type)
-			quote_type = 0, word++;
+		{
+			quote_type = 0;
+			word++;
+		}
 		else if (quote_type != '\'' && *word == '$')
 			new_word = append_expanded_var(new_word, &word, shell);
 		else
@@ -38,12 +41,10 @@ static void	expand_single_redir(t_redir *redir, t_shell *shell)
 	char	*temp_filename;
 
 	if (!redir || redir->type == TOKEN_HEREDOC || !redir->filename)
-		return;
-
+		return ;
 	temp_filename = redir->filename;
 	redir->filename = expand_word(temp_filename, shell);
 	free(temp_filename);
-
 	if (ft_strchr(redir->filename, ' ') || redir->filename[0] == '\0')
 	{
 		ft_putstr_fd("minishell: ", 2);
@@ -59,8 +60,7 @@ void	expand_redirections(t_simple_command *cmd, t_shell *shell)
 	t_redir	*redir;
 
 	if (!cmd || !cmd->redirections)
-		return;
-
+		return ;
 	redir_node = cmd->redirections;
 	while (redir_node)
 	{
@@ -94,8 +94,3 @@ void	expander(t_command_chain *cmd_chain, t_shell *shell)
 		cmd_chain = cmd_chain->next;
 	}
 }
-
-
-
-
-
