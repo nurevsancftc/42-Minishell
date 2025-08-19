@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:42:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/18 18:20:52 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/19 18:22:12 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,16 +14,6 @@
 
 #include "minishell.h"
 
-/**
- * @brief Bir komut satırını baştan sona işleyen ana yardımcı fonksiyon.
- * 
- * Bu fonksiyon, `main_loop`'u temiz tutmak için tüm işlem hattını
- * (lexer, parser, expander, executor) yönetir ve kendi kaynaklarını
- * temizler.
- *
- * @param line Kullanıcı tarafından girilen ham komut satırı.
- * @param shell Kabuğun genel durumu.
- */
 static int	process_line(char *line, t_shell *shell)
 {
 	t_token	*tokens;

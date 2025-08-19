@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 18:17:50 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/18 19:29:28 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/19 20:24:20 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,7 @@ void	setup_interactive_signals(void)
 void	setup_child_signals(void)
 {
 	signal(SIGINT, SIG_DFL);
+	// free_heredoc(NULL);
 	signal(SIGQUIT, SIG_DFL);
 }
 

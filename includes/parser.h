@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 18:16:07 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/19 20:33:41 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,5 +54,7 @@ void	free_env_content(void *content);
 t_command_chain	*parser(t_token *tokens);
 void			free_cmd_tree(t_command_chain *head);
 int				populate_simple_cmd(t_simple_command *cmd, t_token **token_cursor);
+int				handle_redirection(t_token **token_cursor, t_simple_command *cmd);
+void			add_cmd_to_chain(t_command_chain **head, t_command_chain *new_node);
 
 #endif
