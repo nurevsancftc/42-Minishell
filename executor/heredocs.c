@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 12:58:57 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/18 22:57:53 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/19 20:02:58 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,7 @@ static int	process_single_heredoc(t_redir *redir, t_shell *shell)
 
 	// Geçici dosya adını ve dosya tanımlayıcısını hazırla.
 	tmp_filename = ft_strdup("/tmp/minishell_heredoc_XXXXXX");
+
 	if(!tmp_filename)
 		return (-1); // Bellek hatası
 	fd = mkstemp(tmp_filename);

@@ -6,7 +6,6 @@ SRCS =	src/main.c \
 		src/expander.c \
 		src/expander_utils.c \
 		src/signals.c \
-		src/print_tokens.c \
 		builtins/cd.c \
 		builtins/echo.c \
 		builtins/env.c \
@@ -25,6 +24,7 @@ SRCS =	src/main.c \
 		parser/lexer.c \
 		parser/parser.c \
 		parser/quotes.c \
+		parser/redirections.c \
 		parser/lexer_utils.c \
 		parser/parser_utils.c \
 

@@ -15,15 +15,6 @@
 
 #include "minishell.h"
 
-/**
- * @brief Ctrl+C (SIGINT) sinyali geldiğinde çalışacak olan fonksiyon.
- * 
- * Bu fonksiyon, kabuğun kapanmasını engeller. Bunun yerine:
- * 1. Yeni bir satır basar.
- * 2. Readline'a yeni bir satıra geçtiğini söyler.
- * 3. Readline'ın mevcut girdi satırını temizler.
- * 4. Komut istemini tekrar ekrana basar.
- */
 static void	signal_handler(int signo)
 {
 	if (signo == SIGINT)
@@ -34,12 +25,7 @@ static void	signal_handler(int signo)
 		rl_redisplay();
 	}
 }
-/**
- * @brief Sinyal yöneticilerini programın başında kurar.
- * 
- * - SIGINT (Ctrl+C): `signal_handler` fonksiyonumuza yönlendirilir.
- * - SIGQUIT (Ctrl+\): Kabuğun kendisi çalışırken görmezden gelinir (ignore).
- */
+
 void	init_signals(void)
 {
 	signal(SIGINT, signal_handler);
@@ -49,8 +35,6 @@ void	init_signals(void)
 void	free_env_content(void *content)
 {
 	t_env	*env;
-	// HATA AYIKLAMA: Bu fonksiyonun çağrıldığını görelim.
-	// printf("DEBUG: free_env_content çağrıldı.\n"); 
 	env = (t_env *)content;
 	if (!env)
 		return;
