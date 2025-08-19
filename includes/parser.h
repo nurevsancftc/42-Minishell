@@ -6,48 +6,38 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/18 21:25:07 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/19 17:54:28 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// includes/parser.h
 
 #ifndef PARSER_H
 # define PARSER_H
 
 # include <stdlib.h>
 
-// --- 1. LEXER İÇİN YAPILAR ---
-
-// Girdiyi ayırdığımız token'ların türlerini tanımlayan enum.
-// Bu, parser'ın "kelime" mi "pipe" mı geldiğini anlamasını sağlar.
 typedef enum e_token_type
 {
-	TOKEN_WORD,         // Kelime (komut, argüman, dosya adı vb.)
-	TOKEN_PIPE,         // |
-	TOKEN_REDIR_IN,     // <
-	TOKEN_REDIR_OUT,    // >
-	TOKEN_REDIR_APPEND, // >>
-	TOKEN_HEREDOC,      // <<
-	TOKEN_EOF           // Girdinin sonu (End of File)
+	TOKEN_WORD,
+	TOKEN_PIPE,
+	TOKEN_REDIR_IN,
+	TOKEN_REDIR_OUT,
+	TOKEN_REDIR_APPEND,
+	TOKEN_HEREDOC,
+	TOKEN_EOF,
 }	t_token_type;
 
-// Yol durumlarını belirtmek için sabitler (enum kullanmak daha temiz)
-// Bunları minishell.h veya parser.h gibi genel bir başlık dosyasına koyabilirsiniz.
 typedef enum e_path_status
 {
-	PATH_VALID_FILE,    // Yol var ve bir dosya (veya dosya olabilir)
-	PATH_IS_DIRECTORY,  // Yol var ve bir dizin
-	PATH_NOT_FOUND,     // Yol mevcut değil
-	PATH_NO_PERMISSION  // Yol var ama erişim izni yok (şimdilik bunu eklemeyebiliriz)
+	PATH_VALID_FILE,
+	PATH_IS_DIRECTORY,
+	PATH_NOT_FOUND,
+	PATH_NO_PERMISSION
 } t_path_status;
 
-// Her bir token'ı temsil eden bağlı liste düğümü.
-// "ls -l | grep" -> [ls] -> [-l] -> [|] -> [grep]
 typedef struct s_token
 {
-	char			*value;   // Token'ın içeriği (örn: "ls", "|")
-	t_token_type	type;     // Token'ın türü
+	char			*value;
+	t_token_type	type;
 	struct s_token	*next;
 }	t_token;
 
@@ -55,27 +45,26 @@ typedef struct s_env
 {
 	char			*key;
 	char			*value;
-	// struct s_env	*next;
 }	t_env;
 
 
 typedef struct s_redir
 {
-	t_token_type	type;       // Yönlendirme tipi (T_REDIR_OUT, vb.)
-	char			*filename;  // Yönlendirilecek dosyanın adı
-	int				expand_in_heredoc; // Yeni bayrak: 1 ise evet, 0 ise hayır
+	t_token_type	type;
+	char			*filename;
+	int				expand_in_heredoc;
 }	t_redir;
 
 typedef struct s_simple_command
 {
-	char	**args;      // Komut ve argümanları (execve'e uygun)
-	t_list	*redirections; // t_redir'lerden oluşan bir liste   //LİBFT DEKİ LİST T_LİST
+	char	**args;
+	t_list	*redirections;
 }	t_simple_command;
 
 typedef struct s_command_chain
 {
-	t_simple_command		*simple_command; // Bu düğümdeki basit komut
-	struct s_command_chain	*next;       // Pipe ile sonraki komuta işaretçi
+	t_simple_command		*simple_command;
+	struct s_command_chain	*next;
 }	t_command_chain;
 
 typedef struct s_shell
@@ -88,7 +77,6 @@ typedef struct s_shell
 t_list	*create_env_list(char **envp);
 void	main_loop(t_shell *shell);
 
-// --- Fonksiyon Protototipleri ---
 
 // lexer.c
 t_token	*lexer(const char *line);
@@ -104,11 +92,7 @@ int		is_metachar(char c);
 int		is_whitespace(char c);
 void free_args(char **args);
 
-
-// # include "minishell.h"
-// Temizlik fonksiyonları
-// void		free_tokens(t_token *tokens);
-// void		free_ast(t_command_chain *ast);
+// redirection.c
 void free_token_list(t_token *head);
 void free_cmd_tree(t_command_chain *head);
 void	free_env_content(void *content);
@@ -127,12 +111,5 @@ t_list	*array_to_list(char **array);
 char	**list_to_array(t_list *list_head);
 
 char	*ft_strunquote(const char *str);
-
-
-void	print_tokens(t_token *tokens);
-
-
-
-
 
 #endif
