@@ -5,7 +5,6 @@ SRCS =	src/main.c \
 		src/env.c \
 		src/expander.c \
 		src/expander_utils.c \
-		src/expander_utils2.c \
 		src/signals.c \
 		builtins/cd.c \
 		builtins/echo.c \
@@ -18,9 +17,12 @@ SRCS =	src/main.c \
 		builtins/pwd.c \
 		builtins/dot.c \
 		executor/executor.c \
-		executor/executor_utils.c \
-		executor/executor_pipeline.c \
-		executor/executor_commands.c \
+		executor/utils.c \
+		executor/external_command.c \
+		executor/pipeline_utils.c \
+		executor/single_command.c \
+		executor/pipeline.c \
+		executor/commands.c \
 		executor/heredocs.c \
 		executor/redirections.c \
 		parser/lexer.c \
@@ -29,7 +31,6 @@ SRCS =	src/main.c \
 		parser/redirections.c \
 		parser/lexer_utils.c \
 		parser/parser_utils.c \
-
 
 CC = cc
 CFLAGS = -g -Iincludes
