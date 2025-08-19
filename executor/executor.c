@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 05:26:50 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/18 23:00:02 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/19 22:54:44 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,7 +136,7 @@ int	execute_external_command(t_simple_command *cmd, t_shell *shell, \
 	(void)full_chain;
 	
 	// Parent process için sinyal işleyicilerini ayarla
-	setup_parent_signals();
+	setup_signals(MODE_PARENT);
 	
 	pid = fork();
 	if (pid == -1)
@@ -148,7 +148,7 @@ int	execute_external_command(t_simple_command *cmd, t_shell *shell, \
 		int		error_code;
 
 		// Child process için sinyal işleyicilerini ayarla
-		setup_child_signals();
+		setup_signals(MODE_CHILD);
 
 		command = cmd->args[0];
 		envp = convert_env_list_to_array(shell);
@@ -188,7 +188,7 @@ int	execute_external_command(t_simple_command *cmd, t_shell *shell, \
 	waitpid(pid, &status, 0);
 	
 	// EBEVEYN: Interactive mod için sinyal yöneticilerini geri yükle
-	setup_interactive_signals();
+	setup_signals(MODE_INTERACTIVE);
 
 	// Çocuğun durumunu analiz et
 	if (WIFSIGNALED(status))

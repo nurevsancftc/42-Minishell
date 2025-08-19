@@ -15,34 +15,6 @@
 
 #include "minishell.h"
 
-static void	signal_handler(int signo)
-{
-	if (signo == SIGINT)
-	{
-		write(STDOUT_FILENO, "\n", 1);
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
-	}
-}
-
-void	init_signals(void)
-{
-	signal(SIGINT, signal_handler);
-	signal(SIGQUIT, SIG_IGN);
-}
-
-void	free_env_content(void *content)
-{
-	t_env	*env;
-	env = (t_env *)content;
-	if (!env)
-		return;
-	free(env->key);
-	free(env->value);
-	free(env);
-}
-
 static void	init_shell(t_shell *shell, char **envp)
 {
 	shell->env_list = create_env_list(envp);
@@ -66,10 +38,9 @@ int	main(int argc, char **argv, char **envp)
 		return (EXIT_FAILURE);
 	}
 	(void)argv;
-	init_signals();
+	setup_signals(MODE_INTERACTIVE);
 	init_shell(&shell, envp);
 	main_loop(&shell);
-
 	cleanup_shell(&shell);
 	return (shell.exit_code);
 }

@@ -6,13 +6,37 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:42:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 18:22:12 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/19 23:30:15 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-// src/main_loop.c
-
 #include "minishell.h"
+
+static int	parse_and_expand(char *line, t_shell *shell, t_token **tokens)
+{
+	*tokens = lexer(line);
+	if (!*tokens)
+	{
+		shell->exit_code = 2;
+		return (0);
+	}
+	shell->cmd_tree = parser(*tokens);
+	free_token_list(*tokens);
+	if (!shell->cmd_tree)
+	{
+		shell->exit_code = 2;
+		return (0);
+	}
+	expander(shell->cmd_tree, shell);
+	return (1);
+}
+
+static int	execute_tree(t_shell *shell)
+{
+	if (!shell->cmd_tree)
+		return (0);
+	return (executor(shell->cmd_tree, shell));
+}
 
 static int	process_line(char *line, t_shell *shell)
 {
@@ -25,35 +49,14 @@ static int	process_line(char *line, t_shell *shell)
 	if (*line)
 	{
 		add_history(line);
-		tokens = lexer(line);
-		if (tokens)
-		{
-			shell->cmd_tree = parser(tokens);
-			free_token_list(tokens);
-			if (shell->cmd_tree)
-			{
-				// --- DOĞRU SIRA BURASI ---
-				// 1. Parser'dan sonra, komutları genişlet.
-				expander(shell->cmd_tree, shell);
-
-				// 2. Genişletilmiş komutları çalıştır.
-				status = executor(shell->cmd_tree, shell);
-			}
-			else
-				shell->exit_code = 2; // Syntax hatası
-		}
-		else
-			shell->exit_code = 2; // Lexer hatası
+		if (parse_and_expand(line, shell, &tokens))
+			status = execute_tree(shell);
 	}
 	free_cmd_tree(shell->cmd_tree);
 	shell->cmd_tree = NULL;
 	return (status);
 }
 
-/**
- * @brief Kabuğun ana komut okuma ve yürütme döngüsü.
- *        Bu versiyon, döngü mantığını ve kaynak yönetimini ayırır.
- */
 void	main_loop(t_shell *shell)
 {
 	char	*line;
@@ -61,29 +64,21 @@ void	main_loop(t_shell *shell)
 
 	while (1)
 	{
-		setup_interactive_signals();
+		setup_signals(MODE_INTERACTIVE);
 		line = readline("minishell$ ");
-
 		if (g_status == STATUS_CTRL_C)
 		{
-			shell->exit_code = 130;   // `$?`'ı 1 yap.
-			g_status = STATUS_OK;   // Durumu sıfırla.
+			shell->exit_code = 130;
+			g_status = STATUS_OK;
 		}
-		if (!line) // Ctrl+D basıldı.
+		if (!line)
 		{
 			ft_putstr_fd("exit\n", 2);
-			break; // Döngüyü sonlandır.
+			break ;
 		}
-
-		// Asıl işi yapan yardımcı fonksiyonu çağır.
 		status = process_line(line, shell);
-
-		// `line` readline tarafından malloc ile ayrıldığı için her döngüde
-		// serbest bırakılmalıdır.
 		free(line);
-
-		// Eğer "exit" komutu çağrıldıysa, döngüyü sonlandır.
 		if (status == SHELL_SHOULD_EXIT)
-			break;
+			break ;
 	}
 }

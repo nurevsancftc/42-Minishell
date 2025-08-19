@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 12:58:57 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 20:02:58 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/19 22:59:00 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ static void	child_heredoc_routine(t_redir *redir, int fd, t_shell *shell)
 
 	// 1. ADIM: Bu çocuk sürecin sinyal davranışını ayarla.
 	// SIGINT (Ctrl+C) varsayılan davranışa (terminate) ayarlanır.
-	setup_child_signals();
+	setup_signals(MODE_CHILD);
 
 	while (1)
 	{
@@ -116,7 +116,7 @@ static int	process_single_heredoc(t_redir *redir, t_shell *shell)
 	
 	waitpid(pid, &status, 0);
 	// 2. EBEVEYN: Bekleme bitti, sinyalleri normale döndür.
-	setup_interactive_signals();
+	setup_signals(MODE_INTERACTIVE);
 	// 3. EBEVEYN: Çocuğun nasıl sonlandığını kontrol et.
 	// 4. Çocuğun çıkış durumunu kontrol et.
 	if (WIFSIGNALED(status)) // Önce bir sinyalle mi öldü diye genel kontrol yap
