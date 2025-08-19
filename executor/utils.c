@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:49:43 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/20 01:47:26 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/20 01:55:12 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ char	*get_command_path(char *cmd, t_shell *shell)
 	return (executable_path);
 }
 
-static int	populate_env_array(char **env_array, t_list *env_list)
+int	populate_env_array(char **env_array, t_list *env_list)
 {
 	t_env	*env;
 	char	*temp;
@@ -97,7 +97,7 @@ static int	populate_env_array(char **env_array, t_list *env_list)
 	return (0);
 }
 
-static int	count_valid_env_vars(t_list *env_list)
+int	count_valid_env_vars(t_list *env_list)
 {
 	int		count;
 	t_env	*env;
