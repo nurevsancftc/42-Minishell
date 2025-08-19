@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 18:22:25 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 22:20:26 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/19 23:33:55 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ char	**list_to_array(t_list *list_head)
 
 int	is_originally_quoted(const char *original_word)
 {
-	int len;
+	int	len;
 
 	if (!original_word)
 		return (0);
@@ -79,7 +79,8 @@ int	is_originally_quoted(const char *original_word)
 	return (0);
 }
 
-char	*append_expanded_var(char *new_word, const char **word_ptr, t_shell *shell)
+char	*append_expanded_var(char *new_word, const char **word_ptr,
+	t_shell *shell)
 {
 	char	*expanded_var;
 	char	*temp;
@@ -93,8 +94,12 @@ char	*append_expanded_var(char *new_word, const char **word_ptr, t_shell *shell)
 
 char	*append_char(char *new_word, char c)
 {
-	char	temp_str[2] = {c, '\0'};
-	char	*temp = ft_strjoin(new_word, temp_str);
+	char	temp_str[2];
+	char	*temp;
+
+	temp_str[0] = c;
+	temp_str[1] = '\0';
+	temp = ft_strjoin(new_word, temp_str);
 	free(new_word);
 	return (temp);
 }

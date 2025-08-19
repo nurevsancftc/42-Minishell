@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:48:26 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/18 18:23:51 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/19 23:05:24 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,8 +185,7 @@ void	execute_pipeline(t_command_chain *cmd_chain, t_shell *shell)
 			// 1. ADIM: Sinyal yöneticilerini sıfırla.
 			// Pipeline'daki her bir çocuk, sinyallere bağımsız olarak
 			// tepki verebilmelidir.
-			signal(SIGINT, SIG_DFL);
-			signal(SIGQUIT, SIG_DFL);
+			setup_signals(MODE_CHILD);
 			
 			setup_child_io(current_cmd, pipe_fds, input_fd);
 			child_routine(current_cmd->simple_command, shell);
