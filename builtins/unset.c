@@ -3,21 +3,20 @@
 /*                                                        :::      ::::::::   */
 /*   unset.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 05:13:00 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/20 21:44:10 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/21 00:11:19 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	remove_env_var(const char *arg, t_shell *shell)
+static void remove_env_var(const char *arg, t_shell *shell)
 {
-	t_list	*current;
-	t_list	*prev;
-	t_env	*env;
-
+	t_list  *current;
+	t_list  *prev;
+	t_env   *env;
 	current = shell->env_list;
 	prev = NULL;
 	while (current)
@@ -36,17 +35,52 @@ static void	remove_env_var(const char *arg, t_shell *shell)
 		current = current->next;
 	}
 }
-
-int	ft_unset(char **args, t_shell *shell)
+static int  check_unset_arg_errors(char *arg, t_shell *shell)
 {
-	int	i;
-
-	i = 1;
-	while (args[i])
+	char    *semicolon_pos;
+	semicolon_pos = ft_strchr(arg, ';');
+	if (semicolon_pos && *(semicolon_pos + 1) != '\0')
 	{
-		if (is_valid_identifier(args[i]))
-			remove_env_var(args[i], shell);
-		i++;
+		*semicolon_pos = '\0';
+		if (is_valid_identifier(arg))
+			remove_env_var(arg, shell);
+		ft_putstr_fd(semicolon_pos + 1, 2);
+		ft_putstr_fd(": command not found\n", 2);
+		*semicolon_pos = ';';
+		return (127);
+	}
+	if (arg[0] == '-' && arg[1] != '\0')
+	{
+		ft_putstr_fd("minishell: unset: ", 2);
+		ft_putstr_fd(arg, 2);
+		ft_putstr_fd(": invalid option\n", 2);
+		return (2);
 	}
 	return (0);
+}
+static int  handle_unset_arg(char *arg, t_shell *shell)
+{
+	int error_status;
+	error_status = check_unset_arg_errors(arg, shell);
+	if (error_status != 0)
+		return (error_status);
+	if (is_valid_identifier(arg))
+		remove_env_var(arg, shell);
+	return (0);
+}
+int ft_unset(char **args, t_shell *shell)
+{
+	int i;
+	int exit_status;
+	int arg_status;
+	i = 1;
+	exit_status = 0;
+	while (args[i])
+	{
+		arg_status = handle_unset_arg(args[i], shell);
+		if (arg_status == 2 || arg_status == 127)
+			return (arg_status);
+		i++;
+	}
+	return (exit_status);
 }
