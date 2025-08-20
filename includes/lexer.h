@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 17:56:40 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/20 18:53:42 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/21 02:43:13 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,5 +52,6 @@ t_token				*create_token(const char *value, t_token_type type);
 void				add_token_to_list(t_token **list, t_token *new_token);
 t_delimiter_type	is_delimiter(char c);
 int					skip_quote(const char *line, int i);
+void				print_syntax_error(char *str);
 
 #endif

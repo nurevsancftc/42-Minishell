@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser_utils2.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 21:28:14 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/20 21:31:39 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/21 02:44:22 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

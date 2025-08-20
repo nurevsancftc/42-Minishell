@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   signals.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/18 18:17:50 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 23:26:03 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/21 02:22:30 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,6 @@ void	parent_signal_handler(int signo)
 	else if (signo == SIGQUIT)
 	{
 		g_status = STATUS_QUIT;
-		write(STDOUT_FILENO, "Quit (core dumped)\n", 19);
+		write(STDERR_FILENO, "Quit (core dumped)\n", 19);
 	}
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/02 19:11:22 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 22:05:02 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/21 02:42:54 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,11 @@ static int	handle_greater(const char *line, t_token **token_list)
 	else
 	{
 		if (*(line + 1) == '<')
-			printf("minishell: syntax error near unexpected token `<'\n");
+			print_syntax_error("`<'\n");
 		else if (*(line + 2) == '>')
-			printf("minishell: syntax error near unexpected token `>'\n");
+			print_syntax_error("`>'\n");
 		else if (*(line + 2) == '<')
-			printf("minishell: syntax error near unexpected token `<'\n");
+			print_syntax_error("`<'\n");
 		return (-1);
 	}
 }
@@ -53,11 +53,11 @@ static int	handle_less(const char *line, t_token **token_list)
 	else
 	{
 		if (*(line + 1) == '>')
-			printf("minishell: syntax error near unexpected token `newline'\n");
+			print_syntax_error("`newline'\n");
 		else if (*(line + 2) == '>')
-			printf("minishell: syntax error near unexpected token `>'\n");
+			print_syntax_error("`>'\n");
 		else if (*(line + 2) == '<')
-			printf("minishell: syntax error near unexpected token `<'\n");
+			print_syntax_error("`<'\n");
 		return (-1);
 	}
 }
