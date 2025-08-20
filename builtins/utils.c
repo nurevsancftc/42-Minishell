@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 04:15:29 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/19 15:39:17 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/21 02:11:58 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ t_list	*find_env_node(t_list *env_list, const char *key)
 	{
 		current_env = (t_env *)env_list->content;
 		if (current_env && current_env->key \
-			&& strcmp(current_env->key, key) == 0)
+			&& ft_strcmp(current_env->key, key) == 0)
 		{
 			return (env_list);
 		}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cd.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 19:16:08 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/18 23:18:22 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/21 02:12:14 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static int	get_target_path(char **args, t_shell *shell, char **path)
 {
-	if (args[1] == NULL || strcmp(args[1], "~") == 0)
+	if (args[1] == NULL || ft_strcmp(args[1], "~") == 0)
 	{
 		*path = get_env_value(shell->env_list, "HOME");
 		if (*path == NULL)
@@ -23,7 +23,7 @@ static int	get_target_path(char **args, t_shell *shell, char **path)
 			return (1);
 		}
 	}
-	else if (strcmp(args[1], "-") == 0)
+	else if (ft_strcmp(args[1], "-") == 0)
 	{
 		*path = get_env_value(shell->env_list, "OLDPWD");
 		if (*path == NULL)
