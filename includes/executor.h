@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:50:13 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/20 19:11:42 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/20 21:12:06 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,5 +44,6 @@ void	restore_fds(int original_fds[2]);
 int		handle_heredocs(t_command_chain *chain, t_shell *shell);
 int		count_valid_env_vars(t_list *env_list);
 int		populate_env_array(char **env_array, t_list *env_list);
+int		ft_strcmp(const char *s1, const char *s2);
 
 #endif
