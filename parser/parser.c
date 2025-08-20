@@ -6,11 +6,41 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:51:08 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/20 19:11:42 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/20 19:33:03 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static int	validate_syntax(t_token *tokens)
+{
+	t_token	*current;
+
+	current = tokens;
+	if (current && current->type == TOKEN_PIPE)
+		return (ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", 2), 0);
+	while (current && current->type != TOKEN_EOF)
+	{
+		if ((current->type >= TOKEN_PIPE && current->type <= TOKEN_HEREDOC))
+		{
+			if (!current->next || current->next->type != TOKEN_WORD)
+			{
+				if (current->next)
+					ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
+				else
+					ft_putstr_fd("minishell: syntax error near unexpected token `newline'\n", 2);
+				if (current->next)
+				{
+					ft_putstr_fd(current->next->value, 2);
+					ft_putstr_fd("'\n", 2);
+				}
+				return (0);
+			}
+		}
+		current = current->next;
+	}
+	return (1);
+}
 
 static t_simple_command	*create_simple_command(void)
 {
@@ -64,6 +94,8 @@ static t_command_chain	*parse_pipeline(t_token **tokens)
 
 	head = NULL;
 	token_cursor = *tokens;
+	if (token_cursor && token_cursor->type == TOKEN_EOF)
+		return (NULL);
 	while (token_cursor && token_cursor->type != TOKEN_EOF)
 	{
 		current_chain = ft_calloc(1, sizeof(t_command_chain));
@@ -85,6 +117,8 @@ static t_command_chain	*parse_pipeline(t_token **tokens)
 t_command_chain	*parser(t_token *tokens)
 {
 	if (!tokens)
+		return (NULL);
+	if (!validate_syntax(tokens))
 		return (NULL);
 	return (parse_pipeline(&tokens));
 }

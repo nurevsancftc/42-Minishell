@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 20:22:41 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/20 19:11:42 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/20 19:33:05 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,8 @@ int	handle_redirection(t_token **token_cursor, t_simple_command *cmd)
 
 	redir_token = *token_cursor;
 	delimiter_token = redir_token->next;
+	if (!delimiter_token)
+		return (-1);
 	redir = ft_calloc(1, sizeof(t_redir));
 	if (!redir)
 		return (-1);
