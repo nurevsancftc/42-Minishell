@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:50:13 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/20 21:12:06 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/20 23:29:55 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,12 +35,6 @@ int		execute_external_command(t_simple_command *cmd, t_shell *shell, \
 int		handle_redirections(t_simple_command *cmd, int original_fds[2]);
 int		execute_single_command(t_command_chain *chain_node, t_shell *shell);
 void	execute_single_command_in_child(t_simple_command *cmd, t_shell *shell);
-int		execute_external_command(t_simple_command *cmd, t_shell *shell,
-			t_command_chain *full_chain);
-void	execute_external_in_child(char **args, t_shell *shell);
-void	execute_pipeline(t_command_chain *chain, t_shell *shell);
-int		handle_redirections(t_simple_command *cmd, int original_fds[2]);
-void	restore_fds(int original_fds[2]);
 int		handle_heredocs(t_command_chain *chain, t_shell *shell);
 int		count_valid_env_vars(t_list *env_list);
 int		populate_env_array(char **env_array, t_list *env_list);
