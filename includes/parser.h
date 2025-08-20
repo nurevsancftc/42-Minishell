@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.h                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/20 21:31:49 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/20 22:28:47 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ typedef struct s_redir_ctx
 {
 	int	*in_fd;
 	int	*out_fd;
-	int	*original_fds; // [0]=stdin copy, [1]=stdout copy
+	int	*original_fds;
 }	t_redir_ctx;
 
 void			main_loop(t_shell *shell);

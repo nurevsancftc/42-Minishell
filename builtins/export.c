@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 04:19:35 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/20 21:45:50 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/20 22:27:19 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,40 +38,45 @@ static int	print_export_error(char *key)
 	return (1);
 }
 
+static void	split_arg(char *arg, char **equals_sign, char **key, char **value)
+{
+	*equals_sign = ft_strchr(arg, '=');
+	if (*equals_sign != NULL)
+	{
+		**equals_sign = '\0';
+		*key = arg;
+		*value = *equals_sign + 1;
+	}
+	else
+	{
+		*key = arg;
+		*value = NULL;
+	}
+}
+
 static int	handle_export_argument(char *arg, t_shell *shell)
 {
 	char	*key;
 	char	*value;
-	char	*equals_sign;
+	char	*eq;
 
-	equals_sign = ft_strchr(arg, '=');
-	if (equals_sign != NULL)
-	{
-		*equals_sign = '\0';
-		key = arg;
-		value = equals_sign + 1;
-	}
-	else
-	{
-		key = arg;
-		value = NULL;
-	}
+	split_arg(arg, &eq, &key, &value);
 	if (is_valid_identifier(key) == 0)
 	{
 		print_export_error(arg);
-		if (equals_sign)
-			*equals_sign = '=';
+		if (eq)
+			*eq = '=';
 		return (1);
 	}
 	if (value == NULL && find_env_node(shell->env_list, key) != NULL)
 	{
-		if (equals_sign)
-			*equals_sign = '=';
+		if (eq)
+			*eq = '=';
 		return (0);
 	}
 	update_or_create_env(shell, key, value);
-	if (equals_sign)
-		*equals_sign = '=';
+	if (eq)
+		*eq = '=';
 	return (0);
 }
 
