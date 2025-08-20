@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/25 03:33:33 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/20 21:07:47 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/20 21:31:49 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,5 +72,8 @@ void			add_cmd_to_chain(t_command_chain **head,
 					t_command_chain *new_node);
 
 void			free_args(char **args);
+
+int				syntax_error_unexpected_token(t_token *token);
+int				add_argument(t_list **arg_list, t_token **token_cursor);
 
 #endif
