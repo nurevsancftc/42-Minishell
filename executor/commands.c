@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   executor_commands.c                                :+:      :+:    :+:   */
+/*   commands.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:55:03 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/20 01:27:47 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/20 16:32:31 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,29 +35,12 @@ int	is_builtin(char *cmd)
 	return (0);
 }
 
-static int	handle_exit_builtin(char **args, t_shell *shell)
-{
-	int	status;
-
-	if (ft_strcmp(args[0], "exit") == 0)
-	{
-		status = ft_exit(args, shell);
-		if (status != SHELL_SHOULD_EXIT)
-			shell->exit_code = status;
-		return (status);
-	}
-	return (-1);
-}
-
 int	execute_builtin(char **args, t_shell *shell)
 {
-	int	ret;
-
 	if (!args || !args[0])
 		return (1);
-	ret = handle_exit_builtin(args, shell);
-	if (ret != -1)
-		return (ret);
+	if (ft_strcmp(args[0], "exit") == 0)
+		return (ft_exit(args, shell));
 	if (ft_strcmp(args[0], "echo") == 0)
 		return (ft_echo(args, shell));
 	if (ft_strcmp(args[0], "cd") == 0)
