@@ -6,91 +6,70 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:48:26 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/20 01:29:56 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/20 18:58:42 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	setup_child_io(t_command_chain *current_cmd, int pipe_fds[2],
-														int input_fd)
+static void	child_process_routine(t_command_chain *node, t_shell *shell,
+		int *pipe_fds, int in_fd)
 {
-	if (input_fd != STDIN_FILENO)
+	setup_signals(MODE_CHILD);
+	if (in_fd != STDIN_FILENO)
 	{
-		dup2(input_fd, STDIN_FILENO);
-		close(input_fd);
+		dup2(in_fd, STDIN_FILENO);
+		close(in_fd);
 	}
-	if (current_cmd->next)
-	{
-		dup2(pipe_fds[1], STDOUT_FILENO);
-	}
-	if (current_cmd->next)
+	if (node->next)
 	{
 		close(pipe_fds[0]);
+		dup2(pipe_fds[1], STDOUT_FILENO);
 		close(pipe_fds[1]);
 	}
+	execute_single_command_in_child(node->simple_command, shell);
 }
 
-static void	child_routine(t_simple_command *cmd, t_shell *shell)
+static int	wait_for_children(pid_t last_pid, t_shell *shell)
 {
-	int	exit_code;
-	int	temp_original_fds[2];
+	int	status;
+	int	last_status;
 
-	if (handle_redirections(cmd, temp_original_fds) == -1)
-	{
-		cleanup_and_exit(shell, 1);
-	}
-	if (cmd && cmd->args && cmd->args[0] && is_builtin(cmd->args[0]))
-	{
-		exit_code = execute_builtin(cmd->args, shell);
-		cleanup_and_exit(shell, exit_code);
-	}
-	else
-	{
-		execute_external_in_child(cmd->args, shell);
-	}
+	last_status = 0;
+	waitpid(last_pid, &last_status, 0);
+	update_status_from_wait(last_status, shell);
+	while (wait(&status) > 0)
+		;
+	setup_signals(MODE_INTERACTIVE);
+	return (shell->exit_code);
 }
 
-static pid_t	spawn_pipeline_child(t_command_chain *cmd,
-					t_shell *shell, int pipe_fds[2], int input_fd)
+void	execute_pipeline(t_command_chain *chain, t_shell *shell)
 {
+	int		pipe_fds[2];
+	int		in_fd;
 	pid_t	pid;
+	pid_t	last_pid;
 
-	if (cmd->next && pipe(pipe_fds) == -1)
-		return (perror("minishell: pipe"), -1);
-	pid = fork();
-	if (pid == -1)
-		return (perror("minishell: fork"), -1);
-	if (pid == 0)
-	{
-		setup_signals(MODE_CHILD);
-		setup_child_io(cmd, pipe_fds, input_fd);
-		child_routine(cmd->simple_command, shell);
-	}
-	return (pid);
-}
-
-void	execute_pipeline(t_command_chain *cmd_chain, t_shell *shell)
-{
-	int				pipe_fds[2];
-	int				input_fd;
-	pid_t			last_pid;
-	t_command_chain	*current;
-
-	input_fd = STDIN_FILENO;
+	in_fd = STDIN_FILENO;
 	last_pid = -1;
-	current = cmd_chain;
-	while (current)
+	setup_signals(MODE_PARENT);
+	while (chain)
 	{
-		last_pid = spawn_pipeline_child(current, shell, pipe_fds, input_fd);
-		if (input_fd != STDIN_FILENO)
-			close(input_fd);
-		if (current->next)
+		if (chain->next)
+			pipe(pipe_fds);
+		pid = fork();
+		if (pid == 0)
+			child_process_routine(chain, shell, pipe_fds, in_fd);
+		if (in_fd != STDIN_FILENO)
+			close(in_fd);
+		if (chain->next)
 		{
 			close(pipe_fds[1]);
-			input_fd = pipe_fds[0];
+			in_fd = pipe_fds[0];
 		}
-		current = current->next;
+		last_pid = pid;
+		chain = chain->next;
 	}
-	wait_for_all_children(last_pid, shell);
+	wait_for_children(last_pid, shell);
 }

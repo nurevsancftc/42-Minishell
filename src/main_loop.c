@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main_loop.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 16:42:35 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 23:30:15 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/20 18:36:52 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,8 @@ void	main_loop(t_shell *shell)
 		}
 		if (!line)
 		{
-			ft_putstr_fd("exit\n", 2);
+			if (isatty(STDIN_FILENO))
+				ft_putstr_fd("exit\n", STDOUT_FILENO);
 			break ;
 		}
 		status = process_line(line, shell);

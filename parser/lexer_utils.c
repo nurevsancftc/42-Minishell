@@ -3,25 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   lexer_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 19:09:31 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 20:13:31 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/20 18:56:04 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	is_delimiter(char c)
+t_delimiter_type	is_delimiter(char c)
 {
-	if (c == ' ' || c == '\t' || c == '\n')
+	if (c == ' ' || c == '\t' || c == '\n' || c == '\v' || c == '\f'
+		|| c == '\r')
 		return (DELIM_WHITESPACE);
 	if (c == '|' || c == '<' || c == '>')
 		return (DELIM_METACHAR);
 	return (DELIM_NONE);
 }
 
-t_token	*create_token(char *value, t_token_type type)
+t_token	*create_token(const char *value, t_token_type type)
 {
 	t_token	*new_token;
 
@@ -71,16 +72,17 @@ void	free_token_list(t_token *head)
 
 int	skip_quote(const char *line, int i)
 {
-	char	quote_char;
+	char	quote;
 
-	quote_char = line[i];
+	quote = line[i];
 	i++;
-	while (line[i] && line[i] != quote_char)
-		i++;
-	if (line[i] == '\0')
+	while (line[i] && line[i] != quote)
 	{
-		ft_putstr_fd("minishell: syntax error: unclosed quote\n", 2);
-		return (-1);
+		i++;
 	}
-	return (i + 1);
+	if (line[i] == quote)
+	{
+		i++;
+	}
+	return (i);
 }

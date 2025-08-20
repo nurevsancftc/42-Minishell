@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirections.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 20:22:41 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 20:31:33 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/20 19:11:42 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ static int	set_redir_filename(t_redir *redir, char *delimiter)
 	}
 	else
 	{
+		if (delimiter[0] == '\'' || delimiter[0] == '"')
+			redir->was_quoted = 1;
 		redir->expand_in_heredoc = 0;
 		redir->filename = ft_strdup(delimiter);
 	}
@@ -59,6 +61,7 @@ int	handle_redirection(t_token **token_cursor, t_simple_command *cmd)
 	if (!redir)
 		return (-1);
 	redir->type = redir_token->type;
+	redir->was_quoted = 0;
 	if (set_redir_filename(redir, delimiter_token->value) == -1)
 		return (free(redir), -1);
 	if (add_redir_to_cmd(redir, cmd) == -1)

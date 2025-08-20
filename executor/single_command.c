@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 01:30:25 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/20 01:30:33 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/20 19:11:42 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,26 @@ void	update_status_from_wait(int status, t_shell *shell)
 	}
 	else if (WIFEXITED(status))
 		shell->exit_code = WEXITSTATUS(status);
+}
+
+void	execute_single_command_in_child(t_simple_command *cmd, t_shell *shell)
+{
+	int	original_fds[2];
+	int	exit_code;
+
+	if (handle_redirections(cmd, original_fds) == -1)
+		cleanup_and_exit(shell, 1);
+	if (!cmd->args || !cmd->args[0])
+		cleanup_and_exit(shell, 0);
+	if (is_builtin(cmd->args[0]))
+	{
+		exit_code = execute_builtin(cmd->args, shell);
+		cleanup_and_exit(shell, exit_code);
+	}
+	else
+	{
+		execute_external_in_child(cmd->args, shell);
+	}
 }
 
 int	execute_single_command(t_command_chain *chain_node, t_shell *shell)

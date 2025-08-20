@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   expander.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:58:42 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 22:35:11 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/20 19:11:42 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,8 @@ static void	expand_single_redir(t_redir *redir, t_shell *shell)
 	temp_filename = redir->filename;
 	redir->filename = expand_word(temp_filename, shell);
 	free(temp_filename);
-	if (ft_strchr(redir->filename, ' ') || redir->filename[0] == '\0')
+	if (!redir->was_quoted && (ft_strchr(redir->filename, ' ')
+			|| redir->filename[0] == '\0'))
 	{
 		ft_putstr_fd("minishell: ", 2);
 		ft_putstr_fd(redir->filename, 2);

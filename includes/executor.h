@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   executor.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:50:13 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/20 16:19:42 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/20 19:11:42 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,14 @@ int		execute_external_command(t_simple_command *cmd, t_shell *shell, \
 	t_command_chain *full_chain);
 int		handle_redirections(t_simple_command *cmd, int original_fds[2]);
 int		execute_single_command(t_command_chain *chain_node, t_shell *shell);
-int		get_path_status(const char *path);
-int		ft_strcmp(const char *s1, const char *s2);
-int		handle_heredocs(t_command_chain *cmd_chain, t_shell *shell);
+void	execute_single_command_in_child(t_simple_command *cmd, t_shell *shell);
+int		execute_external_command(t_simple_command *cmd, t_shell *shell,
+			t_command_chain *full_chain);
+void	execute_external_in_child(char **args, t_shell *shell);
+void	execute_pipeline(t_command_chain *chain, t_shell *shell);
+int		handle_redirections(t_simple_command *cmd, int original_fds[2]);
+void	restore_fds(int original_fds[2]);
+int		handle_heredocs(t_command_chain *chain, t_shell *shell);
 int		count_valid_env_vars(t_list *env_list);
 int		populate_env_array(char **env_array, t_list *env_list);
 
