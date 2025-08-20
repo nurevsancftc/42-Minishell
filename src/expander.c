@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/05 17:58:42 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/20 19:11:42 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/21 00:54:46 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,19 +39,27 @@ char	*expand_word(const char *word, t_shell *shell)
 static void	expand_single_redir(t_redir *redir, t_shell *shell)
 {
 	char	*temp_filename;
+	char	*orig;  // orijinal token
 
 	if (!redir || redir->type == TOKEN_HEREDOC || !redir->filename)
 		return ;
+	orig = redir->filename;                // orijinal token'ı tut
 	temp_filename = redir->filename;
 	redir->filename = expand_word(temp_filename, shell);
 	free(temp_filename);
-	if (!redir->was_quoted && (ft_strchr(redir->filename, ' ')
-			|| redir->filename[0] == '\0'))
+
+	// Ambiguous redirect kontrolü: unquoted ve ya boş ya da boşluk içeriyor
+	if (!redir->was_quoted && (redir->filename[0] == '\0'
+			|| ft_strchr(redir->filename, ' ')))
 	{
+		// Bash çıktısına uygun: orijinal token ile yaz
 		ft_putstr_fd("minishell: ", 2);
-		ft_putstr_fd(redir->filename, 2);
+		ft_putstr_fd(orig, 2);
 		ft_putstr_fd(": ambiguous redirect\n", 2);
+		free(redir->filename);
+		redir->filename = NULL;            // İşaretle: bu redir uygulanmayacak
 		shell->exit_code = 1;
+		return ;
 	}
 }
 
@@ -73,18 +81,26 @@ void	expand_redirections(t_simple_command *cmd, t_shell *shell)
 
 void	expand_simple_command(t_simple_command *cmd, t_shell *shell)
 {
-	t_list	*arg_list;
+    t_list  *arg_list;
 
-	if (!cmd || !cmd->args)
-		return ;
-	arg_list = array_to_list(cmd->args);
-	if (!arg_list)
-		return ;
-	expand_args_list(&arg_list, shell);
-	expand_redirections(cmd, shell);
-	free_args(cmd->args);
-	cmd->args = list_to_array(arg_list);
-	ft_lstclear(&arg_list, free);
+    if (!cmd)
+        return ;
+
+    // 1) Redirection'ları HER ZAMAN expand et
+    expand_redirections(cmd, shell);
+
+    // 2) Argüman yoksa burada dur
+    if (!cmd->args)
+        return ;
+
+    // 3) (Var ise) argümanları expand et
+    arg_list = array_to_list(cmd->args);
+    if (!arg_list)
+        return ;
+    expand_args_list(&arg_list, shell);
+    free_args(cmd->args);
+    cmd->args = list_to_array(arg_list);
+    ft_lstclear(&arg_list, free);
 }
 
 void	expander(t_command_chain *cmd_chain, t_shell *shell)
