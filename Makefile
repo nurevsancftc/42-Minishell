@@ -26,6 +26,8 @@ SRCS =	src/main.c \
 		executor/pipeline.c \
 		executor/commands.c \
 		executor/heredocs.c \
+		executor/heredoc_child.c \
+		executor/heredoc_utils.c \
 		executor/redirections.c \
 		parser/lexer.c \
 		parser/parser.c \
