@@ -18,10 +18,16 @@ SRCS =	src/main.c \
 		builtins/pwd.c \
 		builtins/dot.c \
 		executor/executor.c \
-		executor/executor_utils.c \
-		executor/executor_pipeline.c \
-		executor/executor_commands.c \
+		executor/utils.c \
+		executor/utils_2.c \
+		executor/external_command.c \
+		executor/pipeline_utils.c \
+		executor/single_command.c \
+		executor/pipeline.c \
+		executor/commands.c \
 		executor/heredocs.c \
+		executor/heredoc_child.c \
+		executor/heredoc_utils.c \
 		executor/redirections.c \
 		parser/lexer.c \
 		parser/parser.c \
@@ -29,7 +35,6 @@ SRCS =	src/main.c \
 		parser/redirections.c \
 		parser/lexer_utils.c \
 		parser/parser_utils.c \
-
 
 CC = cc
 CFLAGS = -g -Iincludes
