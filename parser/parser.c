@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:51:08 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/20 19:33:03 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/20 21:31:33 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,24 +18,16 @@ static int	validate_syntax(t_token *tokens)
 
 	current = tokens;
 	if (current && current->type == TOKEN_PIPE)
-		return (ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", 2), 0);
+	{
+		ft_putstr_fd("minishell: syntax error near unexpected token `|'\n", 2);
+		return (0);
+	}
 	while (current && current->type != TOKEN_EOF)
 	{
 		if ((current->type >= TOKEN_PIPE && current->type <= TOKEN_HEREDOC))
 		{
 			if (!current->next || current->next->type != TOKEN_WORD)
-			{
-				if (current->next)
-					ft_putstr_fd("minishell: syntax error near unexpected token `", 2);
-				else
-					ft_putstr_fd("minishell: syntax error near unexpected token `newline'\n", 2);
-				if (current->next)
-				{
-					ft_putstr_fd(current->next->value, 2);
-					ft_putstr_fd("'\n", 2);
-				}
-				return (0);
-			}
+				return (syntax_error_unexpected_token(current->next));
 		}
 		current = current->next;
 	}
@@ -57,8 +49,6 @@ static t_simple_command	*create_simple_command(void)
 int	populate_simple_cmd(t_simple_command *cmd, t_token **token_cursor)
 {
 	t_list	*arg_list;
-	t_list	*new_node;
-	char	*arg_val;
 
 	arg_list = NULL;
 	while (*token_cursor && (*token_cursor)->type != TOKEN_PIPE)
@@ -71,14 +61,8 @@ int	populate_simple_cmd(t_simple_command *cmd, t_token **token_cursor)
 		}
 		else if ((*token_cursor)->type == TOKEN_WORD)
 		{
-			arg_val = ft_strdup((*token_cursor)->value);
-			if (!arg_val)
-				return (ft_lstclear(&arg_list, free), -1);
-			new_node = ft_lstnew(arg_val);
-			if (!new_node)
-				return (free(arg_val), ft_lstclear(&arg_list, free), -1);
-			ft_lstadd_back(&arg_list, new_node);
-			*token_cursor = (*token_cursor)->next;
+			if (add_argument(&arg_list, token_cursor) == -1)
+				return (-1);
 		}
 	}
 	cmd->args = list_to_array(arg_list);

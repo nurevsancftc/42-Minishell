@@ -35,6 +35,7 @@ SRCS =	src/main.c \
 		parser/redirections.c \
 		parser/lexer_utils.c \
 		parser/parser_utils.c \
+		parser/parser_utils2.c \
 
 CC = cc
 CFLAGS = -g -Iincludes

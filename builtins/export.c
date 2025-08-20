@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 04:19:35 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/20 19:11:42 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/20 21:45:50 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,10 +57,21 @@ static int	handle_export_argument(char *arg, t_shell *shell)
 		value = NULL;
 	}
 	if (is_valid_identifier(key) == 0)
-		return (print_export_error(key));
+	{
+		print_export_error(arg);
+		if (equals_sign)
+			*equals_sign = '=';
+		return (1);
+	}
 	if (value == NULL && find_env_node(shell->env_list, key) != NULL)
+	{
+		if (equals_sign)
+			*equals_sign = '=';
 		return (0);
+	}
 	update_or_create_env(shell, key, value);
+	if (equals_sign)
+		*equals_sign = '=';
 	return (0);
 }
 
