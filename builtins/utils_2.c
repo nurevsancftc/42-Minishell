@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 14:38:45 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/20 21:44:39 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/21 01:23:42 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,11 @@ int	is_valid_identifier(const char *key)
 	while (key[i])
 	{
 		if (!ft_isalnum(key[i]) && key[i] != '_')
+		{
+			if (key[i] == '+' && key[i + 1] == '\0')
+				return (1);
 			return (0);
+		}
 		i++;
 	}
 	return (1);

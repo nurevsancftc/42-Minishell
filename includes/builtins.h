@@ -6,7 +6,7 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 15:08:06 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/20 01:25:25 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/21 01:27:10 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,5 +34,9 @@ int			ft_unset(char **args, t_shell *shell);
 int			is_valid_identifier(const char *key);
 int			ft_check_path_error(const char *path, const char *cmd_name);
 t_list		*find_env_node(t_list *env_list, const char *key);
+void		print_sorted_env(t_shell *shell);
+int			print_invalid_option_error(char *arg);
+int			print_export_error(char *key);
+void		split_arg(char *arg, char **key, char **value, int *is_append);
 
 #endif

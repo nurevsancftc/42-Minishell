@@ -6,77 +6,46 @@
 /*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 04:19:35 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/20 22:27:19 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/21 01:29:25 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-#include <stdio.h>
 
-static void	print_sorted_env(t_shell *shell)
+static void	handle_append_or_create(t_shell *shell, char *key, char *value,
+		int is_append)
 {
-	t_list	*node;
-	t_env	*env;
+	char	*old_value;
+	char	*new_value;
 
-	node = shell->env_list;
-	while (node)
+	if (is_append)
 	{
-		env = (t_env *)node->content;
-		if (env->value)
-			printf("declare -x %s=\"%s\"\n", env->key, env->value);
+		old_value = get_env_value(shell->env_list, key);
+		if (old_value)
+		{
+			new_value = ft_strjoin(old_value, value);
+			update_or_create_env(shell, key, new_value);
+			free(new_value);
+		}
 		else
-			printf("declare -x %s\n", env->key);
-		node = node->next;
-	}
-}
-
-static int	print_export_error(char *key)
-{
-	ft_putstr_fd("minishell: export: `", STDERR_FILENO);
-	ft_putstr_fd(key, STDERR_FILENO);
-	ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
-	return (1);
-}
-
-static void	split_arg(char *arg, char **equals_sign, char **key, char **value)
-{
-	*equals_sign = ft_strchr(arg, '=');
-	if (*equals_sign != NULL)
-	{
-		**equals_sign = '\0';
-		*key = arg;
-		*value = *equals_sign + 1;
+			update_or_create_env(shell, key, value);
 	}
 	else
-	{
-		*key = arg;
-		*value = NULL;
-	}
+		update_or_create_env(shell, key, value);
 }
 
 static int	handle_export_argument(char *arg, t_shell *shell)
 {
 	char	*key;
 	char	*value;
-	char	*eq;
+	int		is_append;
 
-	split_arg(arg, &eq, &key, &value);
+	if (arg[0] == '-')
+		return (print_invalid_option_error(arg));
+	split_arg(arg, &key, &value, &is_append);
 	if (is_valid_identifier(key) == 0)
-	{
-		print_export_error(arg);
-		if (eq)
-			*eq = '=';
-		return (1);
-	}
-	if (value == NULL && find_env_node(shell->env_list, key) != NULL)
-	{
-		if (eq)
-			*eq = '=';
-		return (0);
-	}
-	update_or_create_env(shell, key, value);
-	if (eq)
-		*eq = '=';
+		return (print_export_error(arg));
+	handle_append_or_create(shell, key, value, is_append);
 	return (0);
 }
 
@@ -84,6 +53,7 @@ int	ft_export(char **args, t_shell *shell)
 {
 	int	i;
 	int	final_status;
+	int	arg_status;
 
 	final_status = 0;
 	i = 1;
@@ -94,8 +64,9 @@ int	ft_export(char **args, t_shell *shell)
 	}
 	while (args[i] != NULL)
 	{
-		if (handle_export_argument(args[i], shell) != 0)
-			final_status = 1;
+		arg_status = handle_export_argument(args[i], shell);
+		if (arg_status != 0)
+			final_status = arg_status;
 		i++;
 	}
 	return (final_status);

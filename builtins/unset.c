@@ -3,20 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   unset.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 05:13:00 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/21 00:11:19 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/21 01:15:04 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void remove_env_var(const char *arg, t_shell *shell)
+static void	remove_env_var(const char *arg, t_shell *shell)
 {
-	t_list  *current;
-	t_list  *prev;
-	t_env   *env;
+	t_list	*current;
+	t_list	*prev;
+	t_env	*env;
+
 	current = shell->env_list;
 	prev = NULL;
 	while (current)
@@ -35,9 +36,11 @@ static void remove_env_var(const char *arg, t_shell *shell)
 		current = current->next;
 	}
 }
-static int  check_unset_arg_errors(char *arg, t_shell *shell)
+
+static int	check_unset_arg_errors(char *arg, t_shell *shell)
 {
-	char    *semicolon_pos;
+	char	*semicolon_pos;
+
 	semicolon_pos = ft_strchr(arg, ';');
 	if (semicolon_pos && *(semicolon_pos + 1) != '\0')
 	{
@@ -58,9 +61,11 @@ static int  check_unset_arg_errors(char *arg, t_shell *shell)
 	}
 	return (0);
 }
-static int  handle_unset_arg(char *arg, t_shell *shell)
+
+static int	handle_unset_arg(char *arg, t_shell *shell)
 {
-	int error_status;
+	int	error_status;
+
 	error_status = check_unset_arg_errors(arg, shell);
 	if (error_status != 0)
 		return (error_status);
@@ -68,11 +73,13 @@ static int  handle_unset_arg(char *arg, t_shell *shell)
 		remove_env_var(arg, shell);
 	return (0);
 }
-int ft_unset(char **args, t_shell *shell)
+
+int	ft_unset(char **args, t_shell *shell)
 {
-	int i;
-	int exit_status;
-	int arg_status;
+	int	i;
+	int	exit_status;
+	int	arg_status;
+
 	i = 1;
 	exit_status = 0;
 	while (args[i])

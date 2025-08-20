@@ -11,6 +11,7 @@ SRCS =	src/main.c \
 		builtins/echo.c \
 		builtins/env.c \
 		builtins/export.c \
+		builtins/export_utils.c \
 		builtins/unset.c \
 		builtins/utils.c \
 		builtins/utils_2.c \
