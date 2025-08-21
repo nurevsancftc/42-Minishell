@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 08:55:03 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/21 05:59:37 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/21 16:56:10 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,16 +56,6 @@ int	execute_builtin(char **args, t_shell *shell)
 	if (ft_strcmp(args[0], ".") == 0)
 		return (ft_dot(args, shell));
 	return (127);
-}
-
-static void	child_cleanup_and_exit(t_shell *shell, int exit_code)
-{
-	if (shell)
-	{
-		ft_lstclear(&shell->env_list, free_env_content);
-	}
-	rl_clear_history();
-	exit(exit_code);
 }
 
 void	execute_external_in_child(char **args, t_shell *shell)

@@ -39,7 +39,7 @@ SRCS =	src/main.c \
 		parser/parser_utils2.c \
 
 CC = cc
-CFLAGS = -g -Iincludes
+CFLAGS = -Wall -Wextra -Werror -Iincludes
 
 OBJS = $(SRCS:.c=.o)
 
