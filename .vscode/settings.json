@@ -4,6 +4,8 @@
         "executor.h": "c",
         "builtins.h": "c",
         "libft.h": "c",
-        "unistd.h": "c"
+        "unistd.h": "c",
+        "types.h": "c",
+        "parser.h": "c"
     }
 }

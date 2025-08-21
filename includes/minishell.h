@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/03 01:38:27 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/21 06:07:42 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/21 16:32:14 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,6 @@
 # include <unistd.h>
 # include <limits.h> 
 # include <dirent.h>
-# include <stdbool.h>
 
 # include "signals.h"
 # include "lexer.h"
