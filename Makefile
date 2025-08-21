@@ -32,7 +32,6 @@ SRCS =	src/main.c \
 		executor/redirections.c \
 		parser/lexer.c \
 		parser/parser.c \
-		parser/quotes.c \
 		parser/redirections.c \
 		parser/lexer_utils.c \
 		parser/lexer_utils2.c \

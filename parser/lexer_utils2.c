@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lexer_utils2.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/21 02:42:47 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/21 02:44:07 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/21 05:19:33 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,12 +38,11 @@ int	skip_quote(const char *line, int i)
 	quote = line[i];
 	i++;
 	while (line[i] && line[i] != quote)
-	{
 		i++;
-	}
-	if (line[i] == quote)
+	if (line[i] == '\0')
 	{
-		i++;
+		ft_putstr_fd("minishell: syntax error: unclosed quote\n", 2);
+		return (-1);
 	}
-	return (i);
+	return (i + 1);
 }
