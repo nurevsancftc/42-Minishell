@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 04:15:29 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/21 02:11:58 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/21 05:38:04 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,7 @@ int	ft_check_path_error(const char *path, const char *cmd_name)
 	{
 		ft_putstr_fd("minishell: ", 2);
 		ft_putstr_fd((char *)cmd_name, 2);
-		ft_putstr_fd(": is a directory\n", 2);
+		ft_putstr_fd(": Is a directory\n", 2);
 		return (126);
 	}
 	if (access(path, X_OK) != 0)
