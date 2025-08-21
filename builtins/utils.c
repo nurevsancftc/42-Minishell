@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/01 04:15:29 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/21 05:38:04 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/21 06:14:56 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,15 +101,13 @@ void	update_or_create_env(t_shell *shell, const char *key, const char *value)
 int	ft_check_path_error(const char *path, const char *cmd_name)
 {
 	struct stat	path_stat;
+	int			ret;
 
+	ret = handle_stat_errors(path, cmd_name);
+	if (ret != 0)
+		return (ret);
 	if (stat(path, &path_stat) != 0)
-	{
-		ft_putstr_fd("minishell: ", 2);
-		ft_putstr_fd((char *)cmd_name, 2);
-		ft_putstr_fd(": ", 2);
-		perror(NULL);
-		return (127);
-	}
+		return (ret);
 	if (S_ISDIR(path_stat.st_mode))
 	{
 		ft_putstr_fd("minishell: ", 2);

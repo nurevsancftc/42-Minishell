@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_2.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 14:38:45 by nuciftci          #+#    #+#             */
-/*   Updated: 2025/08/21 01:23:42 by nuciftci         ###   ########.fr       */
+/*   Updated: 2025/08/21 06:15:05 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,4 +84,21 @@ char	*expand_heredoc_line(char *line, t_shell *shell)
 			i = j;
 	}
 	return (final_str);
+}
+
+int	handle_stat_errors(const char *path, const char *cmd_name)
+{
+	struct stat	path_stat;
+
+	if (stat(path, &path_stat) != 0)
+	{
+		ft_putstr_fd("minishell: ", 2);
+		ft_putstr_fd((char *)cmd_name, 2);
+		ft_putstr_fd(": ", 2);
+		perror(NULL);
+		if (errno == ENOENT)
+			return (127);
+		return (126);
+	}
+	return (0);
 }
