@@ -6,11 +6,9 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 19:09:45 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/19 20:46:09 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/21 16:39:25 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// parser/parser_utils.c
 
 #include "minishell.h"
 
