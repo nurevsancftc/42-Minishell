@@ -6,7 +6,7 @@
 /*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/27 18:51:08 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/20 21:31:33 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/21 05:27:04 by aldurmaz         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,8 +26,14 @@ static int	validate_syntax(t_token *tokens)
 	{
 		if ((current->type >= TOKEN_PIPE && current->type <= TOKEN_HEREDOC))
 		{
-			if (!current->next || current->next->type != TOKEN_WORD)
+			if (!current->next
+				|| (current->next->type != TOKEN_WORD
+					&& !(current->type == TOKEN_PIPE
+						&& current->next->type >= TOKEN_REDIR_IN
+						&& current->next->type <= TOKEN_HEREDOC)))
+			{
 				return (syntax_error_unexpected_token(current->next));
+			}
 		}
 		current = current->next;
 	}
