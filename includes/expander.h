@@ -3,17 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   expander.h                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aldurmaz <aldurmaz@student.42istanbul.c    +#+  +:+       +#+        */
+/*   By: nuciftci <nuciftci@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/19 18:07:07 by aldurmaz          #+#    #+#             */
-/*   Updated: 2025/08/20 00:08:19 by aldurmaz         ###   ########.fr       */
+/*   Updated: 2025/08/21 03:04:58 by nuciftci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef EXPANDER_H
 # define EXPANDER_H
-
-# include "minishell.h"
 
 void	expander(t_command_chain *cmd_chain, t_shell *shell);
 void	expand_simple_command(t_simple_command *cmd, t_shell *shell);
